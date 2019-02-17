@@ -1,0 +1,1 @@
+"%USERPROFILE%\Microsoft Robotics Dev Studio 4\CS\CsBot\Uploader\lib\clrcc\tcc.exe" -shared main.c CommonTools.c CospaceSettings.c LogErrorTools.c -o "C:\Users\hikaru\Microsoft Robotics Dev Studio 4\CS\User\Rescue\CsBot\Ninja.dll"
