@@ -8,9 +8,8 @@ new_main = None
 
 included_list = []
 
+
 # 多重インクルード回避
-
-
 def isIncludeLineCheck(line):
     line = line.replace(' ', '')
     result = re.search("#include\"\w+.h\"", line)
