@@ -7,12 +7,14 @@ tcc_path = "\"%USERPROFILE%/Microsoft Robotics Dev Studio 4/CS/CsBot/Uploader/li
 def main():
     # .cファイル一覧を作成する
     fileList = glob.glob(".\\code\\*.c")
+    print(fileList)
 
     # dll作成コマンドを作成する
     command = tcc_path + " -shared"
     for file_path in fileList:
         command = command + " " + file_path
     command = command + " -o Ninja.dll"
+    print(command)
 
     # dll作成コマンドを実効する
     subprocess.Popen(command, shell=True)

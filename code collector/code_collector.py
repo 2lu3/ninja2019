@@ -47,7 +47,7 @@ def Interpreter(data):
 def main():
     global main_data, new_main
     main_data = open(origin_dir_path + 'main.c', mode='r', encoding="utf-8")
-    new_main = open(origin_dir_path + 'new_main.c', mode='w', encoding="utf-8")
+    new_main = open('Ninja.c', mode='w', encoding="utf-8")
     Interpreter(main_data)
     # ソースファイルを最後に埋め込む
     for c_file in included_list:
