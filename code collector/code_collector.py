@@ -9,6 +9,8 @@ new_main = None
 included_list = []
 
 # 多重インクルード回避
+
+
 def isIncludeLineCheck(line):
     line = line.replace(' ', '')
     result = re.search("#include\"\w+.h\"", line)
@@ -18,10 +20,6 @@ def isIncludeLineCheck(line):
     else:
         return None
 
-# インクルードガード消去
-def isIncludeGuardLineCheck(line, ):
-    pass
-    # line = line.replace(' ', )
 
 def Interpreter(data):
     for line in data:
@@ -42,8 +40,6 @@ def Interpreter(data):
         new_main.write(line)
 
 
-
-
 def main():
     global main_data, new_main
     main_data = open(origin_dir_path + 'main.c', mode='r', encoding="utf-8")
@@ -59,7 +55,6 @@ def main():
     new_main.close()
 
     print("ソースコードのマージに成功しました")
-
 
 
 if __name__ == '__main__':
