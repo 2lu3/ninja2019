@@ -4,7 +4,7 @@
 #include "CospaceSettings.h"
 #include "LogErrorTools.h"
 // #include "JudgeAngleTools.hpp"
-// #include "JudgeColorTools.hpp"
+#include "JudgeColorTools.h"
 
 #define PI 3.14
 
@@ -26,6 +26,7 @@ void commonSetup0(void);
 void commonSetup1(void);
 void commonSetup1(void);
 void commonLoop0(void);
+void commonLoop1(void);
 
 void setAction(enum Action pushed_action);
 enum Action getAction(void);

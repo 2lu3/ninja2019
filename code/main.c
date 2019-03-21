@@ -1,5 +1,6 @@
 #include "CospaceSettings.h"
 #include "CommonTools.h"
+#include "Hikaru.h"
 
 // sprintfのエラーを無視するため
 #define _CRT_SECURE_NO_WARNINGS 1
@@ -26,19 +27,22 @@
 
 void Game0()
 {
-    if (getRepeatedNum() == 0)
-    {
-        commonSetup0();
-    }
-    commonLoop0();
-    addRepeatedNum();
+	if (getRepeatedNum() == 0)
+	{
+		commonSetup0();
+	}
+	commonLoop0();
+	localGame0();
+	addRepeatedNum();
 }
 
 void Game1()
 {
-    if (getRepeatedNum() == 0)
-    {
-        commonSetup1();
-    }
-    addRepeatedNum();
+	if (getRepeatedNum() == 0)
+	{
+		commonSetup1();
+	}
+	localGame1();
+	commonLoop1();
+	addRepeatedNum();
 }
