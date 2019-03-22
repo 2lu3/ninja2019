@@ -1,36 +1,53 @@
 #include "Hikaru.h"
 
-#define FIND_OBJ_DURATION 50
-#define DEPOSIT_OBJ_DURATION 80
+#define FIND_OBJ_DURATION 45
+#define DEPOSIT_OBJ_DURATION 45
+
+int subject[6] = {0, 0, 0, 0, 0, 0};
+
+int triger_object_num = 5;
+
+int triger(void)
+{
+  return !((LoadedObjects >= triger_object_num) || (Time > 180 && LoadedObjects >= 3));
+}
 
 void localGame0(void)
 {
+  if (IsOnTrapBlue())
+  {
+    for (int i = 0; i < sizeof(loaded_objects) / sizeof(loaded_objects[0]); i++)
+    {
+      loaded_objects[i] = 0;
+    }
+    LoadedObjects = 0;
+  }
   if (SuperDuration > 0)
   {
     SuperDuration--;
   }
-  else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < 3 && LoadedObjects < 6)
+  else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < 2 && LoadedObjects < 6)
   {
     setAction(FIND_OBJ);
     loaded_objects[CYAN_LOADED_ID]++;
     LoadedObjects++;
     SuperDuration = FIND_OBJ_DURATION;
   }
-  else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < 3 && LoadedObjects < 6)
+  else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < 2 && LoadedObjects < 6)
   {
     setAction(FIND_OBJ);
     loaded_objects[RED_LOADED_ID]++;
     LoadedObjects++;
     SuperDuration = FIND_OBJ_DURATION;
   }
-  else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < 3 && LoadedObjects < 6)
+  else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < 2 && LoadedObjects < 6)
   {
     setAction(FIND_OBJ);
     loaded_objects[BLACK_LOADED_ID]++;
     LoadedObjects++;
     SuperDuration = FIND_OBJ_DURATION;
   }
-  else if (IsOnDepositArea() && LoadedObjects > 4)
+  else if (IsOnDepositArea() && LoadedObjects >= 6)
   {
     switch (IsOnDepositArea())
     {
@@ -54,19 +71,12 @@ void localGame0(void)
   }
   else if (IsOnYellowLine())
   {
-    if (LoadedObjects < 6)
-    {
-      motor(3, -5);
-    }
-    else
-    {
-      motor(-5, -1);
-    }
-    Duration = 3;
+    setAction(YELLOW_AVOIDANCE);
+    Duration = 11;
   }
   else if (obstacle(5, 10, 5))
   {
-    if (LoadedObjects < 6)
+    if (triger())
     {
       motor(2, -2);
     }
@@ -75,7 +85,42 @@ void localGame0(void)
       motor(-2, 2);
     }
   }
-  else if (LoadedObjects >= 6 || (LoadedObjects > 3 && Time > 120))
+  else if (IsOnDepositArea() && LoadedObjects < 6)
+  {
+    if (triger())
+    {
+      motor(5, 3);
+    }
+    else
+    {
+      motor(3, 5);
+    }
+  }
+  else if (getRepeatedNum() < 100)
+  {
+    double target_angle = 360 - pow(getRepeatedNum(), 3) / pow(100, 2);
+    printf("continue %d %lf\n", getRepeatedNum(), target_angle);
+    target_angle -= Compass;
+    while (target_angle > 180)
+    {
+      target_angle -= 360;
+    }
+    while (target_angle < -180)
+    {
+      target_angle += 360;
+    }
+    if (target_angle < 0)
+    {
+      // ¶‚ðŒü‚¢‚Ä‚¢‚é
+      motor(5, 3);
+    }
+    else
+    {
+      // ‰E‚ðŒü‚¢‚Ä‚¢‚é
+      motor(3, 5);
+    }
+  }
+  else if (LoadedObjects >= triger_object_num || (LoadedObjects >= 3 && Time > 120))
   {
     if (US_Front < 15)
     {
@@ -93,6 +138,10 @@ void localGame0(void)
     {
       motor(4, 3);
     }
+    else if (US_Right < 60)
+    {
+      motor(4, 1);
+    }
     else
     {
       motor(4, 2);
@@ -103,32 +152,92 @@ void localGame0(void)
     if (US_Front < 15)
     {
       motor(3, -3);
+      subject[0]++;
     }
     else if (US_Left < 10)
     {
-      motor(5, 1);
+      motor(4, 1);
+      subject[1]++;
     }
     else if (US_Left < 15)
     {
-      motor(5, 3);
+      if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
+      {
+        motor(4, 2);
+      }
+      else
+      {
+        motor(5, 3);
+      }
+      subject[2]++;
     }
-    else if (US_Left < 30)
+    else if (US_Left < 20 + rand() % 20)
     {
-      motor(4, 5);
+      if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
+      {
+        motor(2, 4);
+      }
+      else
+      {
+        motor(4, 5);
+      }
+      subject[3]++;
     }
-    else if (US_Left < 80)
+    else if (US_Left < 50)
     {
-      motor(2, 4);
+      if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
+      {
+        motor(1, 4);
+      }
+      else
+      {
+        motor(3, 5);
+      }
+      subject[4]++;
     }
     else
     {
-      motor(2, 4);
+      if (!(rand() % 10))
+      {
+        motor(4, 5);
+      }
+      else
+      {
+        motor(2, 4);
+      }
+      subject[5]++;
     }
+    for (int i = 0; i < 6; i++)
+    {
+      // printf("%d ", subject[i]);
+    }
+    // printf("\n");
   }
 
   switch (getAction())
   {
   case DEFINED:
+    break;
+  case YELLOW_AVOIDANCE:
+    if (SuperDuration < 3 && Duration < 3)
+    {
+      if (triger())
+      {
+        motor_no_action_change(5, -5);
+      }
+      else
+      {
+        motor_no_action_change(-5, 5);
+      }
+    }
+    else if ((SuperDuration != 0 && SuperDuration <= 4) || (Duration != 0 && Duration <= 4))
+    {
+      motor_no_action_change(0, 0);
+    }
+    else
+    {
+      motor_no_action_change(-5, -5);
+    }
     break;
   case FIND_OBJ:
     motor_no_action_change(0, 0);

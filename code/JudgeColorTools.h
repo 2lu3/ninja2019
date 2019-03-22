@@ -28,5 +28,6 @@ int IsOnSuperObj(void);
 int IsOnBlueFloor(void);
 int IsOnDepositArea(void);
 int IsOnSwampland(void);
+int IsOnTrapBlue(void);
 
 #endif // !JUDGE_COLOR_TOOLS
