@@ -2,25 +2,163 @@
 #include <stdlib.h>
 #include <math.h>
 
-enum Action
-{
-  TEST,
-  HELLO
-};
+#define REP for
+#define rep(i, n) REP(int i = 0; i < n; i++)
+#define PI 3.14
 
-void Test1(enum Action hello)
+#define COSPACE_WIDTH 240
+#define COSPACE_HEIGHT 180
+#define SIZE 10
+
+#define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
+#define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
+
+#define NOTHING 0
+#define WALL 1
+#define YELLOW 2
+#define DEPOSIT 3
+
+int map_data[MAP_HEIGHT][MAP_WIDTH];
+double map_possibility[MAP_HEIGHT][MAP_WIDTH];
+
+void createStuff(int x1, int y1, int x2, int y2, int kind)
 {
-  if (hello == TEST)
+  x1 = x1 / SIZE + 1;
+  y1 = y1 / SIZE + 1;
+  x2 = x2 / SIZE + 1;
+  y2 = y2 / SIZE + 1;
+  for (int hi = y1; hi < y2; hi++)
   {
-    puts('1');
+    for (int wj = x1; wj < x2; wj++)
+    {
+      if (map_data[hi][wj] == NOTHING)
+      {
+        map_data[hi][wj] = kind;
+      }
+    }
   }
-  else if (hello == HELLO)
+}
+
+void showMap()
+{
+  for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
   {
-    puts('2');
+    rep(wj, MAP_WIDTH)
+    {
+      switch (map_data[hi][wj])
+      {
+      case NOTHING:
+        printf("Å@");
+        break;
+      case WALL:
+        printf("Å†");
+        break;
+      case YELLOW:
+        printf("Å[");
+        break;
+      case DEPOSIT:
+        printf("Å{");
+        break;
+      default:
+        break;
+      }
+    }
+    printf("\n");
   }
+}
+
+void init(void)
+{
+  rep(hi, MAP_HEIGHT)
+  {
+    rep(wj, MAP_WIDTH)
+    {
+      map_data[hi][wj] = NOTHING;
+      map_possibility[hi][wj] = 1;
+    }
+  }
+
+  rep(hi, MAP_HEIGHT)
+  {
+    map_data[hi][0] = WALL;
+    map_data[hi][MAP_WIDTH - 1] = WALL;
+  }
+  rep(wi, MAP_WIDTH)
+  {
+    map_data[0][wi] = WALL;
+    map_data[MAP_HEIGHT - 1][wi] = WALL;
+  }
+
+  createStuff(60, 150, 90, 180, WALL);
+  createStuff(90, 60, 120, 90, WALL);
+  createStuff(120, 60, 150, 90, DEPOSIT);
+  createStuff(120, 0, 150, 60, YELLOW);
+  createStuff(150, 60, 180, 90, YELLOW);
+  createStuff(120, 60, 150, 90, DEPOSIT);
+}
+
+void calculate(int us_left, int us_front, int us_right, int compass)
+{
+  int current_map_possibility[MAP_HEIGHT][MAP_WIDTH];
+  rep(hi, MAP_HEIGHT)
+  {
+    rep(wj, MAP_WIDTH)
+    {
+      if (map_data[hi][wj] == NOTHING)
+      {
+        current_map_possibility[hi][wj] = 1;
+      }
+      else
+      {
+        current_map_possibility[hi][wj] = 0;
+      }
+    }
+  }
+
+  double angle[3] = {-45, 0, 45};
+  double distance[3] = {us_left, us_front, us_right};
+  double coordinate[3][2];
+
+  rep(i, 3)
+  {
+    angle[i] = (int)(compass + angle[i]) % 360;
+    coordinate[i][0] = cos(angle[i] / 180 * PI) * distance[i];
+    coordinate[i][1] = sin(angle[i] / 180 * PI) * distance[i];
+    // printf("%lf %lf\n", coordinate[i][0], coordinate[i][1]);
+  }
+
+  double margin[4] = {0, 0, 0, 0};
+  rep(i, 3)
+  {
+    // è„
+    if (coordinate[i][1] > margin[0])
+    {
+      margin[0] = coordinate[i][1];
+    }
+    // ç∂
+    if (coordinate[i][0] < margin[1])
+    {
+      margin[1] = coordinate[i][0];
+    }
+    // â∫
+    if (coordinate[i][1] < margin[2])
+    {
+      margin[2] = coordinate[i][1];
+    }
+    // âE
+    if (coordinate[i][0] > margin[3])
+    {
+      margin[3] = coordinate[i][0];
+    }
+  }
+
+  // printf("%lf %lf %lf %lf\n", margin[0], margin[1], margin[2], margin[3]);
 }
 
 int main()
 {
-  Test1
+  init();
+  showMap();
+
+  calculate(10, 50, 20, 0);
 }
