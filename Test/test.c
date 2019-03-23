@@ -208,6 +208,32 @@ int isCross(int num, double x1, double y1, double x2, double y2)
 	double result3 = a1 * equation[num][0] + b1 * equation[num][1] + c1;
 	double result4 = a1 * equation[num][2] + b1 * equation[num][3] + c1;
 
+	// debug
+	// if (result1 * result2 < 0)
+	// {
+	// 	printf("reason 1\n");
+	// }
+	// if (result3 * result4 < 0)
+	// {
+	// 	printf("reason 2\n");
+	// }
+	// if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]))
+	// {
+	// 	printf("reason 3\n");
+	// }
+	// if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]))
+	// {
+	// 	printf("reason 4\n");
+	// }
+	// if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x1, y1))
+	// {
+	// 	printf("reason 5\n");
+	// }
+	// if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2))
+	// {
+	// 	printf("reason 6\n");
+	// }
+
 	return result1 * result2 < 0 && result3 * result4 < 0 ||
 				 judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]) ||
 				 judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]) ||
@@ -232,11 +258,11 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 	double current_coordinate[2];
 	rep(hi, MAP_HEIGHT)
 	{
-		// hi = 40 / SIZE + 1;
+		// hi = 144 / SIZE + 1;
 		// printf("start %d\n", hi);
 		rep(wj, MAP_WIDTH)
 		{
-			// wj = 20 / SIZE + 1;
+			// wj = 80 / SIZE + 1;
 			if (map_data[hi][wj] == WALL)
 			{
 				map_possibility[hi][wj] = -1;
@@ -255,24 +281,32 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 					double x = (wj - 0.5) * SIZE;
 					double y = (hi - 0.5) * SIZE;
 					double difference = 5;
-					double difference1 = coordinate[i][0] * rate;
-					double difference2 = coordinate[i][1] * rate;
-					if (fabs(difference) > fabs(difference1))
+					double difference1 = difference * fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][0] * rate;
+					double difference2 = difference * fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][1] * rate;
+					if (coordinate[i][0] < 0)
 					{
-						if (difference1 < 0)
-						{
-							difference = -difference;
-						}
-						difference1 = difference;
+						difference1 = -difference1;
 					}
-					if (fabs(difference) > fabs(difference2))
+					if (coordinate[i][1] < 0)
 					{
-						if (difference2 < 0)
-						{
-							difference = -difference;
-						}
-						difference2 = difference;
+						difference2 = -difference2;
 					}
+					// 		if (fabs(difference) > fabs(difference1))
+					// 		{
+					// 			if (difference1 < 0)
+					// 			{
+					// 				difference = -difference;
+					// 			}
+					// 			difference1 = difference;
+					// 		}
+					// 		if (fabs(difference) > fabs(difference2))
+					// 		{
+					// 			if (difference2 < 0)
+					// 			{
+					// 				difference = -difference;
+					// 			}
+					// 			difference2 = difference;
+					// 		}
 					int result1 = isCross(j, x, y, x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
 					int result2 = isCross(j, x, y, x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
 					if (result1 == 0 && result2 == 1 && complete[i] != -1)
@@ -280,29 +314,34 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 						complete[i] = 1;
 						// printf("min %lf %lf\n", x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
 						// printf("max %lf %lf\n", x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
-						// printf("find\n");
+						// printf("%d find us %d\n", j, i);
 					}
 					else if (result1 == 1 && result2 == 1)
 					{
 						complete[i] = -1;
 						// printf("min %lf %lf\n", x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
 						// printf("max %lf %lf\n", x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
-						// printf("%d game over\n", j);
+						// printf("%d game over %d\n", j, i);
 					}
 				}
 			}
 
 			complete[0] += complete[1] + complete[2];
 
-			if (complete[0] < 3)
+			if (complete[0] < 2)
 			{
 				map_possibility[hi][wj] = 0;
 				// printf("finally 0\n");
 			}
-			else
+			else if (complete[0] == 2)
 			{
 				map_possibility[hi][wj] = 1;
 				// printf("finally 1\n");
+			}
+			else
+			{
+				map_possibility[hi][wj] = 2;
+				// printf("finally 2\n");
 			}
 
 			// wj = MAP_WIDTH;
@@ -341,6 +380,9 @@ void showMap2()
 				printf(" ");
 				break;
 			case 1:
+				printf("H");
+				break;
+			case 2:
 				printf("{");
 				break;
 			// case DEPOSIT:
@@ -360,14 +402,14 @@ int main()
 	init2();
 	showMap();
 
-	int distance = 20;
+	int distance = 10;
 	calculate2(1.41 * distance, 1.0 * distance, 1.41 * distance, 180);
 	showMap2();
-	// int result = isCross(1, 20, 40, -20, 0);
+	// int result = isCross(5, 80, 144, 66, 159);
 	// printf("%d\n", result);
 	// rep(i, 4)
 	// {
-	// 	printf("%d ", equation[3][i]);
+	// 	printf("%d ", equation[5][i]);
 	// }
 	// printf("\n");
 }
