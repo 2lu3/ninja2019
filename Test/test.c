@@ -5,10 +5,11 @@
 #define REP for
 #define rep(i, n) REP(int i = 0; i < n; i++)
 #define PI 3.14
+#define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
 
 #define COSPACE_WIDTH 240
 #define COSPACE_HEIGHT 180
-#define SIZE 10
+#define SIZE 2
 
 #define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
 #define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
@@ -173,8 +174,6 @@ int equation_num;
 
 void setEquation(int x1, int y1, int x2, int y2)
 {
-	// (x2 - x1)(y - y1) - (x - x1)(y2 - y1) = 0
-	// (y2 - y1)x - (x2 - x1)y - (y2 - y1)x1 + (x2 - x1)y1 = 0
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x2;
@@ -182,8 +181,20 @@ void setEquation(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
+// (ax, ay), (bx, by)‚Ìü•ªã‚É(cx, cy)‚ª‚ ‚é‚©
+int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
+{
+	double border = 0.00001;
+	double l1 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay);
+	double l2 = (cx - ax) * (cx - ax) + (cy - ay) * (cy - ay);
+	double c = (bx - ax) * (cx - ax) + (by - ay) * (cy - ay);
+	return c >= 0 && PLUSMINUS(c * c, l1 * l2, border) && l1 >= l2;
+}
+
 int isCross(int num, double x1, double y1, double x2, double y2)
 {
+	// (x2 - x1)(y - y1) - (x - x1)(y2 - y1) = 0
+	// (y2 - y1)x - (x2 - x1)y - (y2 - y1)x1 + (x2 - x1)y1 = 0
 	double a1, b1, c1, a2, b2, c2;
 	a1 = (y2 - y1);
 	b1 = -(x2 - x1);
@@ -193,24 +204,18 @@ int isCross(int num, double x1, double y1, double x2, double y2)
 	c2 = -b2 * equation[num][1] - a2 * equation[num][0];
 	double result1 = a2 * x1 + b2 * y1 + c2;
 	double result2 = a2 * x2 + b2 * y2 + c2;
-	// printf("%lf %lf\n", result1, result2);
-	if (result1 * result2 > 0)
-	{
-		return 0;
-	}
 
-	result1 = a1 * equation[num][0] + b1 * equation[num][1] + c1;
-	result2 = a1 * equation[num][2] + b1 * equation[num][3] + c1;
+	double result3 = a1 * equation[num][0] + b1 * equation[num][1] + c1;
+	double result4 = a1 * equation[num][2] + b1 * equation[num][3] + c1;
 
-	if (result1 * result2 > 0)
-	{
-		return 0;
-	}
-
-	return 1;
+	return result1 * result2 < 0 && result3 * result4 < 0 ||
+				 judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]) ||
+				 judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]) ||
+				 judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x1, y1) ||
+				 judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2);
 }
 
-void calculate2(int us_left, int us_front, int us_right, int compass)
+void calculate2(double us_left, double us_front, double us_right, double compass)
 {
 	double angle[3] = {45, 0, -45};
 	double distance[3] = {us_left, us_front, us_right};
@@ -227,15 +232,15 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 	double current_coordinate[2];
 	rep(hi, MAP_HEIGHT)
 	{
-		// hi = 10;
-		printf("start %d\n", hi);
+		// hi = 0;
+		// printf("start %d\n", hi);
 		rep(wj, MAP_WIDTH)
 		{
-			wj = 22;
+			// wj = 68 / SIZE + 1;
 			if (map_data[hi][wj] == WALL)
 			{
 				map_possibility[hi][wj] = -1;
-				wj = MAP_WIDTH;
+				// wj = MAP_WIDTH;
 				continue;
 			}
 			int complete[3] = {0, 0, 0};
@@ -247,43 +252,53 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 				{
 					double min = 0.9;
 					double max = 1.1;
-					double x = (wj + 0.0) * SIZE;
-					double y = (hi + 0.0) * SIZE;
-					int result1 = isCross(j, x, y, x + coordinate[i][0] * min, y + coordinate[i][1] * min);
-					int result2 = isCross(j, x, y, x + coordinate[i][0] * max, y + coordinate[i][1] * max);
+					double x = (wj - 0.5) * SIZE;
+					double y = (hi - 0.5) * SIZE;
+					double difference = 5;
+					double difference1 = coordinate[i][0] * (1 - min);
+					double difference2 = coordinate[i][1] * (1 - min);
+					if (difference > difference1)
+					{
+						difference1 = difference;
+					}
+					if (difference > difference2)
+					{
+						difference2 = difference;
+					}
+					int result1 = isCross(j, x, y, x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
+					int result2 = isCross(j, x, y, x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
 					if (result1 == 0 && result2 == 1 && complete[i] != -1)
 					{
 						complete[i] = 1;
 						// printf("min %lf %lf\n", x + coordinate[i][0] * min, y + coordinate[i][1] * min);
 						// printf("max %lf %lf\n", x + coordinate[i][0] * max, y + coordinate[i][1] * max);
-						printf("find\n");
+						// printf("find\n");
 					}
 					else if (result1 == 1 && result2 == 1)
 					{
 						complete[i] = -1;
-						printf("min %lf %lf\n", x + coordinate[i][0] * min, y + coordinate[i][1] * min);
-						printf("max %lf %lf\n", x + coordinate[i][0] * max, y + coordinate[i][1] * max);
-						printf("%d game over\n", j);
+						// printf("min %lf %lf\n", x + coordinate[i][0] * min, y + coordinate[i][1] * min);
+						// printf("max %lf %lf\n", x + coordinate[i][0] * max, y + coordinate[i][1] * max);
+						// printf("%d game over\n", j);
 					}
 				}
 			}
 
 			complete[0] += complete[1] + complete[2];
 
-			if (complete[0] < 2)
+			if (complete[0] < 3)
 			{
 				map_possibility[hi][wj] = 0;
-				printf("finally 0\n");
+				// printf("finally 0\n");
 			}
 			else
 			{
 				map_possibility[hi][wj] = 1;
-				printf("finally 1\n");
+				// printf("finally 1\n");
 			}
 
-			wj = MAP_WIDTH;
+			// wj = MAP_WIDTH;
 		}
-		fflush(stdout);
 		// hi = MAP_HEIGHT;
 	}
 }
@@ -300,7 +315,7 @@ void init2()
 	setEquation(90, 60, 90, 90);
 	setEquation(90, 60, 120, 60);
 	setEquation(120, 60, 120, 90);
-	setEquation(90, 90, 90, 120);
+	setEquation(90, 90, 120, 90);
 }
 
 void showMap2()
@@ -318,7 +333,7 @@ void showMap2()
 				printf(" ");
 				break;
 			case 1:
-				printf("[");
+				printf("{");
 				break;
 			// case DEPOSIT:
 			// 	printf("{");
@@ -337,7 +352,8 @@ int main()
 	init2();
 	showMap();
 
-	calculate2(57 / 2, 40 / 2, 57 / 2, 0);
+	int distance = 10;
+	calculate2(1.41 * distance, 1.0 * distance, 1.41 * distance, 0);
 	showMap2();
 	// int result = isCross(3, 240, 180, 240, 180);
 	// printf("%d\n", result);
