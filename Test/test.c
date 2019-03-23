@@ -280,7 +280,7 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 					double rate = 0.1;
 					double x = (wj - 0.5) * SIZE;
 					double y = (hi - 0.5) * SIZE;
-					double difference = 5;
+					double difference = 10;
 					double difference1 = difference * fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][0] * rate;
 					double difference2 = difference * fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][1] * rate;
 					if (coordinate[i][0] < 0)
@@ -403,7 +403,7 @@ int main()
 	showMap();
 
 	int distance = 10;
-	calculate2(1.41 * distance, 1.0 * distance, 1.41 * distance, 180);
+	calculate2(51, 59, 37, 9 + 90);
 	showMap2();
 	// int result = isCross(5, 80, 144, 66, 159);
 	// printf("%d\n", result);
