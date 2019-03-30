@@ -32,9 +32,9 @@ void Game0()
 		commonSetup0();
 		localGame0Setup();
 	}
-	commonLoop0();
+	commonLoopStart0();
 	localGame0();
-	addRepeatedNum();
+	commonLoopEnd0();
 }
 
 void Game1()
@@ -42,8 +42,9 @@ void Game1()
 	if (getRepeatedNum() == 0)
 	{
 		commonSetup1();
+		localGame1Setup();
 	}
+	commonLoopStart1();
 	localGame1();
-	commonLoop1();
-	addRepeatedNum();
+	commonLoopEnd1();
 }

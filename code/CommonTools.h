@@ -26,8 +26,10 @@ int obstacle(int left, int front, int right);
 void commonSetup0(void);
 void commonSetup1(void);
 void commonSetup1(void);
-void commonLoop0(void);
-void commonLoop1(void);
+void commonLoopStart0(void);
+void commonLoopEnd0(void);
+void commonLoopStart1(void);
+void commonLoopEnd1(void);
 
 void setAction(enum Action pushed_action);
 enum Action getAction(void);

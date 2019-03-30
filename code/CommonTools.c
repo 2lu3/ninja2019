@@ -15,11 +15,11 @@ void commonSetup0(void)
   judgeColorToolsSetup();
 }
 
-void commonSetup1(void)
+void commonLoopStart0(void)
 {
 }
 
-void commonLoop0(void)
+void commonLoopEnd0(void)
 {
   addRepeatedNum();
   if (CurAction == 1)
@@ -33,7 +33,11 @@ void commonLoop0(void)
   }
 }
 
-void commonLoop1(void)
+void commonSetupStart1(void)
+{
+}
+
+void commonLoopEnd1(void)
 {
   addRepeatedNum();
 }

@@ -291,6 +291,32 @@ void localGame0(void)
 	}
 }
 
+FILE *fp;
+
+void localGame1Setup(void)
+{
+	// fp = fopen("motor.txt", "a");
+	srand((unsigned int)time(NULL));
+	system("cls");
+}
+
 void localGame1(void)
 {
+	int left = 5;
+	int right = 5;
+	motor(5, 5);
+	printf("%d\n", getRepeatedNum());
+	if (getRepeatedNum() == 20)
+	{
+		printf("%d %d\n", PositionX, PositionY);
+	}
+	else if (getRepeatedNum() == 40)
+	{
+		printf("%d %d\n", PositionX, PositionY);
+	}
+	else if (getRepeatedNum() > 40)
+	{
+		motor(0, 0);
+	}
+	fflush(stdout);
 }
