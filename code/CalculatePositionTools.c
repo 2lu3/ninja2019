@@ -7,10 +7,13 @@
 
 #define COSPACE_WIDTH 240
 #define COSPACE_HEIGHT 180
-#define SIZE 2
+#define SIZE 5
 
 #define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
 #define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
+
+#define POSSIBILITY_VALUE_MAX 10.0
+#define POSSIBILITY_VALUE_MIN 0.1
 
 #define NOTHING 0
 #define WALL 1
@@ -18,11 +21,13 @@
 #define DEPOSIT 3
 
 int map_data[MAP_HEIGHT][MAP_WIDTH];
-int map_possibility[MAP_HEIGHT][MAP_WIDTH];
+float map_possibility[MAP_HEIGHT][MAP_WIDTH];
 int current_map_possibility[MAP_HEIGHT][MAP_WIDTH];
 
 int equation[100][4];
 int equation_num;
+
+int calculated_x, calculated_y;
 
 void createStuff(int x1, int y1, int x2, int y2, int kind)
 {
@@ -49,7 +54,7 @@ void init(void)
 		rep(wj, MAP_WIDTH)
 		{
 			map_data[hi][wj] = NOTHING;
-			map_possibility[hi][wj] = 1;
+			map_possibility[hi][wj] = 0;
 		}
 	}
 
@@ -81,31 +86,31 @@ void setEquation(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
-// í∑ï˚å`Ç≈ÅAï«Çìoò^Ç∑ÇÈ
+// Èï∑ÊñπÂΩ¢„Åß„ÄÅÂ£Å„ÇíÁôªÈå≤„Åô„Çã
 void setEquations(int x1, int y1, int x2, int y2)
 {
-	// ç∂ÇÃècñ_
+	// Â∑¶„ÅÆÁ∏¶Ê£í
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x1;
 	equation[equation_num][3] = y2;
 	equation_num++;
 
-	// â∫ÇÃâ°ñ_
+	// ‰∏ã„ÅÆÊ®™Ê£í
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x2;
 	equation[equation_num][3] = y1;
 	equation_num++;
 
-	// âEÇÃècñ_
+	// Âè≥„ÅÆÁ∏¶Ê£í
 	equation[equation_num][0] = x2;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x2;
 	equation[equation_num][3] = y2;
 	equation_num++;
 
-	// è„ÇÃâ°ñ_
+	// ‰∏ä„ÅÆÊ®™Ê£í
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y2;
 	equation[equation_num][2] = x2;
@@ -113,7 +118,7 @@ void setEquations(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
-// (ax, ay), (bx, by)ÇÃê¸ï™è„Ç…(cx, cy)Ç™Ç†ÇÈÇ©
+// (ax, ay), (bx, by)„ÅÆÁ∑öÂàÜ‰∏ä„Å´(cx, cy)„Åå„ÅÇ„Çã„Åã
 int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
 {
 	double border = 0.00001;
@@ -187,7 +192,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		coordinate[i][1] = sin(angle[i] / 180 * PI) * distance[i];
 	}
 
-	// 0:è„ 1:ç∂ 2:â∫ 3:âE
+	// 0:‰∏ä 1:Â∑¶ 2:‰∏ã 3:Âè≥
 	int margin[4] = {0, 0, 0, 0};
 	rep(i, 3)
 	{
@@ -209,7 +214,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// +- îΩì]
+	// +- ÂèçËª¢
 	margin[1] -= margin[1];
 	margin[2] -= margin[2];
 
@@ -218,7 +223,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		margin[i] /= SIZE;
 	}
 
-	// è„
+	// ‰∏ä
 	for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
 	{
 		rep(wj, MAP_WIDTH)
@@ -227,7 +232,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// ç∂
+	// Â∑¶
 	rep(hi, MAP_HEIGHT)
 	{
 		rep(wj, margin[1])
@@ -236,7 +241,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// â∫
+	// ‰∏ã
 	rep(hi, margin[2])
 	{
 		rep(wj, MAP_WIDTH)
@@ -245,7 +250,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// âE
+	// Âè≥
 	rep(hi, MAP_HEIGHT)
 	{
 		for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
@@ -256,7 +261,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 
 	double current_coordinate[2];
 	double rate = 0.1;
-	double difference = 10;
+	double difference = SIZE;
 	for (int hi = margin[2]; hi < MAP_HEIGHT - margin[0]; hi++)
 	{
 		double y = (hi - 0.5) * SIZE;
@@ -317,22 +322,85 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 			}
 			else if (complete[0] == 2)
 			{
-				current_map_possibility[hi][wj] = 1;
+				current_map_possibility[hi][wj] = POSSIBILITY_VALUE_MAX / 2;
 			}
 			else
 			{
-				current_map_possibility[hi][wj] = 2;
+				current_map_possibility[hi][wj] = POSSIBILITY_VALUE_MAX;
 			}
 		}
 	}
 
+	float k = 0.6;
+	int range = 1;
 	rep(hi, MAP_HEIGHT)
 	{
 		rep(wj, MAP_WIDTH)
 		{
-			map_possibility[hi][wj] += current_map_possibility[hi][wj];
+			map_possibility[hi][wj] *= k;
+			int num = 0;
+			float add = 0;
+			rep(hi_range, 1 + 2 * range)
+			{
+				rep(wj_range, 1 + 2 * range)
+				{
+					int y = hi + hi_range - range;
+					int x = wj + wj_range - range;
+					if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH)
+					{
+						continue;
+					}
+					num++;
+					add += current_map_possibility[y][x] * (1.0 - k);
+				}
+			}
+			add /= num;
+			map_possibility[hi][wj] += add;
 		}
 	}
+
+	float min = 1000000, max = 0;
+	int max_id = -1;
+	rep(hi, MAP_HEIGHT)
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			if (map_data[hi][wj] == WALL)
+			{
+				continue;
+			}
+			if (map_possibility[hi][wj] < min)
+			{
+				min = map_possibility[hi][wj];
+			}
+			if (map_possibility[hi][wj] > max)
+			{
+				max = map_possibility[hi][wj];
+				max_id = hi * MAP_WIDTH + wj;
+			}
+		}
+	}
+
+	// magnification„Åß„ÄÅÂÄ§„ÅÆÂ∫É„Åï„ÇíË™øÊï¥„Åô„Çã
+	// correction„Åß„ÄÅÂÄ§„ÅÆ‰ΩçÁΩÆ„ÇíË™øÊï¥„Åô„Çã
+	float magnification = POSSIBILITY_VALUE_MAX / (max - min);
+	float correction = POSSIBILITY_VALUE_MIN - min * magnification;
+	rep(hi, MAP_HEIGHT)
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			if (map_data[hi][wj] == WALL)
+			{
+				map_possibility[hi][wj] = 0;
+				continue;
+			}
+			map_possibility[hi][wj] = map_possibility[hi][wj] * magnification + correction;
+		}
+	}
+
+	calculated_y = max_id / MAP_WIDTH;
+	calculated_x = max_id - calculated_y * MAP_WIDTH;
+	// printf("%d calculated %d %d\n", getRepeatedNum(), x * SIZE, y * SIZE);
 }
 
 void init2()
@@ -342,38 +410,101 @@ void init2()
 	setEquations(90, 60, 120, 90);
 }
 
-void showMap2()
+void showCurrentMapPossibility()
 {
-	FILE *fp = fopen("calculated_map.txt", "w");
 	for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
 	{
 		rep(wj, MAP_WIDTH)
 		{
-			fprintf(fp, "%d ", current_map_possibility[hi][wj]);
-			// if (map_data[hi][wj] == WALL)
+			if (map_data[hi][wj] == WALL)
+			{
+				printf("‚ñ°");
+				continue;
+			}
+
+			printf("%2d", current_map_possibility[hi][wj]);
+		}
+		printf("\n");
+	}
+	fflush(stdout);
+}
+
+void showMap2()
+{
+	for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			// fprintf(fp, "%d ", current_map_possibility[hi][wj]);
+			if (map_data[hi][wj] == WALL)
+			{
+				printf("‚ñ°");
+				continue;
+			}
+
+			if (hi == calculated_y && wj == calculated_x)
+			{
+				printf("‚òÜ");
+			}
+			else
+			{
+				printf("„ÄÄ");
+			}
+
+			// printf("%2.0f", map_possibility[hi][wj]);
+			// printf("%2d", current_map_possibility[hi][wj]);
+			// if (map_possibility[hi][wj] < 0.4)
 			// {
-			// 	fprintf(fp, "Å†");
-			// 	continue;
+			// 	printf("„ÄÄ");
+			// }
+			// else if (map_possibility[hi][wj] < 0.6)
+			// {
+			// 	printf("Ôºü");
+			// }
+			// else if (map_possibility[hi][wj] < 0.7)
+			// {
+			// 	printf("Ôºã");
+			// }
+			// else
+			// {
+			// 	printf("‚òÜ");
+			// }
+			// if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 5 * 4 + POSSIBILITY_VALUE_MIN)
+			// {
+			// 	printf("„ÄÄ");
+			// }
+			// else if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 4 * 2 + POSSIBILITY_VALUE_MIN)
+			// {
+			// 	printf("Ôºü");
+			// }
+			// else if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 4 * 3 + POSSIBILITY_VALUE_MIN)
+			// {
+			// 	printf("Ôºã");
+			// }
+			// else
+			// {
+			// 	printf("‚òÜ");
 			// }
 			// switch (current_map_possibility[hi][wj])
 			// {
 			// case 0:
-			// 	fprintf(fp, "Å@");
+			// 	printf("„ÄÄ");
 			// 	break;
 			// case -1:
-			// 	fprintf(fp, "Å†");
+			// 	printf("‚ñ°");
 			// 	break;
 			// case 1:
-			// 	fprintf(fp, "ÅH");
+			// 	printf("Ôºü");
 			// 	break;
 			// case 2:
-			// 	fprintf(fp, "Å{");
+			// 	printf("Ôºã");
 			// 	break;
 			// default:
 			// 	break;
 			// }
 		}
-		fprintf(fp, "\n");
+		printf("\n");
 	}
-	fclose(fp);
+	fflush(stdout);
+	// showCurrentMapPossibility();
 }

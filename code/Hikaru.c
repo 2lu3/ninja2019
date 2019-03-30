@@ -3,6 +3,9 @@
 #define FIND_OBJ_DURATION 45
 #define DEPOSIT_OBJ_DURATION 45
 
+#define REP for
+#define rep(i, n) REP(int i = 0; i < n; i++)
+
 int subject[6] = {0, 0, 0, 0, 0, 0};
 
 int triger_object_num = 5;
@@ -14,13 +17,19 @@ int triger(void)
 
 void localGame0Setup(void)
 {
-	system("chcp 932");
+	// shift-JIS 932
+	// UTF-8 65001
+	system("chcp 65001");
 	init();
 	init2();
 }
 
 void localGame0(void)
 {
+	rep(i, 3)
+	{
+		loaded_objects[i] = 2;
+	}
 	calculate2(US_Left, US_Front, US_Right, Compass + 90);
 	showMap2();
 	if (IsOnTrapBlue())
@@ -108,7 +117,7 @@ void localGame0(void)
 	else if (getRepeatedNum() < 100)
 	{
 		double target_angle = 360 - pow(getRepeatedNum(), 3) / pow(100, 2);
-		printf("continue %d %lf\n", getRepeatedNum(), target_angle);
+		// printf("continue %d %lf\n", getRepeatedNum(), target_angle);
 		target_angle -= Compass;
 		while (target_angle > 180)
 		{
@@ -120,12 +129,12 @@ void localGame0(void)
 		}
 		if (target_angle < 0)
 		{
-			// ¶‚ðŒü‚¢‚Ä‚¢‚é
+			// å·¦ã‚’å‘ã„ã¦ã„ã‚‹
 			motor(5, 3);
 		}
 		else
 		{
-			// ‰E‚ðŒü‚¢‚Ä‚¢‚é
+			// å³ã‚’å‘ã„ã¦ã„ã‚‹
 			motor(3, 5);
 		}
 	}
