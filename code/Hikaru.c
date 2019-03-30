@@ -14,8 +14,10 @@ int triger(void)
 {
 	return !((LoadedObjects >= triger_object_num) || (Time > 180 && LoadedObjects >= 3));
 }
+int log_compass;
+int log_position[2];
 
-void localGame0Setup(void)
+void localGameSetup0(void)
 {
 	// shift-JIS 932
 	// UTF-8 65001
@@ -26,9 +28,8 @@ void localGame0Setup(void)
 
 void localGame0(void)
 {
-	rep(i, 3)
+	if (getRepeatedNum() != 0)
 	{
-		loaded_objects[i] = 2;
 	}
 	calculate2(US_Left, US_Front, US_Right, Compass + 90);
 	showMap2();
@@ -293,30 +294,38 @@ void localGame0(void)
 
 FILE *fp;
 
-void localGame1Setup(void)
+void localGameSetup1(void)
 {
 	// fp = fopen("motor.txt", "a");
 	srand((unsigned int)time(NULL));
 	system("cls");
+
+	log_compass = Compass;
+	log_position[0] = PositionX;
+	log_position[1] = PositionY;
 }
+
+int position[2];
 
 void localGame1(void)
 {
+	if (getRepeatedNum() != 0)
+	{
+	}
 	int left = 5;
 	int right = 5;
-	motor(5, 5);
-	printf("%d\n", getRepeatedNum());
-	if (getRepeatedNum() == 20)
-	{
-		printf("%d %d\n", PositionX, PositionY);
-	}
-	else if (getRepeatedNum() == 40)
-	{
-		printf("%d %d\n", PositionX, PositionY);
-	}
-	else if (getRepeatedNum() > 40)
-	{
-		motor(0, 0);
-	}
+	motor(4, 5);
+	// if (getRepeatedNum() == 20)
+	// {
+	// 	printf("%d %d\n", PositionX, PositionY);
+	// }
+	// else if (getRepeatedNum() == 40)
+	// {
+	// 	printf("%d %d\n", PositionX, PositionY);
+	// }
+	// else if (getRepeatedNum() > 40)
+	// {
+	// 	motor(0, 0);
+	// }
 	fflush(stdout);
 }

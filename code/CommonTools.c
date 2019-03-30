@@ -33,7 +33,11 @@ void commonLoopEnd0(void)
   }
 }
 
-void commonSetupStart1(void)
+void commonSetup1(void)
+{
+}
+
+void commonLoopStart1(void)
 {
 }
 

@@ -6,6 +6,7 @@
 // #include "JudgeAngleTools.hpp"
 #include "JudgeColorTools.h"
 #include "CalculatePositionTools.h"
+#include "odometory.h"
 
 #define PI 3.14
 
@@ -24,7 +25,6 @@ void motor_no_action_change(int left, int right);
 int obstacle(int left, int front, int right);
 
 void commonSetup0(void);
-void commonSetup1(void);
 void commonSetup1(void);
 void commonLoopStart0(void);
 void commonLoopEnd0(void);
