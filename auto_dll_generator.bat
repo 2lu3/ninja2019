@@ -1,3 +1,3 @@
 :AUTO_LOOP
-python dll_generator.exe
+dll_generator.exe
 goto :AUTO_LOOP

@@ -5,6 +5,7 @@
 #include "LogErrorTools.h"
 // #include "JudgeAngleTools.hpp"
 #include "JudgeColorTools.h"
+#include "CalculatePositionTools.h"
 
 #define PI 3.14
 

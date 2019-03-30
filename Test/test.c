@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #define REP for
 #define rep(i, n) REP(int i = 0; i < n; i++)
@@ -21,6 +22,7 @@
 
 int map_data[MAP_HEIGHT][MAP_WIDTH];
 int map_possibility[MAP_HEIGHT][MAP_WIDTH];
+int current_map_possibility[MAP_HEIGHT][MAP_WIDTH];
 
 void createStuff(int x1, int y1, int x2, int y2, int kind)
 {
@@ -181,6 +183,38 @@ void setEquation(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
+// í∑ï˚å`Ç≈ÅAï«Çìoò^Ç∑ÇÈ
+void setEquations(int x1, int y1, int x2, int y2)
+{
+	// ç∂ÇÃècñ_
+	equation[equation_num][0] = x1;
+	equation[equation_num][1] = y1;
+	equation[equation_num][2] = x1;
+	equation[equation_num][3] = y2;
+	equation_num++;
+
+	// â∫ÇÃâ°ñ_
+	equation[equation_num][0] = x1;
+	equation[equation_num][1] = y1;
+	equation[equation_num][2] = x2;
+	equation[equation_num][3] = y1;
+	equation_num++;
+
+	// âEÇÃècñ_
+	equation[equation_num][0] = x2;
+	equation[equation_num][1] = y1;
+	equation[equation_num][2] = x2;
+	equation[equation_num][3] = y2;
+	equation_num++;
+
+	// è„ÇÃâ°ñ_
+	equation[equation_num][0] = x1;
+	equation[equation_num][1] = y2;
+	equation[equation_num][2] = x2;
+	equation[equation_num][3] = y2;
+	equation_num++;
+}
+
 // (ax, ay), (bx, by)ÇÃê¸ï™è„Ç…(cx, cy)Ç™Ç†ÇÈÇ©
 int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
 {
@@ -241,10 +275,11 @@ int isCross(int num, double x1, double y1, double x2, double y2)
 				 judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2);
 }
 
-void calculate2(double us_left, double us_front, double us_right, int compass)
+void calculate2(int us_left, int us_front, int us_right, int compass)
 {
 	double angle[3] = {45, 0, -45};
 	double distance[3] = {us_left, us_front, us_right};
+	// 0 : x, 1 : y
 	double coordinate[3][2];
 
 	rep(i, 3)
@@ -252,77 +287,127 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 		angle[i] = (int)(compass + angle[i]) % 360;
 		coordinate[i][0] = cos(angle[i] / 180 * PI) * distance[i];
 		coordinate[i][1] = sin(angle[i] / 180 * PI) * distance[i];
-		printf("%lf %lf\n", coordinate[i][0], coordinate[i][1]);
+	}
+
+	// 0:è„ 1:ç∂ 2:â∫ 3:âE
+	int margin[4] = {0, 0, 0, 0};
+	rep(i, 3)
+	{
+		if (coordinate[i][1] > margin[0])
+		{
+			margin[0] = coordinate[i][1];
+		}
+		if (coordinate[i][0] < margin[1])
+		{
+			margin[1] = coordinate[i][0];
+		}
+		if (coordinate[i][1] < margin[2])
+		{
+			margin[2] = coordinate[i][1];
+		}
+		if (coordinate[i][0] > margin[3])
+		{
+			margin[3] = coordinate[i][0];
+		}
+	}
+
+	// +- îΩì]
+	margin[1] -= margin[1];
+	margin[2] -= margin[2];
+
+	rep(i, 4)
+	{
+		margin[i] /= SIZE;
+	}
+
+	// è„
+	for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			current_map_possibility[hi][wj] = 0;
+		}
+	}
+
+	// ç∂
+	rep(hi, MAP_HEIGHT)
+	{
+		rep(wj, margin[1])
+		{
+			current_map_possibility[hi][wj] = 0;
+		}
+	}
+
+	// â∫
+	rep(hi, margin[2])
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			current_map_possibility[hi][wj] = 0;
+		}
+	}
+
+	// âE
+	rep(hi, MAP_HEIGHT)
+	{
+		for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
+		{
+			current_map_possibility[hi][wj] = 0;
+		}
 	}
 
 	double current_coordinate[2];
-	rep(hi, MAP_HEIGHT)
+	double rate = 0.1;
+	double difference = 10;
+	for (int hi = margin[2]; hi < MAP_HEIGHT - margin[0]; hi++)
 	{
-		// hi = 144 / SIZE + 1;
-		// printf("start %d\n", hi);
-		rep(wj, MAP_WIDTH)
+		double y = (hi - 0.5) * SIZE;
+		for (int wj = margin[1]; wj < MAP_WIDTH - margin[3]; wj++)
 		{
-			// wj = 80 / SIZE + 1;
 			if (map_data[hi][wj] == WALL)
 			{
-				map_possibility[hi][wj] = -1;
-				// wj = MAP_WIDTH;
-				// printf("wall\n");
+				current_map_possibility[hi][wj] = 0;
 				continue;
 			}
+
 			int complete[3] = {0, 0, 0};
-			map_possibility[hi][wj] = 0;
+			current_map_possibility[hi][wj] = 0;
+
+			double x = (wj - 0.5) * SIZE;
 
 			rep(i, 3)
 			{
+				double difference1 = difference * fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1]));
+				double difference2 = difference * fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1]));
+				if (coordinate[i][0] < 0)
+				{
+					difference1 = -difference1;
+				}
+				if (coordinate[i][1] < 0)
+				{
+					difference2 = -difference2;
+				}
+				double x_min = x + coordinate[i][0] - difference1;
+				double y_min = y + coordinate[i][1] - difference2;
+				double x_big = x + coordinate[i][0] + difference1;
+				double y_big = y + coordinate[i][1] + difference2;
 				rep(j, equation_num)
 				{
-					double rate = 0.1;
-					double x = (wj - 0.5) * SIZE;
-					double y = (hi - 0.5) * SIZE;
-					double difference = 10;
-					double difference1 = difference * fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][0] * rate;
-					double difference2 = difference * fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])); //coordinate[i][1] * rate;
-					if (coordinate[i][0] < 0)
-					{
-						difference1 = -difference1;
-					}
-					if (coordinate[i][1] < 0)
-					{
-						difference2 = -difference2;
-					}
-					// 		if (fabs(difference) > fabs(difference1))
-					// 		{
-					// 			if (difference1 < 0)
-					// 			{
-					// 				difference = -difference;
-					// 			}
-					// 			difference1 = difference;
-					// 		}
-					// 		if (fabs(difference) > fabs(difference2))
-					// 		{
-					// 			if (difference2 < 0)
-					// 			{
-					// 				difference = -difference;
-					// 			}
-					// 			difference2 = difference;
-					// 		}
-					int result1 = isCross(j, x, y, x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
-					int result2 = isCross(j, x, y, x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
-					if (result1 == 0 && result2 == 1 && complete[i] != -1)
+					int result1 = isCross(j, x, y, x_min, y_min);
+					int result2 = isCross(j, x, y, x_big, y_big);
+					if (result1 == 0 && result2 == 1)
 					{
 						complete[i] = 1;
-						// printf("min %lf %lf\n", x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
-						// printf("max %lf %lf\n", x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
-						// printf("%d find us %d\n", j, i);
 					}
 					else if (result1 == 1 && result2 == 1)
 					{
 						complete[i] = -1;
-						// printf("min %lf %lf\n", x + coordinate[i][0] - difference1, y + coordinate[i][1] - difference2);
-						// printf("max %lf %lf\n", x + coordinate[i][0] + difference1, y + coordinate[i][1] + difference2);
-						// printf("%d game over %d\n", j, i);
+						break;
 					}
+				}
+				if (complete[i] == -1)
+				{
+					break;
 				}
 			}
 
@@ -330,39 +415,33 @@ void calculate2(double us_left, double us_front, double us_right, int compass)
 
 			if (complete[0] < 2)
 			{
-				map_possibility[hi][wj] = 0;
-				// printf("finally 0\n");
+				current_map_possibility[hi][wj] = 0;
 			}
 			else if (complete[0] == 2)
 			{
-				map_possibility[hi][wj] = 1;
-				// printf("finally 1\n");
+				current_map_possibility[hi][wj] = 1;
 			}
 			else
 			{
 				map_possibility[hi][wj] = 2;
-				// printf("finally 2\n");
 			}
-
-			// wj = MAP_WIDTH;
 		}
-		// hi = MAP_HEIGHT;
+	}
+
+	rep(hi, MAP_HEIGHT)
+	{
+		rep(wj, MAP_WIDTH)
+		{
+			map_possibility[hi][wj] += current_map_possibility[hi][wj];
+		}
 	}
 }
 
 void init2()
 {
-	setEquation(0, 0, COSPACE_WIDTH, 0);
-	setEquation(0, 0, 0, COSPACE_HEIGHT);
-	setEquation(0, COSPACE_HEIGHT, COSPACE_WIDTH, COSPACE_HEIGHT);
-	setEquation(COSPACE_WIDTH, 0, COSPACE_WIDTH, COSPACE_HEIGHT);
-	setEquation(60, COSPACE_HEIGHT - 30, 60, COSPACE_HEIGHT);
-	setEquation(60, COSPACE_HEIGHT - 30, 90, COSPACE_HEIGHT - 30);
-	setEquation(90, COSPACE_HEIGHT - 30, 90, COSPACE_HEIGHT);
-	setEquation(90, 60, 90, 90);
-	setEquation(90, 60, 120, 60);
-	setEquation(120, 60, 120, 90);
-	setEquation(90, 90, 120, 90);
+	setEquations(0, 0, COSPACE_WIDTH, COSPACE_HEIGHT);
+	setEquations(60, COSPACE_HEIGHT - 30, 90, COSPACE_HEIGHT);
+	setEquations(90, 60, 120, 90);
 }
 
 void showMap2()
@@ -371,7 +450,12 @@ void showMap2()
 	{
 		rep(wj, MAP_WIDTH)
 		{
-			switch (map_possibility[hi][wj])
+			if (map_data[hi][wj] == WALL)
+			{
+				printf("Å†");
+				continue;
+			}
+			switch (current_map_possibility[hi][wj])
 			{
 			case 0:
 				printf("Å@");
@@ -398,18 +482,24 @@ void showMap2()
 
 int main()
 {
+	int k = 1;
+	clock_t start1, end1, start2, end2;
+	start1 = clock();
 	init();
 	init2();
-	showMap();
+	end1 = clock();
+	// showMap();
 
 	int distance = 10;
-	calculate2(51, 59, 37, 9 + 90);
+
+	start2 = clock();
+	rep(i, k)
+	{
+		calculate2(40, 148, 66, 0 + 90);
+	}
+	end2 = clock();
 	showMap2();
-	// int result = isCross(5, 80, 144, 66, 159);
-	// printf("%d\n", result);
-	// rep(i, 4)
-	// {
-	// 	printf("%d ", equation[5][i]);
-	// }
-	// printf("\n");
+	printf("%lf\n", (double)(end1 - start1) / CLOCKS_PER_SEC * 1000);
+	printf("%lf\n", (double)(end2 - start2) / CLOCKS_PER_SEC * 1000 / k);
+	fflush(stdout);
 }

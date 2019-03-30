@@ -12,8 +12,17 @@ int triger(void)
 	return !((LoadedObjects >= triger_object_num) || (Time > 180 && LoadedObjects >= 3));
 }
 
+void localGame0Setup(void)
+{
+	system("chcp 932");
+	init();
+	init2();
+}
+
 void localGame0(void)
 {
+	calculate2(US_Left, US_Front, US_Right, Compass + 90);
+	showMap2();
 	if (IsOnTrapBlue())
 	{
 		for (int i = 0; i < sizeof(loaded_objects) / sizeof(loaded_objects[0]); i++)
