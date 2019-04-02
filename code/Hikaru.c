@@ -15,7 +15,7 @@ int triger(void)
 	return !((LoadedObjects >= triger_object_num) || (Time > 180 && LoadedObjects >= 3));
 }
 int log_compass;
-int log_position[2];
+float log_position[2];
 
 void localGameSetup0(void)
 {
@@ -130,12 +130,12 @@ void localGame0(void)
 		}
 		if (target_angle < 0)
 		{
-			// 左を向いている
+			// 左を向�?て�?�?
 			motor(5, 3);
 		}
 		else
 		{
-			// 右を向いている
+			// 右を向�?て�?�?
 			motor(3, 5);
 		}
 	}
@@ -305,16 +305,28 @@ void localGameSetup1(void)
 	log_position[1] = PositionY;
 }
 
-int position[2];
+float position[2];
 
 void localGame1(void)
 {
-	if (getRepeatedNum() != 0)
-	{
-	}
-	int left = 5;
+
+	int left = 3;
 	int right = 5;
-	motor(4, 5);
+	motor(3, 5);
+	if (getRepeatedNum() == 0)
+	{
+		system("cls");
+	}
+	if (getRepeatedNum() < 20)
+	{
+		// calculateOdometory(WheelLeft, WheelRight, log_compass, Compass, log_position, position);
+
+		// printf("%lf %lf\n", position[0], position[1]);
+		// log_position[0] = position[0];
+		// log_position[1] = position[1];
+		// log_compass = Compass;
+		printf("%d %d %d %d %d\n", WheelLeft, WheelLeft, Compass, PositionX, PositionY);
+	}
 	// if (getRepeatedNum() == 20)
 	// {
 	// 	printf("%d %d\n", PositionX, PositionY);

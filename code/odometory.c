@@ -12,7 +12,7 @@
 
 float wheelpower2cm[11] = {-3, -2.5, -1.85, -1.2, -0.45, 0, 0.45, 1.2, 1.85, 2.5, 3};
 
-void calculateOdometory(int wheelLeft, int wheelRight, int compass_before, int compass_after, int position[])
+void calculateOdometory(int wheelLeft, int wheelRight, int compass_before, int compass_after, float log_position[], float calculated_position[])
 {
   float x1, y1, x2, y2;
   // 回転角
@@ -40,6 +40,6 @@ void calculateOdometory(int wheelLeft, int wheelRight, int compass_before, int c
   x = x2 - x1;
   y = y2 - y1;
 
-  position[0] = x;
-  position[1] = y;
+  calculated_position[0] = x + log_position[0];
+  calculated_position[1] = y + log_position[1];
 }
