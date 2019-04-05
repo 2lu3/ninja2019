@@ -30,7 +30,7 @@ void Game0()
 	if (getRepeatedNum() == 0)
 	{
 		commonSetup0();
-		localGameSetup1();
+		localGameSetup0();
 	}
 	commonLoopStart0();
 	localGame0();

@@ -1,7 +1,11 @@
+#ifndef HIKARU
+#define HIKARU
 #include "CospaceSettings.h"
 #include "CommonTools.h"
 
-void localGame0Setup(void);
+void localGameSetup0(void);
 void localGame0(void);
-void localGame1Setup(void);
+void localGameSetup1(void);
 void localGame1(void);
+
+#endif // !HIKARU

@@ -7,7 +7,7 @@
 
 #define COSPACE_WIDTH 240
 #define COSPACE_HEIGHT 180
-#define SIZE 5
+#define SIZE 10
 
 #define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
 #define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
@@ -180,6 +180,49 @@ int isCross(int num, double x1, double y1, double x2, double y2)
 
 void calculate2(int us_left, int us_front, int us_right, int compass)
 {
+	float move_x, move_y;
+	int move_sum = WheelLeft + WheelRight;
+	move_x = cos((double)(Compass + 90) / 180 * PI);
+	move_y = sin((double)(Compass + 90) / 180 * PI);
+	float border = 0.7;
+	if (move_x < -border)
+	{
+		move_x = -1;
+	}
+	else if (move_x < border)
+	{
+		move_x = 0;
+	}
+	else
+	{
+		move_x = 1;
+	}
+	if (move_y < -border)
+	{
+		move_y = -1;
+	}
+	else if (move_y < border)
+	{
+		move_y = 0;
+	}
+	else
+	{
+		move_y = 1;
+	}
+
+	// rotate
+	if (WheelLeft * WheelRight < 0)
+	{
+		move_x = 0;
+		move_y = 0;
+	}
+	// move backward
+	else if (WheelLeft + WheelRight < 0)
+	{
+		move_x = -move_x;
+		move_y = -move_y;
+	}
+
 	double angle[3] = {45, 0, -45};
 	double distance[3] = {us_left, us_front, us_right};
 	// 0 : x, 1 : y
@@ -331,7 +374,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	float k = 0.6;
+	float k = 0.9;
 	int range = 1;
 	rep(hi, MAP_HEIGHT)
 	{
@@ -340,21 +383,34 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 			map_possibility[hi][wj] *= k;
 			int num = 0;
 			float add = 0;
-			rep(hi_range, 1 + 2 * range)
+			int left = wj - move_x, right = wj;
+			int under = hi - move_y, top = hi;
+			if (left > right)
 			{
-				rep(wj_range, 1 + 2 * range)
+				int temp = left;
+				left = right;
+				right = temp;
+			}
+			if (under > top)
+			{
+				int temp = under;
+				under = top;
+				top = temp;
+			}
+			// printf("%d %d %d %d\n", left, right, under, top);
+			for (int hi_range = under; hi_range <= top; hi_range++)
+			{
+				for (int wj_range = left; wj_range <= right; wj_range++)
 				{
-					int y = hi + hi_range - range;
-					int x = wj + wj_range - range;
-					if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH)
+					if (hi_range < 0 || hi_range >= MAP_HEIGHT || wj_range < 0 || wj_range >= MAP_WIDTH)
 					{
 						continue;
 					}
-					num++;
-					add += current_map_possibility[y][x] * (1.0 - k);
+					num++; // 距離の二乗に反比例
+					add += current_map_possibility[hi_range][wj_range] * (1.0 - k);
 				}
 			}
-			add /= num;
+			// add = add / num;
 			map_possibility[hi][wj] += add;
 		}
 	}
@@ -438,17 +494,25 @@ void showMap2()
 			// fprintf(fp, "%d ", current_map_possibility[hi][wj]);
 			if (map_data[hi][wj] == WALL)
 			{
-				printf("□");
+				printf("*");
 				continue;
 			}
 
 			if (hi == calculated_y && wj == calculated_x)
 			{
-				printf("☆");
+				printf("#");
+			}
+			else if (map_possibility[hi][wj] > 0.8 * POSSIBILITY_VALUE_MAX)
+			{
+				printf("+");
+			}
+			else if (map_possibility[hi][wj] > 0.6 * POSSIBILITY_VALUE_MAX)
+			{
+				printf("-");
 			}
 			else
 			{
-				printf("　");
+				printf(" ");
 			}
 
 			// printf("%2.0f", map_possibility[hi][wj]);

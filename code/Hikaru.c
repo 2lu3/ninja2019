@@ -21,6 +21,7 @@ void localGameSetup0(void)
 {
 	// shift-JIS 932
 	// UTF-8 65001
+	system("cls");
 	system("chcp 65001");
 	init();
 	init2();
@@ -32,7 +33,10 @@ void localGame0(void)
 	{
 	}
 	calculate2(US_Left, US_Front, US_Right, Compass + 90);
-	showMap2();
+	if (getRepeatedNum() % 3 == 0)
+	{
+		showMap2();
+	}
 	if (IsOnTrapBlue())
 	{
 		for (int i = 0; i < sizeof(loaded_objects) / sizeof(loaded_objects[0]); i++)
@@ -130,12 +134,12 @@ void localGame0(void)
 		}
 		if (target_angle < 0)
 		{
-			// 左を向�?て�?�?
+			// 蟾ｦ繧貞搗缸?缸ｦ缸?繧?
 			motor(5, 3);
 		}
 		else
 		{
-			// 右を向�?て�?�?
+			// 蝮ｳ繧貞搗缸?缸ｦ缸?繧?
 			motor(3, 5);
 		}
 	}
