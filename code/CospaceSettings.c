@@ -57,7 +57,7 @@ DLL_EXPORT char *GetDebugInfo()
 
 DLL_EXPORT char *GetTeamName()
 {
-  static char team_name[30] = "–‚‰¤";
+  static char team_name[30] = "Ninja";
   return team_name;
 }
 

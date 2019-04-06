@@ -14,7 +14,7 @@
 #define RED_LOADED_ID 0
 #define CYAN_LOADED_ID 1
 #define BLACK_LOADED_ID 2
-#define ID_SUPER_LOADED 3
+#define SUPER_LOADED_ID 3
 extern int loaded_objects[4];
 
 int getRepeatedNum(void);

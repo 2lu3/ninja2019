@@ -27,7 +27,6 @@ enum Mode
 #ifndef CSBOT_REAL
 #include <windows.h>
 #include <math.h>
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define DLL_EXPORT extern __declspec(dllexport)

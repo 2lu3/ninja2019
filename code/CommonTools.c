@@ -35,6 +35,11 @@ void commonLoopEnd0(void)
 
 void commonSetup1(void)
 {
+  LoadedObjects = 0;
+  for (int i = 0; i < sizeof(loaded_objects) / sizeof(loaded_objects[0]); i++)
+  {
+    loaded_objects[i] = 0;
+  }
 }
 
 void commonLoopStart1(void)

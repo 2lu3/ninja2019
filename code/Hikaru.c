@@ -14,7 +14,6 @@ int triger(void)
 {
 	return !((LoadedObjects >= triger_object_num) || (Time > 180 && LoadedObjects >= 3));
 }
-int log_compass;
 float log_position[2];
 
 void localGameSetup0(void)
@@ -298,50 +297,49 @@ void localGame0(void)
 
 FILE *fp;
 
-void localGameSetup1(void)
-{
-	// fp = fopen("motor.txt", "a");
-	srand((unsigned int)time(NULL));
-	system("cls");
+// void localGameSetup1(void)
+// {
+// 	// fp = fopen("motor.txt", "a");
+// 	srand((unsigned int)time(NULL));
+// 	system("cls");
 
-	log_compass = Compass;
-	log_position[0] = PositionX;
-	log_position[1] = PositionY;
-}
+// 	log_compass = Compass;
+// 	log_position[0] = PositionX;
+// 	log_position[1] = PositionY;
+// }
 
-float position[2];
-
+/*
 void localGame1(void)
 {
 
-	int left = 3;
-	int right = 5;
-	motor(3, 5);
-	if (getRepeatedNum() == 0)
-	{
-		system("cls");
-	}
-	if (getRepeatedNum() < 20)
-	{
-		// calculateOdometory(WheelLeft, WheelRight, log_compass, Compass, log_position, position);
+	// 	int left = 3;
+	// 	int right = 5;
+	// 	motor(3, 5);
+	// 	if (getRepeatedNum() == 0)
+	// 	{
+	// 		system("cls");
+	// 	}
+	// 	if (getRepeatedNum() < 20)
+	// 	{
+	// 		// calculateOdometory(WheelLeft, WheelRight, log_compass, Compass, log_position, position);
 
-		// printf("%lf %lf\n", position[0], position[1]);
-		// log_position[0] = position[0];
-		// log_position[1] = position[1];
-		// log_compass = Compass;
-		printf("%d %d %d %d %d\n", WheelLeft, WheelLeft, Compass, PositionX, PositionY);
-	}
-	// if (getRepeatedNum() == 20)
-	// {
-	// 	printf("%d %d\n", PositionX, PositionY);
-	// }
-	// else if (getRepeatedNum() == 40)
-	// {
-	// 	printf("%d %d\n", PositionX, PositionY);
-	// }
-	// else if (getRepeatedNum() > 40)
-	// {
-	// 	motor(0, 0);
-	// }
+	// 		// printf("%lf %lf\n", position[0], position[1]);
+	// 		// log_position[0] = position[0];
+	// 		// log_position[1] = position[1];
+	// 		// log_compass = Compass;
+	// 		printf("%d %d %d %d %d\n", WheelLeft, WheelLeft, Compass, PositionX, PositionY);
+	// 	}
+	// 	// if (getRepeatedNum() == 20)
+	// 	// {
+	// 	// 	printf("%d %d\n", PositionX, PositionY);
+	// 	// }
+	// 	// else if (getRepeatedNum() == 40)
+	// 	// {
+	// 	// 	printf("%d %d\n", PositionX, PositionY);
+	// 	// }
+	// 	// else if (getRepeatedNum() > 40)
+	// 	// {
+	// 	// 	motor(0, 0);
+	// 	// }
 	fflush(stdout);
-}
+}*/

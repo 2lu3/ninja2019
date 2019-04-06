@@ -413,50 +413,50 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 			// add = add / num;
 			map_possibility[hi][wj] += add;
 		}
-	}
 
-	float min = 1000000, max = 0;
-	int max_id = -1;
-	rep(hi, MAP_HEIGHT)
-	{
-		rep(wj, MAP_WIDTH)
+		float min = 1000000, max = 0;
+		int max_id = -1;
+		rep(hi, MAP_HEIGHT)
 		{
-			if (map_data[hi][wj] == WALL)
+			rep(wj, MAP_WIDTH)
 			{
-				continue;
-			}
-			if (map_possibility[hi][wj] < min)
-			{
-				min = map_possibility[hi][wj];
-			}
-			if (map_possibility[hi][wj] > max)
-			{
-				max = map_possibility[hi][wj];
-				max_id = hi * MAP_WIDTH + wj;
+				if (map_data[hi][wj] == WALL)
+				{
+					continue;
+				}
+				if (map_possibility[hi][wj] < min)
+				{
+					min = map_possibility[hi][wj];
+				}
+				if (map_possibility[hi][wj] > max)
+				{
+					max = map_possibility[hi][wj];
+					max_id = hi * MAP_WIDTH + wj;
+				}
 			}
 		}
-	}
 
-	// magnificationで、値の広さを調整する
-	// correctionで、値の位置を調整する
-	float magnification = POSSIBILITY_VALUE_MAX / (max - min);
-	float correction = POSSIBILITY_VALUE_MIN - min * magnification;
-	rep(hi, MAP_HEIGHT)
-	{
-		rep(wj, MAP_WIDTH)
+		// magnificationで、値の広さを調整する
+		// correctionで、値の位置を調整する
+		float magnification = POSSIBILITY_VALUE_MAX / (max - min);
+		float correction = POSSIBILITY_VALUE_MIN - min * magnification;
+		rep(hi, MAP_HEIGHT)
 		{
-			if (map_data[hi][wj] == WALL)
+			rep(wj, MAP_WIDTH)
 			{
-				map_possibility[hi][wj] = 0;
-				continue;
+				if (map_data[hi][wj] == WALL)
+				{
+					map_possibility[hi][wj] = 0;
+					continue;
+				}
+				map_possibility[hi][wj] = map_possibility[hi][wj] * magnification + correction;
 			}
-			map_possibility[hi][wj] = map_possibility[hi][wj] * magnification + correction;
 		}
-	}
 
-	calculated_y = max_id / MAP_WIDTH;
-	calculated_x = max_id - calculated_y * MAP_WIDTH;
-	// printf("%d calculated %d %d\n", getRepeatedNum(), x * SIZE, y * SIZE);
+		calculated_y = max_id / MAP_WIDTH;
+		calculated_x = max_id - calculated_y * MAP_WIDTH;
+		// printf("%d calculated %d %d\n", getRepeatedNum(), x * SIZE, y * SIZE);
+	}
 }
 
 void init2()
