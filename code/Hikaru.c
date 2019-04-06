@@ -28,9 +28,6 @@ void localGameSetup0(void)
 
 void localGame0(void)
 {
-	if (getRepeatedNum() != 0)
-	{
-	}
 	calculate2(US_Left, US_Front, US_Right, Compass + 90);
 	if (getRepeatedNum() % 3 == 0)
 	{

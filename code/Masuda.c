@@ -54,7 +54,7 @@ void m_Game0(void)
 	{
 		Find_action(BLACK_LOADED_ID);
 	}
-	else if (IsOnDepositArea() && (LoadedObjects >= 6 || triger()))
+	else if (IsOnDepositArea() && LoadedObjects >= 5)
 	{
 		
 		depositsisei = 0;
@@ -94,6 +94,10 @@ void m_Game0(void)
 		{
 			motor(4, 1);
 		}
+		else if (US_Right < 160 && US_Right > 130)
+		{
+			motor(4, -4);
+		}
 		else
 		{
 			motor(4, 2);
@@ -125,7 +129,7 @@ void m_Game0(void)
 	else if(obstacle(8 , 15 , 8)){
 		//depositのことをかく
 	}*/
-	else if(obstacle(15,105,15)&& US_Front > 95 && US_Left> 6 && US_Right > 6 && Compass < 290 && Compass > 250 && LoadedObjects >= 5){
+	else if(US_Left < 15 && US_Right < 15 && US_Front < 110 && US_Front > 90 && US_Left> 6 && US_Right > 6 && Compass < 290 && Compass > 250 && LoadedObjects >= 5){
 
 		depositsisei++;
 
@@ -160,7 +164,7 @@ void m_Game0(void)
 	}*/
 	else
 	{	
-		if (Compass > 250 && Compass < 290) {
+		if (Compass > 245 && Compass < 290) {
 			if (US_Front < 15)
 			{
 				motor(3, -3);
@@ -173,7 +177,7 @@ void m_Game0(void)
 			{	
 				motor(4, 2);
 			}
-			else if (US_Left < 20 + rand() % 20)
+			else if (US_Left < 15 + rand() % 20)
 			{
 				if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
 				{
@@ -199,7 +203,49 @@ void m_Game0(void)
 					motor(3, 5);
 				}
 			}
-		}else{
+		}else if(LoadedObjects >= 4){
+			if (US_Front < 20)
+			{
+				motor(3, -3);
+			}
+			else if (US_Left < 20)
+			{
+				motor(4, 1);
+			}
+			else if (US_Left < 25)
+			{
+			
+				
+				motor(4, 2);
+			}
+			else if (US_Left < 30 + rand() % 20)
+			{
+				if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
+				{
+					motor(2, 4);
+				}
+				else
+				{
+					motor(4, 5);
+				}
+			}
+			else if (US_Left < 60)
+			{
+				motor(1, 3);
+			}
+			else
+			{
+				if (!(rand() % 10))
+				{
+					motor(4, 5);
+				}
+				else
+				{
+					motor(3, 5);
+				}
+			}
+		}
+		else{
 			if (US_Front < 15)
 			{
 				motor(3, -3);
@@ -245,7 +291,7 @@ void m_Game0(void)
 		
 	}
 	
-	if (Time > 180 && getAction() != FIND_OBJ && getAction() != DEPOSIT_OBJ|| Time > 200)
+	if (Time > 180 && getAction() != FIND_OBJ && !IsOnDepositArea || Time > 200)
     {
         setAction(TELEPORT);
     }
@@ -256,14 +302,8 @@ void m_Game0(void)
 	case YELLOW_AVOIDANCE:
 		if (SuperDuration < 3 && Duration < 3)
 		{
-			if (triger())
-			{
-				motor_no_action_change(3, -3);
-			}
-			else
-			{
-				motor_no_action_change(-3, 3);
-			}
+		
+			motor_no_action_change(-3, 3);
 		}
 		else if ((SuperDuration != 0 && SuperDuration <= 5) || (Duration != 0 && Duration <= 5))
 		{

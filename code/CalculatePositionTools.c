@@ -407,11 +407,14 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 						continue;
 					}
 					num++; // 距離の二乗に反比例
-					add += current_map_possibility[hi_range][wj_range] * (1.0 - k);
+					// addの合計値に反比例
+					// 可能性が同じものが多い場合は、加える可能性を低くする
+					add += (float)current_map_possibility[hi_range][wj_range] * (1.0 - k);
 				}
 			}
 			// add = add / num;
 			map_possibility[hi][wj] += add;
+			printf("%f\n", add);
 		}
 
 		float min = 1000000, max = 0;
@@ -491,7 +494,8 @@ void showMap2()
 	{
 		rep(wj, MAP_WIDTH)
 		{
-			// fprintf(fp, "%d ", current_map_possibility[hi][wj]);
+			printf("%f ", map_possibility[hi][wj]);
+			continue;
 			if (map_data[hi][wj] == WALL)
 			{
 				printf("*");
@@ -569,6 +573,7 @@ void showMap2()
 		}
 		printf("\n");
 	}
+	printf("\n");
 	fflush(stdout);
 	// showCurrentMapPossibility();
 }

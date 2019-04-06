@@ -1,6 +1,7 @@
 #include "CospaceSettings.h"
 #include "CommonTools.h"
 #include "masuda.h"
+#include "Hikaru.h"
 #include "HIKARU2.h"
 
 // sprintfのエラーを無視するため
@@ -31,10 +32,12 @@ void Game0()
 	if (getRepeatedNum() == 0)
 	{
 		commonSetup0();
-		localGameSetup0();
+		m_localGameSetup0();
+		// localGameSetup0();
 	}
 	commonLoopStart0();
-	localGame0();
+	m_Game0();
+	// localGame0();
 	commonLoopEnd0();
 }
 

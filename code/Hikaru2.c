@@ -14,6 +14,8 @@
 // Manual
 // GetDebugInfo() and GetTeamName() was changed
 #include "Hikaru2.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 #define POINT_BLACK 20
 #define POINT_RED 10
@@ -126,6 +128,23 @@ void localGameSetup1(void)
 
 void localGame1()
 {
+  FILE *fp;
+  fp = fopen("./possibility.txt", "w");
+  if (fp == NULL)
+  {
+    printf("failed");
+  }
+  // if (getRepeatedNum() % 10 == 0)
+  for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
+  {
+    for (int j = 0; j < DOT_HEIGHT_NUMBER; j++)
+    {
+      // fprintf(fp, "%3d", dot[j * DOT_WIDTH_NUMBER + i].arrived_times);
+      fprintf(fp, "hello");
+    }
+    fprintf(fp, "\n");
+  }
+  fclose(fp);
   // printf("%d %d\n", log_x, log_y);
   if (PositionX != 0 || PositionY != 0)
   {
@@ -216,7 +235,7 @@ void localGame1()
     loaded_objects[2]++;
     SuperDuration = FIND_OBJECT_DURATION;
   }
-  else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0)
+  else if (IsOnSuperObj() && SuperObj_Num == 0)
   {
     setAction(FIND_OBJ);
     SuperDuration = FIND_OBJECT_DURATION;
@@ -676,41 +695,41 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 void InputDotInformation(void)
 {
   int map_position_data[36][27] = {
-      {2, 2, 2, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 2, 2, 2},
-      {2, 2, 2, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 2, 2, 2},
-      {2, 2, 2, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 2, 2, 2},
-      {4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4},
-      {5, 5, 5, 5, 5, 5, 5, 4, 4, 6, 4, 2, 2, 2, 2, 2, 4, 6, 4, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 4, 2, 6, 4, 4, 4, 2, 4, 4, 4, 6, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 4, 2, 6, 6, 6, 6, 2, 6, 6, 6, 6, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 4, 2, 6, 6, 6, 6, 2, 6, 6, 6, 6, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 4, 4, 4, 4, 2, 2, 6, 6, 6, 6, 2, 6, 6, 6, 6, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 4, 2, 2, 2, 2, 2, 6, 6, 6, 6, 2, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5},
-      {5, 5, 5, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1, 1},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 0, 0, 0},
-      {0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0},
-      {3, 3, 3, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 3, 3, 3},
+      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
+      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
+      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
+      {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
+      {5, 5, 5, 5, 5, 5, 5, 5, 4, 5, 5, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
+      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 2, 2, 2, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
+      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
+      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
+      {5, 5, 5, 5, 2, 2, 2, 2, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 4, 4, 4, 5, 5, 5, 5},
+      {5, 5, 5, 5, 2, 2, 2, 2, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
+      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
+      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
+      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
+      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 4, 0},
       {3, 3, 3, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 3, 3, 3},
+      {3, 3, 3, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 3, 3, 3},
       {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3}};
 
   short map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
@@ -986,7 +1005,7 @@ void Dijkstra(int option)
       }
       else
       {
-        target_cost += dot[target_id].arrived_times * 10;
+        target_cost += dot[target_id].arrived_times * 100;
       }
 
       // if (dot[target_id].point < -1) {
@@ -1009,89 +1028,89 @@ void Dijkstra(int option)
   }
 
   // printf("\n\n\n\n%d\n\n\n\n", number);
-
-  // if (rand() % 2 == 0)
-  // {
-  //   for (int j = DOT_HEIGHT_NUMBER - 1; j >= 0; j--)
-  //   {
-  //     for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
-  //     {
-  //       int id = j * DOT_WIDTH_NUMBER + i;
-  //       int prev_y = dot[id].from / DOT_WIDTH_NUMBER;
-  //       int prev_x = dot[id].from - prev_y * DOT_WIDTH_NUMBER;
-  //       if (dot[id].point < POINT_SWAMPLAND)
-  //       {
-  //         printf("＃");
-  //       }
-  //       else if (dot[i].from == -1)
-  //       {
-  //         printf("＊");
-  //       }
-  //       else if (j - prev_y == 1)
-  //       {
-  //         if (i - prev_x == 1)
-  //         {
-  //           printf("↙ ");
-  //         }
-  //         else if (i - prev_x == 0)
-  //         {
-  //           printf("↑");
-  //         }
-  //         else if (i - prev_x == -1)
-  //         {
-  //           printf("↖ ");
-  //         }
-  //         else
-  //         {
-  //           printf("%2d", i - prev_x);
-  //         }
-  //       }
-  //       else if (j - prev_y == 0)
-  //       {
-  //         if (i - prev_x == 1)
-  //         {
-  //           printf("→");
-  //         }
-  //         else if (i - prev_x == 0)
-  //         {
-  //           printf("＠");
-  //         }
-  //         else if (i - prev_x == -1)
-  //         {
-  //           printf("←");
-  //         }
-  //         else
-  //         {
-  //           printf("%2d", i - prev_x);
-  //         }
-  //       }
-  //       else if (j - prev_y == -1)
-  //       {
-  //         if (i - prev_x == 1)
-  //         {
-  //           printf("↘ ");
-  //         }
-  //         else if (i - prev_x == 0)
-  //         {
-  //           printf("↓");
-  //         }
-  //         else if (i - prev_x == -1)
-  //         {
-  //           printf("↙ ");
-  //         }
-  //         else
-  //         {
-  //           printf("%2d", i - prev_x);
-  //         }
-  //       }
-  //       else
-  //       {
-  //         printf("%2d", j - prev_y);
-  //       }
-  //     }
-  //     printf("\n");
-  //   }
-  // }
+  /*
+  if (rand() % 2 == 0)
+  {
+    for (int j = DOT_HEIGHT_NUMBER - 1; j >= 0; j--)
+    {
+      for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
+      {
+        int id = j * DOT_WIDTH_NUMBER + i;
+        int prev_y = dot[id].from / DOT_WIDTH_NUMBER;
+        int prev_x = dot[id].from - prev_y * DOT_WIDTH_NUMBER;
+        if (dot[id].point < POINT_SWAMPLAND)
+        {
+          printf("＃");
+        }
+        else if (dot[i].from == -1)
+        {
+          printf("＊");
+        }
+        else if (j - prev_y == 1)
+        {
+          if (i - prev_x == 1)
+          {
+            printf("↙ ");
+          }
+          else if (i - prev_x == 0)
+          {
+            printf("↑");
+          }
+          else if (i - prev_x == -1)
+          {
+            printf("↖ ");
+          }
+          else
+          {
+            printf("%2d", i - prev_x);
+          }
+        }
+        else if (j - prev_y == 0)
+        {
+          if (i - prev_x == 1)
+          {
+            printf("->");
+          }
+          else if (i - prev_x == 0)
+          {
+            printf("@ ");
+          }
+          else if (i - prev_x == -1)
+          {
+            printf("<-");
+          }
+          else
+          {
+            printf("%2d", i - prev_x);
+          }
+        }
+        else if (j - prev_y == -1)
+        {
+          if (i - prev_x == 1)
+          {
+            printf("↘ ");
+          }
+          else if (i - prev_x == 0)
+          {
+            printf("↓");
+          }
+          else if (i - prev_x == -1)
+          {
+            printf("↙ ");
+          }
+          else
+          {
+            printf("%2d", i - prev_x);
+          }
+        }
+        else
+        {
+          printf("%2d", j - prev_y);
+        }
+      }
+      printf("\n");
+    }
+  }*/
 
   fprintf(logfile, " %d End Dijkstra()\n", getRepeatedNum());
 }
@@ -1103,10 +1122,11 @@ int IsThereObstacle(int x, int y, int target_x, int target_y)
 
 int GoToDot(int x, int y)
 {
+  printf("%d %d\n", x * SIZE, y * SIZE);
   static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
   fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-  if (PositionX == -1 && PLUSMINUS(log_x / SIZE, x, 2) && PLUSMINUS(log_y / SIZE, y, 2))
+  if (PositionX == -1 && PLUSMINUS(log_x / SIZE, x, 1) && PLUSMINUS(log_y / SIZE, y, 1))
   {
     fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
     return 1;
@@ -1168,86 +1188,88 @@ int GoToDot(int x, int y)
       printf("temp = %d is strange. I will continue\n", temp);
       fprintf(errfile, " %d GoToDot() temp = %d is srange. I will continue\n", getRepeatedNum(), temp);
       fprintf(logfile, " %d GoToDot() temp = %d is srange. I will continue\n", getRepeatedNum(), temp);
-      for (int j = DOT_HEIGHT_NUMBER - 1; j >= 0; j--)
-      {
-        for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
-        {
-          int id = j * DOT_WIDTH_NUMBER + i;
-          int prev_y = dot[id].from / DOT_WIDTH_NUMBER;
-          int prev_x = dot[id].from - prev_y * DOT_WIDTH_NUMBER;
-          if (dot[id].point < POINT_SWAMPLAND)
-          {
-            fprintf(logfile, "＃");
-          }
-          else if (dot[i].from == -1)
-          {
-            fprintf(logfile, "＊");
-          }
-          else if (j - prev_y == 1)
-          {
-            if (i - prev_x == 1)
-            {
-              fprintf(logfile, "?");
-            }
-            else if (i - prev_x == 0)
-            {
-              fprintf(logfile, "↑");
-            }
-            else if (i - prev_x == -1)
-            {
-              fprintf(logfile, "?");
-            }
-            else
-            {
-              fprintf(logfile, "%2d", i - prev_x);
-            }
-          }
-          else if (j - prev_y == 0)
-          {
-            if (i - prev_x == 1)
-            {
-              fprintf(logfile, "→");
-            }
-            else if (i - prev_x == 0)
-            {
-              fprintf(logfile, "＠");
-            }
-            else if (i - prev_x == -1)
-            {
-              fprintf(logfile, "←");
-            }
-            else
-            {
-              fprintf(logfile, "%2d", i - prev_x);
-            }
-          }
-          else if (j - prev_y == -1)
-          {
-            if (i - prev_x == 1)
-            {
-              fprintf(logfile, "?");
-            }
-            else if (i - prev_x == 0)
-            {
-              fprintf(logfile, "↓");
-            }
-            else if (i - prev_x == -1)
-            {
-              fprintf(logfile, "?");
-            }
-            else
-            {
-              fprintf(logfile, "%2d", i - prev_x);
-            }
-          }
-          else
-          {
-            fprintf(logfile, "%2d", j - prev_y);
-          }
-        }
-        fprintf(logfile, "\n");
-      }
+      // logfile = stdout;
+      // for (int j = DOT_HEIGHT_NUMBER - 1; j >= 0; j--)
+      // {
+      //   for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
+      //   {
+      //     int id = j * DOT_WIDTH_NUMBER + i;
+      //     int prev_y = dot[id].from / DOT_WIDTH_NUMBER;
+      //     int prev_x = dot[id].from - prev_y * DOT_WIDTH_NUMBER;
+      //     if (dot[id].point < POINT_SWAMPLAND)
+      //     {
+      //       fprintf(logfile, "＃");
+      //     }
+      //     else if (dot[i].from == -1)
+      //     {
+      //       fprintf(logfile, "＊");
+      //     }
+      //     else if (j - prev_y == 1)
+      //     {
+      //       if (i - prev_x == 1)
+      //       {
+      //         fprintf(logfile, "?");
+      //       }
+      //       else if (i - prev_x == 0)
+      //       {
+      //         fprintf(logfile, "↑");
+      //       }
+      //       else if (i - prev_x == -1)
+      //       {
+      //         fprintf(logfile, "?");
+      //       }
+      //       else
+      //       {
+      //         fprintf(logfile, "%2d", i - prev_x);
+      //       }
+      //     }
+      //     else if (j - prev_y == 0)
+      //     {
+      //       if (i - prev_x == 1)
+      //       {
+      //         fprintf(logfile, "→");
+      //       }
+      //       else if (i - prev_x == 0)
+      //       {
+      //         fprintf(logfile, "＠");
+      //       }
+      //       else if (i - prev_x == -1)
+      //       {
+      //         fprintf(logfile, "←");
+      //       }
+      //       else
+      //       {
+      //         fprintf(logfile, "%2d", i - prev_x);
+      //       }
+      //     }
+      //     else if (j - prev_y == -1)
+      //     {
+      //       if (i - prev_x == 1)
+      //       {
+      //         fprintf(logfile, "?");
+      //       }
+      //       else if (i - prev_x == 0)
+      //       {
+      //         fprintf(logfile, "↓");
+      //       }
+      //       else if (i - prev_x == -1)
+      //       {
+      //         fprintf(logfile, "?");
+      //       }
+      //       else
+      //       {
+      //         fprintf(logfile, "%2d", i - prev_x);
+      //       }
+      //     }
+      //     else
+      //     {
+      //       fprintf(logfile, "%2d", j - prev_y);
+      //     }
+      //   }
+      //   fprintf(logfile, "\n");
+      // }
       GoToPosition(x * SIZE, y * SIZE, 5, 5, 5);
+      // logfile = fopen("log_file.txt", "w");
       return 0;
     }
   }
@@ -1402,12 +1424,12 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
         }
 
         //yellow or wall or deposit
-        if (dot[investigating_dot_id].point <= POINT_DEPOSIT)
+        if (dot[investigating_dot_id].point < POINT_DEPOSIT)
         {
           continue;
         }
 
-        int costs = dot[investigating_dot_id].arrived_times * 10 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100;
+        int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100;
         // for (int i = 0; i < 100000; i++) {
         // 	// for (int j = 0; j < 1000000; j++) {
         // 		// for (int k = 0; k < 100000; k++) {
@@ -1572,7 +1594,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
           }
         }
 
-        int costs = dot[investigating_dot_id].arrived_times * 10 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100;
+        int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100;
         // for (int i = 0; i < 100000; i++) {
         // 	// for (int j = 0; j < 1000000; j++) {
         // 		// for (int k = 0; k < 100000; k++) {
@@ -2056,6 +2078,7 @@ void GoToAngle(int angle, int distance)
           {
             motor(-2, 2);
           }
+          Duration = 3;
         }
       }
       else
