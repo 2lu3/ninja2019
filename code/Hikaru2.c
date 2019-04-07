@@ -129,6 +129,9 @@ void localGameSetup1(void)
 
 void localGame1()
 {
+  printf("serach %d\n", searching_object);
+  static int same_time = 0;
+  static int prev_repeated_num = 0;
   // printf("%d %d\n", log_x, log_y);
   if (PositionX != 0 || PositionY != 0)
   {
@@ -221,6 +224,7 @@ void localGame1()
   }
   else if (IsOnSuperObj() && SuperObj_Num == 0)
   {
+    same_time = 0;
     setAction(FIND_OBJ);
     SuperDuration = FIND_OBJECT_DURATION;
     int min = 10000;
@@ -290,8 +294,6 @@ void localGame1()
     searching_object = SUPER_LOADED_ID;
     if (GoToDots(log_superobj_x[0], log_superobj_y[0], 0, 0))
     {
-      static int same_time = 0;
-      static int prev_repeated_num = 0;
       if (prev_repeated_num + 40 < getRepeatedNum())
       {
         same_time = 0;
@@ -691,13 +693,13 @@ void InputDotInformation(void)
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 4, 2, 2, 2, 4, 0, 0, 0, 4, 5, 5, 5, 5, 5},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 4, 4, 4, 4, 4, 0, 0, 0, 2, 5, 5, 5, 5, 5},
-      {0, 0, 1, 1, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
-      {0, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
-      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
-      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
-      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
-      {4, 4, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 2, 4, 0, 4, 4, 4, 4, 4, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 1, 1, 4, 4, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 1, 1, 1, 1, 4, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 4, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 4, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 4, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 4, 1, 1, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
       {4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
       {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 2, 2, 4, 0, 0, 2, 5, 5, 5, 5, 5},
       {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 4, 4, 4, 0, 0, 2, 5, 5, 5, 5, 5},
@@ -712,12 +714,12 @@ void InputDotInformation(void)
       {4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
       {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4, 4, 4, 0, 0, 2, 5, 5, 5, 5, 5},
       {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 2, 5, 5, 5, 5, 5},
-      {4, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
-      {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
-      {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
-      {1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
-      {0, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 1, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 1, 1, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 4, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {4, 1, 1, 1, 1, 4, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 2, 5, 5, 5, 5, 5},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 2, 2, 4, 0, 0, 0, 4, 5, 5, 5, 5, 5},
       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 4, 4, 0, 0, 0, 0, 5, 5, 5, 5, 5},
@@ -867,12 +869,12 @@ void InputDotInformation(void)
       //swampland
       else if (dot[i].point == POINT_SWAMPLAND || dot[target_id].point == POINT_SWAMPLAND)
       {
-        dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000;
+        dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
       }
       //マップの端
       else if (x == 0 || y == 0 || x == DOT_WIDTH_NUMBER - 1 || y == DOT_HEIGHT_NUMBER - 1 || temp_x == 0 || temp_y == 0 || temp_x == DOT_WIDTH_NUMBER - 1 || temp_y == DOT_HEIGHT_NUMBER - 1)
       {
-        dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000;
+        dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
       }
       else
       {
@@ -995,7 +997,7 @@ void Dijkstra(int option)
       }
       else
       {
-        target_cost += dot[target_id].arrived_times * 100;
+        target_cost += dot[target_id].arrived_times * 10;
       }
 
       // if (dot[target_id].point < -1) {
@@ -1005,15 +1007,21 @@ void Dijkstra(int option)
       // }
       if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
       {
-        target_cost -= 2;
+        target_cost -= 20;
       }
       if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
       {
-        target_cost -= 2;
+        target_cost -= 20;
       }
       if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
       {
-        target_cost -= 2;
+        target_cost -= 20;
+      }
+
+      if (target_cost <= 0)
+      {
+        printf("fixed\n");
+        target_cost = 1;
       }
 
       if (dot[target_id].cost < 0 || target_cost < dot[target_id].cost)
@@ -1462,7 +1470,7 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
     }
 
     same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
-    same_target_border /= 1;
+    same_target_border *= 2;
     same_target_border += 30;
 
     // int i = 0;
@@ -1632,7 +1640,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
     }
 
     same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
-    same_target_border /= 1;
+    same_target_border *= 2;
     same_target_border += 30;
 
     // int i = 0;
@@ -1668,6 +1676,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
   }
   same_target++;
   // printf("%d\n", same_target);
+  printf("%d %d\n", same_target, same_target_border);
   if (GoToDot(target_x, target_y) || same_target > same_target_border)
   {
     prev_x = -1;
@@ -1805,8 +1814,8 @@ void GoToAngle(int angle, int distance)
 
   // double magnification = 0.3;
   int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-  int short_left = 2;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-  int short_right = 2; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+  int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+  int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
   if (short_front < 0)
     short_front = 0;
   if (short_front > 5)
@@ -1825,7 +1834,7 @@ void GoToAngle(int angle, int distance)
     classification = obstacle(30, 40, 30);
     if (log_superobj_num > 0)
     {
-      classification = 0;
+      classification = obstacle(15, 20, 15);
     }
     if (classification == 1 && angle > 0 && angle < 90)
     { //left
@@ -2090,7 +2099,6 @@ void GoToAngle(int angle, int distance)
           {
             motor(-2, 2);
           }
-          Duration = 3;
         }
       }
       else
