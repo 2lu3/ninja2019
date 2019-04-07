@@ -46,12 +46,13 @@ FILE *Motor_file;
 int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
 int absolute_x = -1, absolute_y = -1;
 int now_dot_id;
-int emergency_now_dot_id = 398;
+int emergency_now_dot_id = 593;
 // int process = -1;
 int super_sameoperate = 0;
 //[WheelLeft][WheelRight][0]:distance
 //[WheelLeft][WheelRight][1]:angle
 int Motor_log[11][11][2];
+int searching_object;
 
 struct Dot
 {
@@ -128,23 +129,6 @@ void localGameSetup1(void)
 
 void localGame1()
 {
-  FILE *fp;
-  fp = fopen("./possibility.txt", "w");
-  if (fp == NULL)
-  {
-    printf("failed");
-  }
-  // if (getRepeatedNum() % 10 == 0)
-  for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
-  {
-    for (int j = 0; j < DOT_HEIGHT_NUMBER; j++)
-    {
-      // fprintf(fp, "%3d", dot[j * DOT_WIDTH_NUMBER + i].arrived_times);
-      fprintf(fp, "hello");
-    }
-    fprintf(fp, "\n");
-  }
-  fclose(fp);
   // printf("%d %d\n", log_x, log_y);
   if (PositionX != 0 || PositionY != 0)
   {
@@ -259,14 +243,14 @@ void localGame1()
     loaded_objects[3]++;
     log_superobj_num--;
   }
-  else if (IsOnYellowLine() && LoadedObjects > 0)
-  {
-    motor(-5, -3);
-    SuperDuration = 3;
-  }
   else if (Duration > 0)
   {
     Duration--;
+  }
+  else if (IsOnYellowLine() && LoadedObjects > 0)
+  {
+    motor(-5, -3);
+    Duration = 3;
   }
   else if (IsOnDepositArea() && LoadedObjects >= 4)
   {
@@ -287,13 +271,14 @@ void localGame1()
   }
   else if (LoadedObjects >= 6)
   {
-    if (log_y < 135)
+    searching_object = -1;
+    if (log_x < 180)
     {
-      GoToDots(340, 15, 1, 1);
+      GoToDots(100, 195, 1, 1);
     }
     else
     {
-      GoToDots(340, 50, 1, 1);
+      GoToDots(260, 195, 1, 1);
     }
   }
   else if (Time > 450 && LoadedObjects > 2)
@@ -302,11 +287,12 @@ void localGame1()
   }
   else if (log_superobj_num > 0)
   {
+    searching_object = SUPER_LOADED_ID;
     if (GoToDots(log_superobj_x[0], log_superobj_y[0], 0, 0))
     {
       static int same_time = 0;
       static int prev_repeated_num = 0;
-      if (prev_repeated_num + 50 < getRepeatedNum())
+      if (prev_repeated_num + 40 < getRepeatedNum())
       {
         same_time = 0;
       }
@@ -323,14 +309,20 @@ void localGame1()
   }
   else
   {
-    if (loaded_objects[BLACK_LOADED_ID] < 2 || (loaded_objects[BLACK_LOADED_ID] < 1 && loaded_objects[SUPER_LOADED_ID] < 1))
+    if (loaded_objects[BLACK_LOADED_ID] < 1 || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0))
     {
-      // GoToDots
-      GoInDots(90, 135, 90, 135, POINT_BLACK);
+      GoToDots(180, 245, 180, 25);
+      searching_object = BLACK_LOADED_ID;
+    }
+    else if (loaded_objects[CYAN_LOADED_ID] < 2)
+    {
+      GoInDots(180, 105, 180, 100, POINT_CYAN);
+      searching_object = CYAN_LOADED_ID;
     }
     else
     {
-      GoToDots(180, 135, 100, 80);
+      GoInDots(180, 105, 180, 100, POINT_RED);
+      searching_object = RED_LOADED_ID;
     }
   }
 
@@ -695,42 +687,42 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 void InputDotInformation(void)
 {
   int map_position_data[36][27] = {
-      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
-      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
-      {2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2},
-      {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 5, 4, 5, 5, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 2, 2, 2, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5},
-      {5, 5, 5, 5, 2, 2, 2, 2, 2, 5, 5, 5, 5, 2, 5, 5, 5, 5, 2, 2, 4, 4, 4, 5, 5, 5, 5},
-      {5, 5, 5, 5, 2, 2, 2, 2, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 5, 5, 5},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
-      {1, 1, 1, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 1, 1, 1},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0},
-      {0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 4, 0},
-      {3, 3, 3, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 3, 3, 3},
-      {3, 3, 3, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 3, 3, 3},
-      {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3}};
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 4, 2, 2, 2, 4, 0, 0, 0, 4, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 4, 4, 4, 4, 4, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {0, 0, 1, 1, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {0, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 4, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 2, 2, 4, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 4, 4, 4, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 0, 2, 2, 2, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4, 4, 4, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 2, 5, 5, 5, 5, 5},
+      {4, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 3, 2, 5, 5, 5, 5, 5},
+      {1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5},
+      {0, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 2, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 2, 2, 4, 0, 0, 0, 4, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 4, 4, 0, 0, 0, 0, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 4, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5}};
 
   short map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
   for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
@@ -741,8 +733,8 @@ void InputDotInformation(void)
       // map_position_color_data[i][j] = map_position_data[i][j];
       switch (map_position_data[i][j])
       {
-      case 0: //white
-        map_position_color_data[i][j] = POINT_WHITE;
+      case 0: //cyan & red
+        map_position_color_data[i][j] = POINT_CYAN + POINT_RED;
         break;
       case 1: //yellow
         map_position_color_data[i][j] = POINT_YELLOW;
@@ -759,8 +751,6 @@ void InputDotInformation(void)
       case 5: //black
         map_position_color_data[i][j] = POINT_BLACK;
         break;
-      case 6: //cyan & red
-        map_position_color_data[i][j] = POINT_CYAN + POINT_RED;
         break;
       default:
         break;
@@ -1013,6 +1003,18 @@ void Dijkstra(int option)
       // 		continue;
       // 	// }
       // }
+      if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
+      {
+        target_cost -= 2;
+      }
+      if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
+      {
+        target_cost -= 2;
+      }
+      if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
+      {
+        target_cost -= 2;
+      }
 
       if (dot[target_id].cost < 0 || target_cost < dot[target_id].cost)
       {
@@ -1122,7 +1124,7 @@ int IsThereObstacle(int x, int y, int target_x, int target_y)
 
 int GoToDot(int x, int y)
 {
-  printf("%d %d\n", x * SIZE, y * SIZE);
+  // printf("%d %d\n", x * SIZE, y * SIZE);
   static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
   fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
@@ -1371,6 +1373,7 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
   static int target_x = -1;
   static int target_y = -1;
   static int same_target = 0;
+  static int same_target_border = 0;
   if (x != prev_x || y != prev_y)
   {
     printf("changed dots\n");
@@ -1458,6 +1461,10 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
       fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
     }
 
+    same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
+    same_target_border /= 1;
+    same_target_border += 30;
+
     // int i = 0;
     // do {
     // 	i++;
@@ -1490,8 +1497,8 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
     // } while(dot[target_y * DOT_WIDTH_NUMBER + target_x].point <= POINT_WALL);
   }
   same_target++;
-  // printf("%d\n", same_target);
-  if (GoToDot(target_x, target_y) || same_target > 100)
+  printf("%d %d\n", same_target, same_target_border);
+  if (GoToDot(target_x, target_y) || same_target > same_target_border)
   {
     prev_x = -1;
     same_target = 0;
@@ -1514,6 +1521,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
   static int target_x = -1;
   static int target_y = -1;
   static int same_target = 0;
+  static int same_target_border = 0;
   if (x != prev_x || y != prev_y)
   {
     printf("changed dots\n");
@@ -1623,6 +1631,10 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
       fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
     }
 
+    same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
+    same_target_border /= 1;
+    same_target_border += 30;
+
     // int i = 0;
     // do {
     // 	i++;
@@ -1656,7 +1668,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
   }
   same_target++;
   // printf("%d\n", same_target);
-  if (GoToDot(target_x, target_y) || same_target > 100)
+  if (GoToDot(target_x, target_y) || same_target > same_target_border)
   {
     prev_x = -1;
     same_target = 0;
@@ -1810,7 +1822,7 @@ void GoToAngle(int angle, int distance)
   switch (classification)
   {
   case 0:
-    classification = obstacle(20, 35, 20);
+    classification = obstacle(30, 40, 30);
     if (log_superobj_num > 0)
     {
       classification = 0;
@@ -1932,11 +1944,11 @@ void GoToAngle(int angle, int distance)
         {
           if (angle < 0)
           {
-            motor(5, 3);
+            motor(5, 1);
           }
           else
           {
-            motor(3, 5);
+            motor(1, 5);
           }
         }
         else
@@ -2033,7 +2045,7 @@ void GoToAngle(int angle, int distance)
       // 		}
       // 	}
       // }
-      else if ((loaded_objects[2] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[1] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[0] < 2 && dot[now_dot_id].red == 1))
+      else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
       {
         if (abs(angle) < 20)
         {

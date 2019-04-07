@@ -22,17 +22,17 @@ void localGameSetup0(void)
 	// UTF-8 65001
 	system("cls");
 	system("chcp 65001");
-	init();
-	init2();
+	// init();
+	// init2();
 }
 
 void localGame0(void)
 {
-	calculate2(US_Left, US_Front, US_Right, Compass + 90);
-	if (getRepeatedNum() % 3 == 0)
-	{
-		showMap2();
-	}
+	// calculate2(US_Left, US_Front, US_Right, Compass + 90);
+	// if (getRepeatedNum() % 3 == 0)
+	// {
+	// 	showMap2();
+	// }
 	if (IsOnTrapBlue())
 	{
 		for (int i = 0; i < sizeof(loaded_objects) / sizeof(loaded_objects[0]); i++)
@@ -45,28 +45,28 @@ void localGame0(void)
 	{
 		SuperDuration--;
 	}
-	else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < 2 && LoadedObjects < 6)
+	else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < 3 && LoadedObjects < 6)
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		LoadedObjects++;
 		SuperDuration = FIND_OBJ_DURATION;
 	}
-	else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < 2 && LoadedObjects < 6)
+	else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < 3 && LoadedObjects < 6)
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
 		LoadedObjects++;
 		SuperDuration = FIND_OBJ_DURATION;
 	}
-	else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < 2 && LoadedObjects < 6)
+	else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < 3 && LoadedObjects < 6)
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
 		LoadedObjects++;
 		SuperDuration = FIND_OBJ_DURATION;
 	}
-	else if (IsOnDepositArea() && LoadedObjects >= 6)
+	else if (IsOnDepositArea() && LoadedObjects >= 4)
 	{
 		switch (IsOnDepositArea())
 		{
@@ -104,133 +104,9 @@ void localGame0(void)
 			motor(-2, 2);
 		}
 	}
-	// else if (IsOnDepositArea() && LoadedObjects < 6)
-	// {
-	// 	if (triger())
-	// 	{
-	// 		motor(5, 3);
-	// 	}
-	// 	else
-	// 	{
-	// 		motor(3, 5);
-	// 	}
-	// }
-	else if (getRepeatedNum() < 100)
-	{
-		double target_angle = 360 - pow(getRepeatedNum(), 3) / pow(100, 2);
-		// printf("continue %d %lf\n", getRepeatedNum(), target_angle);
-		target_angle -= Compass;
-		while (target_angle > 180)
-		{
-			target_angle -= 360;
-		}
-		while (target_angle < -180)
-		{
-			target_angle += 360;
-		}
-		if (target_angle < 0)
-		{
-			// 蟾ｦ繧貞搗缸?缸ｦ缸?繧?
-			motor(5, 3);
-		}
-		else
-		{
-			// 蝮ｳ繧貞搗缸?缸ｦ缸?繧?
-			motor(3, 5);
-		}
-	}
-	else if (LoadedObjects >= triger_object_num || (LoadedObjects >= 3 && Time > 120))
-	{
-		if (US_Front < 15)
-		{
-			motor(-3, 3);
-		}
-		else if (US_Right < 10)
-		{
-			motor(2, 4);
-		}
-		else if (US_Right < 15)
-		{
-			motor(3, 4);
-		}
-		else if (US_Right < 40)
-		{
-			motor(4, 3);
-		}
-		else if (US_Right < 60)
-		{
-			motor(4, 1);
-		}
-		else
-		{
-			motor(4, 2);
-		}
-	}
 	else
 	{
-		if (US_Front < 15)
-		{
-			motor(3, -3);
-			subject[0]++;
-		}
-		else if (US_Left < 10)
-		{
-			motor(4, 1);
-			subject[1]++;
-		}
-		else if (US_Left < 15)
-		{
-			if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
-			{
-				motor(4, 2);
-			}
-			else
-			{
-				motor(5, 3);
-			}
-			subject[2]++;
-		}
-		else if (US_Left < 20 + rand() % 20)
-		{
-			if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
-			{
-				motor(2, 4);
-			}
-			else
-			{
-				motor(4, 5);
-			}
-			subject[3]++;
-		}
-		else if (US_Left < 50)
-		{
-			if ((Compass > 45 && Compass < 135) || (Compass < 335 && Compass > 225))
-			{
-				motor(1, 4);
-			}
-			else
-			{
-				motor(3, 5);
-			}
-			subject[4]++;
-		}
-		else
-		{
-			if (!(rand() % 10))
-			{
-				motor(4, 5);
-			}
-			else
-			{
-				motor(2, 4);
-			}
-			subject[5]++;
-		}
-		for (int i = 0; i < 6; i++)
-		{
-			// printf("%d ", subject[i]);
-		}
-		// printf("\n");
+		motor(3, 3);
 	}
 
 	switch (getAction())
