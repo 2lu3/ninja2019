@@ -1,0 +1,5 @@
+g++: error: REM: No such file or directory
+g++: error: strip: No such file or directory
+g++: error: pause: No such file or directory
+g++: fatal error: input file 'Ninja.dll' is the same as output file
+compilation terminated.
