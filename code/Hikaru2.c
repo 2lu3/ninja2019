@@ -127,9 +127,11 @@ void localGameSetup1(void)
   }
 }
 
+int process = 0;
+
 void localGame1()
 {
-  printf("serach %d\n", searching_object);
+  // printf("serach %d\n", searching_object);
   static int same_time = 0;
   static int prev_repeated_num = 0;
   // printf("%d %d\n", log_x, log_y);
@@ -222,7 +224,7 @@ void localGame1()
     loaded_objects[2]++;
     SuperDuration = FIND_OBJECT_DURATION;
   }
-  else if (IsOnSuperObj() && SuperObj_Num == 0)
+  else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0)
   {
     same_time = 0;
     setAction(FIND_OBJ);
@@ -256,7 +258,7 @@ void localGame1()
     motor(-5, -3);
     Duration = 3;
   }
-  else if (IsOnDepositArea() && LoadedObjects >= 4)
+  else if (IsOnDepositArea() && LoadedObjects >= 6)
   {
     process = 0;
     if (IsOnDepositArea() == 3)
@@ -301,8 +303,6 @@ void localGame1()
       if (same_time > 10)
       {
         log_superobj_num = 0;
-        fprintf(errfile, "%d There is no superobj\n", getRepeatedNum());
-        fprintf(logfile, " %d There is no superobj\n", getRepeatedNum());
         printf("%d There is no superobj\n", getRepeatedNum());
       }
       GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
@@ -318,12 +318,68 @@ void localGame1()
     }
     else if (loaded_objects[CYAN_LOADED_ID] < 2)
     {
-      GoInDots(180, 105, 180, 100, POINT_CYAN);
+      if (process == 0)
+      {
+        if (GoInDots(320, 105, 40, 100, POINT_CYAN) == 1)
+        {
+          if (rand() % 5 == 0)
+          {
+            process++;
+          }
+        }
+      }
+      else if (process == 1)
+      {
+        if (GoInDots(180, 105, 100, 100, POINT_CYAN) == 1)
+        {
+          if (rand() % 5 == 0)
+          {
+            process++;
+          }
+        }
+      }
+      else
+      {
+        process++;
+      }
       searching_object = CYAN_LOADED_ID;
     }
     else
     {
-      GoInDots(180, 105, 180, 100, POINT_RED);
+      if (process == 0)
+      {
+        if (GoInDots(320, 105, 40, 100, POINT_CYAN) == 1)
+        {
+          if (rand() % 5 == 0)
+          {
+            process++;
+          }
+        }
+      }
+      else if (process == 1)
+      {
+        if (GoInDots(180, 105, 100, 100, POINT_CYAN) == 1)
+        {
+          if (rand() % 5 == 0)
+          {
+            process++;
+          }
+        }
+      }
+      else if (process == 2)
+      {
+        if (GoInDots(40, 105, 40, 100, POINT_CYAN) == 1)
+        {
+          if (rand() % 5 == 0)
+          {
+            process++;
+          }
+        }
+      }
+      else
+      {
+        process++;
+      }
       searching_object = RED_LOADED_ID;
     }
   }
@@ -387,7 +443,7 @@ void localGame1()
   {
     super_sameoperate = 0;
   }
-  if (super_sameoperate > 500)
+  if (super_sameoperate > 800)
   {
     log_superobj_num = 0;
     super_sameoperate = 0;
@@ -1007,15 +1063,15 @@ void Dijkstra(int option)
       // }
       if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
       {
-        target_cost -= 20;
+        target_cost -= 10;
       }
       if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
       {
-        target_cost -= 20;
+        target_cost -= 10;
       }
       if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
       {
-        target_cost -= 20;
+        target_cost -= 10;
       }
 
       if (target_cost <= 0)
@@ -1505,7 +1561,7 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
     // } while(dot[target_y * DOT_WIDTH_NUMBER + target_x].point <= POINT_WALL);
   }
   same_target++;
-  printf("%d %d\n", same_target, same_target_border);
+  // printf("%d %d\n", same_target, same_target_border);
   if (GoToDot(target_x, target_y) || same_target > same_target_border)
   {
     prev_x = -1;
@@ -1676,7 +1732,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
   }
   same_target++;
   // printf("%d\n", same_target);
-  printf("%d %d\n", same_target, same_target_border);
+  // printf("%d %d\n", same_target, same_target_border);
   if (GoToDot(target_x, target_y) || same_target > same_target_border)
   {
     prev_x = -1;

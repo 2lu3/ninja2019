@@ -54,10 +54,9 @@ void m_Game0(void)
 	{
 		Find_action(BLACK_LOADED_ID);
 	}
-	else if (IsOnDepositArea() && LoadedObjects >= 5)
+	else if (IsOnDepositArea() && (LoadedObjects >= 5 || Time > 160) && (LoadedObjects > 1))
 	{
-		
-		depositsisei = 0;
+		printf("2\n");
 		switch (IsOnDepositArea())
 		{
 		case 1:
@@ -75,39 +74,6 @@ void m_Game0(void)
 			break;
 		}
 	}
-	else if(depositsisei){
-		deposit_nnnuuummm++;
-
-		if (US_Right < 5)
-		{
-			motor(2, 4);
-		}
-		else if (US_Right < 8)
-		{
-			motor(3, 4);
-		}
-		else if (US_Right < 20)
-		{
-			motor(4, 3);
-		}
-		else if (US_Right < 30)
-		{
-			motor(4, 1);
-		}
-		else if (US_Right < 160 && US_Right > 130)
-		{
-			motor(4, -4);
-		}
-		else
-		{
-			motor(4, 2);
-		}
-
-	}
-	/*else if(US_Right < 4 && US_Front < 10 && Compass < 315 && Compass >290) {
-		motor(-5,5);
-		SuperDuration = 5;
-	}*/
 	else if (Duration > 0)
 	{
 		Duration--;
@@ -128,14 +94,14 @@ void m_Game0(void)
 	}
 	else if(obstacle(8 , 15 , 8)){
 		//depositのことをかく
-	}*/
+	}
 	else if(US_Left < 15 && US_Right < 15 && US_Front < 110 && US_Front > 90 && US_Left> 6 && US_Right > 6 && Compass < 290 && Compass > 250 && LoadedObjects >= 5){
 
 		depositsisei++;
 
 		
 	}
-	/*else if (LoadedObjects >= 6 || (LoadedObjects >= 3 && Time > 120))
+	else if (LoadedObjects >= 6 || (LoadedObjects >= 3 && Time > 120))
 	{
 		if (US_Front < 15)
 		{
@@ -162,9 +128,18 @@ void m_Game0(void)
 			motor(4, 2);
 		}
 	}*/
+	else if(US_Front < 10 || US_Right < 15 || US_Left < 10){
+
+		if(rand()%5){
+			motor(-3,3);
+		}else{
+		motor(3,-3);
+		}
+		Duration = rand()%3 +1;
+	}
 	else
 	{	
-		if (Compass > 245 && Compass < 290) {
+		/*if (Compass > 245 && Compass < 290) {
 			if (US_Front < 15)
 			{
 				motor(3, -3);
@@ -286,12 +261,12 @@ void m_Game0(void)
 					motor(3, 5);
 				}
 			}
-		}
-		
+		}*/
+		motor(4,4);
 		
 	}
 	
-	if (Time > 180 && getAction() != FIND_OBJ && !IsOnDepositArea || Time > 200)
+	if (Time > 180 && (getAction() != FIND_OBJ && !IsOnDepositArea() ))
     {
         setAction(TELEPORT);
     }
@@ -302,8 +277,8 @@ void m_Game0(void)
 	case YELLOW_AVOIDANCE:
 		if (SuperDuration < 3 && Duration < 3)
 		{
-		
 			motor_no_action_change(-3, 3);
+			
 		}
 		else if ((SuperDuration != 0 && SuperDuration <= 5) || (Duration != 0 && Duration <= 5))
 		{
