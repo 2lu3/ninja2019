@@ -97,7 +97,7 @@ if __name__ == '__main__':
             out_path = 'outhere'
         elif arg == '--outcospace':
             print('mode : outcospace')
-            out_path = 'doutcospace'
+            out_path = 'outcospace'
         elif arg == '--no-lite-warming':
             print('mode : no lite warming')
             is_lite_warming = False
