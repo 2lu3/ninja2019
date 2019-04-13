@@ -57,6 +57,7 @@ void motor(int left, int right)
 	WheelLeft = left;
 	WheelRight = right;
 	action = DEFINED;
+	LED_1 = 0;
 }
 
 void motor_no_action_change(int left, int right)
