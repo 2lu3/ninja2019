@@ -1,6 +1,7 @@
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
 #include "Hikaru.hpp"
+#include <bits/stdc++.h>
 
 // sprintf‚ÌƒGƒ‰[‚ğ–³‹‚·‚é‚½‚ß
 #define _CRT_SECURE_NO_WARNINGS 1
@@ -30,6 +31,8 @@ using namespace std;
 Game0_Hikaru game0;
 Game1_Hikaru game1;
 
+int triger = 0;
+
 void Game0()
 {
 	if (getRepeatedNum() == 0)
@@ -43,10 +46,11 @@ void Game0()
 
 void Game1()
 {
-	if (getRepeatedNum() == 0)
+	if (getRepeatedNum() == 0 && triger == 0)
 	{
 		commonSetup1();
 		game1.setup();
+		triger = 1;
 	}
 	game1.loop();
 	commonLoop1();
