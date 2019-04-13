@@ -1,6 +1,7 @@
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
 #include "Hikaru.hpp"
+#include <bits/stdc++.h>
 
 // sprintf‚ÌƒGƒ‰[‚ğ–³‹‚·‚é‚½‚ß
 #define _CRT_SECURE_NO_WARNINGS 1

@@ -57,7 +57,7 @@ bool errorMessage(string message)
 }
 
 // mode = option
-bool errorMessage(string message, int option)
+bool errorMessage(string message, Mode option)
 {
 	if (option <= getRunMode())
 	{
@@ -100,7 +100,7 @@ bool logMessage(string message)
 	return true;
 }
 
-bool logMessage(string message, int option)
+bool logMessage(string message, Mode option)
 {
 	if (option <= getRunMode())
 	{
@@ -135,7 +135,7 @@ bool outputData(string file_name, string message)
 	return true;
 }
 
-bool outputData(string file_name, string message, int option)
+bool outputData(string file_name, string message, Mode option)
 {
 	if (option < getRunMode())
 	{

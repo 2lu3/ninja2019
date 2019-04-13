@@ -16,7 +16,7 @@ code_path = None
 code_path_expectations = ["./../code(c++)/", "./../code/", "./code(c++)/", "./code/"]
 
 out_path = 'outcospace'
-out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/']
+out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 
 
 def main():
@@ -30,8 +30,9 @@ def main():
             if os.path.isdir(investigating_out_path):
                 out_path = investigating_out_path
                 printforDebug("find output folder : " + investigating_out_path)
-    else:
-        out_path = './'
+
+    if out_path == "outcospace":
+        out_path = "./"
 
     for investigating_code_path in code_path_expectations:
         if os.path.isdir(investigating_code_path):
@@ -61,7 +62,7 @@ def main():
     # -static : ライブラリをすべて含める
     # -Wall : 基本的な警告オプションをすべて有効にする
     # -Wextra 追加の警告オプションをonにする
-    command = "\"" + "i686-w64-mingw32-g++" + "\"" + " -shared -static "
+    command = "\"" + "g++" + "\"" + " -shared -static "
     if is_lite_warming:
         command = command + '-Wall -Wextra'
 
@@ -103,5 +104,5 @@ if __name__ == '__main__':
             print(arg + ' is not correct option')
     main()
 
-    print("finished... please press enter key")
-    input()
+    # print("finished... please press enter key")
+    # input()
