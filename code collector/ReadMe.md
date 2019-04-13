@@ -1,10 +1,10 @@
 # Code Collectorとは (Japanaese)
 
-Code Collectorは、C言語で複数ファイルに分けているソースコードを一つのソースコードにまとめるものである。
+Code Collectorは、C言語で複数ファイルに分けているソースコードを1つのソースコードにまとめるものである。
 
 ## 前提条件
 ソースコードのみを、codeという名前のフォルダーに入れる。
-また、`code_collector.py`または`code_collector.exe`を、codeという名前のフォルダが入っているフォルダの中に入れる。
+また、`code_collector.py`または`code_collector.exe`を、codeという名前のフォルダーが入っているフォルダーの中に入れる。
 
 ## Pythonをインストールしている場合
 コマンドプロンプトで
