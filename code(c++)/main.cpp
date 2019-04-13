@@ -30,22 +30,24 @@ using namespace std;
 Game0_Hikaru game0;
 Game1_Hikaru game1;
 
-
-void Game0() {
-	if (getRepeatedNum() == 0) {
+void Game0()
+{
+	if (getRepeatedNum() == 0)
+	{
 		commonSetup0();
 		game0.setup();
 	}
 	game0.loop();
 	commonLoop0();
-	addRepeatedNum();
 }
 
-void Game1() {
-	if (getRepeatedNum() == 0) {
+void Game1()
+{
+	if (getRepeatedNum() == 0)
+	{
 		commonSetup1();
 		game1.setup();
 	}
 	game1.loop();
-	addRepeatedNum();
+	commonLoop1();
 }

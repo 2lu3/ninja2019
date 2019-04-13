@@ -1,11 +1,7 @@
 #ifndef COMMON_TOOLS
 #define COMMON_TOOLS
 
-
-
 #define PI 3.14
-
-
 
 // red cyan black super
 #define RED_LOADED_ID 0
@@ -28,17 +24,18 @@ int obstacle(int left, int front, int right);
 
 void commonSetup0(void);
 void commonSetup1(void);
-void commonSetup1(void);
 void commonLoop0(void);
+void commonLoop1(void);
 
-class  ProcessingTime {
+class ProcessingTime
+{
 public:
 	void start(void);
 	double end(void);
+
 private:
 	std::chrono::system_clock::time_point start_time, end_time;
 };
-
 
 void setAction(Action pushed_action);
 Action getAction(void);
