@@ -104,12 +104,17 @@ void Game0_Hikaru::setup(void)
 	delLogFile();
 	InputColorInformation();
 
+	init();
+	init2();
+
 	double seconds = pt.end();
 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_DEBUG);
 }
 void Game0_Hikaru::loop(void)
 {
 	UserGame0::loop();
+	calculate2(US_Left, US_Front, US_Right, Compass);
+	showMap2();
 	logMessage("World1 loop start");
 	if (SuperDuration > 0)
 	{

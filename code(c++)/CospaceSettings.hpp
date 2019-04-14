@@ -15,6 +15,7 @@
 #include <chrono>
 #include <fstream>
 #include <random>
+#include <iomanip>
 #define PI 3.141592
 
 enum Action

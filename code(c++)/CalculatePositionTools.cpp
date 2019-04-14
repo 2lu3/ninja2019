@@ -1,9 +1,12 @@
 #include "CalculatePositionTools.hpp"
 #include "LogErrorTools.hpp"
+#include "CommonTools.hpp"
+#include "CospaceSettings.hpp"
+
+using namespace std;
 
 #define REP for
 #define rep(i, n) REP(int i = 0; i < n; i++)
-#define PI 3.14
 #define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
 
 #define COSPACE_WIDTH 240
@@ -21,7 +24,32 @@
 #define YELLOW 2
 #define DEPOSIT 3
 
-int map_data[MAP_HEIGHT][MAP_WIDTH];
+int map_data[24][18] = {
+    {0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2},
+    {0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 2, 2, 2},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 3, 3, 1, 1, 1, 0, 0},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 3, 3, 3, 1, 1, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 1, 1, 1, 0, 0},
+    {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0},
+    {0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0},
+    {0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2},
+    {0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 0, 0, 0, 0, 0, 2, 2},
+    {0, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1, 1, 1, 1, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 1, 1, 1, 3, 3, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+    {0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+    {2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
 float map_possibility[MAP_HEIGHT][MAP_WIDTH];
 int current_map_possibility[MAP_HEIGHT][MAP_WIDTH];
 
@@ -131,52 +159,15 @@ int equation_num;
 
 int calculated_x, calculated_y;
 
-void createStuff(int x1, int y1, int x2, int y2, int kind)
-{
-    x1 = x1 / SIZE + 1;
-    y1 = y1 / SIZE + 1;
-    x2 = x2 / SIZE + 1;
-    y2 = y2 / SIZE + 1;
-    for (int hi = y1; hi < y2; hi++)
-    {
-        for (int wj = x1; wj < x2; wj++)
-        {
-            if (map_data[hi][wj] == NOTHING)
-            {
-                map_data[hi][wj] = kind;
-            }
-        }
-    }
-}
-
 void init(void)
 {
     rep(hi, MAP_HEIGHT)
     {
         rep(wj, MAP_WIDTH)
         {
-            map_data[hi][wj] = NOTHING;
             map_possibility[hi][wj] = 0;
         }
     }
-
-    rep(hi, MAP_HEIGHT)
-    {
-        map_data[hi][0] = WALL;
-        map_data[hi][MAP_WIDTH - 1] = WALL;
-    }
-    rep(wi, MAP_WIDTH)
-    {
-        map_data[0][wi] = WALL;
-        map_data[MAP_HEIGHT - 1][wi] = WALL;
-    }
-
-    createStuff(60, 150, 90, 180, WALL);
-    createStuff(90, 60, 120, 90, WALL);
-    createStuff(120, 60, 150, 90, DEPOSIT);
-    createStuff(120, 0, 150, 60, YELLOW);
-    createStuff(150, 60, 180, 90, YELLOW);
-    createStuff(120, 60, 150, 90, DEPOSIT);
 }
 
 void setEquation(int x1, int y1, int x2, int y2)
@@ -248,29 +239,32 @@ int isCross(int num, double x1, double y1, double x2, double y2)
     double result4 = a1 * equation[num][2] + b1 * equation[num][3] + c1;
 
     // debug
-    if (result1 * result2 < 0)
+    if (getRunMode() >= MODE_DEBUG)
     {
-        logMessage("reason 1\n", MODE_DEBUG);
-    }
-    if (result3 * result4 < 0)
-    {
-        logMessage("reason 2\n", MODE_DEBUG);
-    }
-    if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]))
-    {
-        logMessage("reason 3\n", MODE_DEBUG);
-    }
-    if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]))
-    {
-        logMessage("reason 4\n", MODE_DEBUG);
-    }
-    if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x1, y1))
-    {
-        logMessage("reason 5\n", MODE_DEBUG);
-    }
-    if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2))
-    {
-        logMessage("reason 6\n", MODE_DEBUG);
+        if (result1 * result2 < 0)
+        {
+            logMessage("reason 1\n", MODE_DEBUG);
+        }
+        if (result3 * result4 < 0)
+        {
+            logMessage("reason 2\n", MODE_DEBUG);
+        }
+        if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]))
+        {
+            logMessage("reason 3\n", MODE_DEBUG);
+        }
+        if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]))
+        {
+            logMessage("reason 4\n", MODE_DEBUG);
+        }
+        if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x1, y1))
+        {
+            logMessage("reason 5\n", MODE_DEBUG);
+        }
+        if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2))
+        {
+            logMessage("reason 6\n", MODE_DEBUG);
+        }
     }
 
     return (result1 * result2 < 0 && result3 * result4 < 0) ||
@@ -325,7 +319,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
     }
 
     double angle[3] = {45, 0, -45};
-    double distance[3] = {us_left, us_front, us_right};
+    int distance[3] = {us_left, us_front, us_right};
     // 0 : x, 1 : y
     double coordinate[3][2];
 
@@ -512,7 +506,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
             }
             // add = add / num;
             map_possibility[hi][wj] += add;
-            printf("%f\n", add);
+            // printf("%f\n", add);
         }
 
         float min = 1000000, max = 0;
@@ -575,46 +569,47 @@ void showCurrentMapPossibility()
         {
             if (map_data[hi][wj] == WALL)
             {
-                printf("□");
+                cout << "□";
                 continue;
             }
 
-            printf("%2d", current_map_possibility[hi][wj]);
+            cout << setw(2) << current_map_possibility[hi][wj];
         }
-        printf("\n");
+        cout << endl;
     }
-    fflush(stdout);
+    cout << endl;
+    cout << endl;
 }
 
 void showMap2()
 {
+    showCurrentMapPossibility();
+    return;
     for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
     {
         rep(wj, MAP_WIDTH)
         {
-            printf("%f ", map_possibility[hi][wj]);
-            continue;
             if (map_data[hi][wj] == WALL)
             {
-                printf("*");
+                cout << "*";
                 continue;
             }
 
             if (hi == calculated_y && wj == calculated_x)
             {
-                printf("#");
+                cout << "#";
             }
             else if (map_possibility[hi][wj] > 0.8 * POSSIBILITY_VALUE_MAX)
             {
-                printf("+");
+                cout << "+";
             }
             else if (map_possibility[hi][wj] > 0.6 * POSSIBILITY_VALUE_MAX)
             {
-                printf("-");
+                cout << "-";
             }
             else
             {
-                printf(" ");
+                cout << " ";
             }
 
             // printf("%2.0f", map_possibility[hi][wj]);
@@ -669,8 +664,8 @@ void showMap2()
             // 	break;
             // }
         }
-        printf("\n");
+        cout << "\n";
     }
-    printf("\n");
+    cout << endl;
     // showCurrentMapPossibility();
 }

@@ -12,6 +12,7 @@ extern int loaded_objects[4];
 #include "LogErrorTools.hpp"
 #include "JudgeAngleTools.hpp"
 #include "JudgeColorTools.hpp"
+#include "CalculatePositionTools.hpp"
 
 int getRepeatedNum(void);
 void addRepeatedNum(void);
