@@ -70,12 +70,12 @@ def main():
         command = command + " " + file_path
     command = command + " -o " +  '\"' + out_path + "Ninja.dll\""
 
-    if is_lite_warming:
-        command = command + " & REM 2> errors.txt strip --strip-unneeded Ninja.dll pause"
+    command = command + " & REM 2> errors.txt strip --strip-unneeded Ninja.dll pause"
     printforDebug("command : " + command)
 
     # dll作成コマンドを実行する
-    subprocess.Popen(command, shell=True)
+    popen = subprocess.Popen(command, shell=True)
+    popen.wait()
 
 command_options = ['help', 'debug', 'outhere', 'outcospace']
 
@@ -104,5 +104,5 @@ if __name__ == '__main__':
             print(arg + ' is not correct option')
     main()
 
-    # print("finished... please press enter key")
+    print("finished")
     # input()
