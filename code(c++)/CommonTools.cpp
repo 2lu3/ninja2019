@@ -9,30 +9,40 @@ enum Mode default_mode = MODE_NORMAL;
 int loaded_objects[4];
 int repeated_num = 0;
 
-void commonSetup0(void)
+std::random_device rnd;
+
+void UserGame0::setup(void)
 {
-	srand((unsigned int)time(NULL));
+	InputColorInformation();
 }
 
-void commonSetup1(void)
-{
-}
-
-void commonLoop0(void)
+void UserGame0::loop(void)
 {
 	addRepeatedNum();
-	if (CurGame == 1)
-	{
-		LoadedObjects = 0;
-		for (int i = 0; i < sizeof(loaded_objects) / sizeof(*loaded_objects); i++)
-		{
-			loaded_objects[i] = 0;
-		}
-		resetRepeatedNum();
-	}
 }
 
-void commonLoop1(void)
+int UserGame0::shouldTeleport(void)
+{
+	return (Time > 180 && LoadedObjects < 2) || Time > 200;
+}
+
+void UserGame0::taskOnTeleport(void)
+{
+	resetRepeatedNum();
+	WheelLeft = 0;
+	WheelRight = 0;
+	setAction(DEFINED);
+	resetLoadedObjects();
+	CurGame = 1;
+	Teleport = 1;
+}
+
+void UserGame1::setup(void)
+{
+	InputColorInformation();
+}
+
+void UserGame1::loop(void)
 {
 	addRepeatedNum();
 }
@@ -123,4 +133,13 @@ void setRunMode(Mode pushed_mode)
 Mode getRunMode(void)
 {
 	return mode;
+}
+
+void resetLoadedObjects(void)
+{
+	LoadedObjects = 0;
+	for (int &loaded : loaded_objects)
+	{
+		loaded = 0;
+	}
 }

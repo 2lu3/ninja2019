@@ -33,25 +33,29 @@ Game1_Hikaru game1;
 
 int triger = 0;
 
-static void Game0()
+void Game0()
 {
 	if (getRepeatedNum() == 0)
 	{
-		commonSetup0();
 		game0.setup();
 	}
-	game0.loop();
-	commonLoop0();
+
+	if (game0.shouldTeleport())
+	{
+		game0.taskOnTeleport();
+	}
+	else
+	{
+		game0.loop();
+	}
 }
 
-static void Game1()
+void Game1()
 {
 	if (getRepeatedNum() == 0 && triger == 0)
 	{
-		commonSetup1();
 		game1.setup();
 		triger = 1;
 	}
 	game1.loop();
-	commonLoop1();
 }

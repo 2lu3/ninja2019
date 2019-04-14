@@ -14,11 +14,8 @@
 #include <queue>
 #include <chrono>
 #include <fstream>
-#define PI 3.14
-
-/*
-	íçà”ì_ÅFÇ∑Ç◊ÇƒÇÃÉtÉ@ÉCÉãÇ…ÉCÉìÉNÉãÅ[ÉhÇ≥ÇÍÇÈ
-*/
+#include <random>
+#define PI 3.141592
 
 enum Action
 {
@@ -38,16 +35,10 @@ enum Mode
 	MODE_VERBOSE
 };
 
-#define CsBot_AI_H //DO NOT delete this line
-#ifndef CSBOT_REAL
-#include <windows.h>
-#include <math.h>
-#include <time.h>
-// "C"Çî≤Ç¢ÇƒÇÕÇæÇﬂ
+// "C"„ÇíÊäú„ÅÑ„Å¶„ÅØ„Å†„ÇÅ
 #define DLL_EXPORT extern "C" __declspec(dllexport)
 #define false 0
 #define true 1
-#endif //The robot ID : It must be two char, such as '00','kl' or 'Cr'.
 
 #ifdef _MSC_VER
 #define DISABLE_C4996 __pragma(warning(push)) __pragma(warning(disable : 4996))
@@ -88,17 +79,13 @@ extern int LED_1;
 extern int MyState;
 extern int AI_SensorNum;
 
-static void Game0();
-static void Game1();
-
-#define CsBot_AI_C //DO NOT delete this line
+extern void Game0();
+extern void Game1();
 
 DLL_EXPORT void SetGameID(int GameID);
 DLL_EXPORT int GetGameID();
 //Only Used by CsBot Dance Platform
 DLL_EXPORT int IsGameEnd();
-
-#ifndef CSBOT_REAL
 
 DLL_EXPORT char *GetDebugInfo();
 DLL_EXPORT char *GetTeamName();
@@ -110,9 +97,8 @@ DLL_EXPORT void SetSuperObj(int X, int Y, int num);
 //Only Used by CsBot Rescue Platform
 DLL_EXPORT void GetSuperObj(int *X, int *Y, int *num);
 
-#endif ////CSBOT_REAL
-
 DLL_EXPORT void SetDataAI(volatile int *packet, volatile int *AI_IN);
 DLL_EXPORT void GetCommand(int *AI_OUT);
 DLL_EXPORT void OnTimer();
-#endif //COSPACE_SETTINGS
+
+#endif // ! COSPACE_SETTINGS

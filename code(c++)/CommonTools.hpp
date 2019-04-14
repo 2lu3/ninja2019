@@ -1,8 +1,6 @@
 #ifndef COMMON_TOOLS
 #define COMMON_TOOLS
 
-#define PI 3.14
-
 // red cyan black super
 #define RED_LOADED_ID 0
 #define CYAN_LOADED_ID 1
@@ -21,11 +19,29 @@ void resetRepeatedNum(void);
 void motor(int left, int right);
 void motor_no_action_change(int left, int right);
 int obstacle(int left, int front, int right);
+void resetLoadedObjects(void);
 
-void commonSetup0(void);
-void commonSetup1(void);
-void commonLoop0(void);
-void commonLoop1(void);
+class UserGame0
+{
+public:
+	virtual void setup(void);
+	virtual void loop(void);
+	virtual int shouldTeleport(void);
+	virtual void taskOnTeleport(void);
+
+private:
+};
+
+class UserGame1
+{
+public:
+	virtual void setup(void);
+	virtual void loop(void);
+
+private:
+};
+
+extern std::random_device rnd;
 
 class ProcessingTime
 {

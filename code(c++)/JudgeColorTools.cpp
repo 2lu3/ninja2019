@@ -43,7 +43,7 @@ int ColorInformationInputer(int num, int col[3][2])
 	if (num >= COLOR_TYPE_NUMBER)
 	{
 		errorMessage("ColorInformationInputer(): num's value is strange\n", MODE_NORMAL);
-		return ERROR;
+		return 0;
 	}
 	for (int i = 0; i < 3; i++)
 	{
