@@ -146,7 +146,6 @@ DLL_EXPORT void GetCommand(int *AI_OUT)
 
 DLL_EXPORT void OnTimer()
 {
-	std::cout << "world1" << std::endl;
 	if (CurGame == 0)
 	{
 		Game0();
