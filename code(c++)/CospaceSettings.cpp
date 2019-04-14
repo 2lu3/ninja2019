@@ -1,6 +1,6 @@
 #include "CospaceSettings.hpp"
 
-char AI_MyID[2] = { '0','2' };
+char AI_MyID[2] = {'0', '2'};
 int Duration = 0;
 int SuperDuration = 0;
 int bGameEnd = false;
@@ -31,7 +31,6 @@ int LED_1 = 0;
 int MyState = 0;
 int AI_SensorNum = 13;
 
-
 DLL_EXPORT void SetGameID(int GameID)
 {
 	CurGame = GameID;
@@ -49,15 +48,14 @@ DLL_EXPORT int IsGameEnd()
 	return bGameEnd;
 }
 
-
-DLL_EXPORT char* GetDebugInfo()
+DLL_EXPORT char *GetDebugInfo()
 {
 	static char info[1024];
 	sprintf(info, "Duration=%d;SuperDuration=%d;bGameEnd=%d;CurAction=%d;CurGame=%d;SuperObj_Num=%d;SuperObj_X=%d;SuperObj_Y=%d;Teleport=%d;LoadedObjects=%d;US_Front=%d;US_Left=%d;US_Right=%d;CSLeft_R=%d;CSLeft_G=%d;CSLeft_B=%d;CSRight_R=%d;CSRight_G=%d;CSRight_B=%d;PositionX=%d;PositionY=%d;TM_State=%d;Compass=%d;Time=%d;WheelLeft=%d;WheelRight=%d;LED_1=%d;MyState=%d;", Duration, SuperDuration, bGameEnd, CurAction, CurGame, SuperObj_Num, SuperObj_X, SuperObj_Y, Teleport, LoadedObjects, US_Front, US_Left, US_Right, CSLeft_R, CSLeft_G, CSLeft_B, CSRight_R, CSRight_G, CSRight_B, PositionX, PositionY, TM_State, Compass, Time, WheelLeft, WheelRight, LED_1, MyState);
 	return info;
 }
 
-DLL_EXPORT char* GetTeamName()
+DLL_EXPORT char *GetTeamName()
 {
 	static char team_name[30] = "Ninja";
 	return team_name;
@@ -89,27 +87,54 @@ DLL_EXPORT void GetSuperObj(int *X, int *Y, int *num)
 	*num = SuperObj_Num;
 }
 
-DLL_EXPORT void SetDataAI(volatile int* packet, volatile int *AI_IN)
+DLL_EXPORT void SetDataAI(volatile int *packet, volatile int *AI_IN)
 {
 
 	int sum = 0;
 
-	US_Front = AI_IN[0]; packet[0] = US_Front; sum += US_Front;
-	US_Left = AI_IN[1]; packet[1] = US_Left; sum += US_Left;
-	US_Right = AI_IN[2]; packet[2] = US_Right; sum += US_Right;
-	CSLeft_R = AI_IN[3]; packet[3] = CSLeft_R; sum += CSLeft_R;
-	CSLeft_G = AI_IN[4]; packet[4] = CSLeft_G; sum += CSLeft_G;
-	CSLeft_B = AI_IN[5]; packet[5] = CSLeft_B; sum += CSLeft_B;
-	CSRight_R = AI_IN[6]; packet[6] = CSRight_R; sum += CSRight_R;
-	CSRight_G = AI_IN[7]; packet[7] = CSRight_G; sum += CSRight_G;
-	CSRight_B = AI_IN[8]; packet[8] = CSRight_B; sum += CSRight_B;
-	PositionX = AI_IN[9]; packet[9] = PositionX; sum += PositionX;
-	PositionY = AI_IN[10]; packet[10] = PositionY; sum += PositionY;
-	TM_State = AI_IN[11]; packet[11] = TM_State; sum += TM_State;
-	Compass = AI_IN[12]; packet[12] = Compass; sum += Compass;
-	Time = AI_IN[13]; packet[13] = Time; sum += Time;
+	US_Front = AI_IN[0];
+	packet[0] = US_Front;
+	sum += US_Front;
+	US_Left = AI_IN[1];
+	packet[1] = US_Left;
+	sum += US_Left;
+	US_Right = AI_IN[2];
+	packet[2] = US_Right;
+	sum += US_Right;
+	CSLeft_R = AI_IN[3];
+	packet[3] = CSLeft_R;
+	sum += CSLeft_R;
+	CSLeft_G = AI_IN[4];
+	packet[4] = CSLeft_G;
+	sum += CSLeft_G;
+	CSLeft_B = AI_IN[5];
+	packet[5] = CSLeft_B;
+	sum += CSLeft_B;
+	CSRight_R = AI_IN[6];
+	packet[6] = CSRight_R;
+	sum += CSRight_R;
+	CSRight_G = AI_IN[7];
+	packet[7] = CSRight_G;
+	sum += CSRight_G;
+	CSRight_B = AI_IN[8];
+	packet[8] = CSRight_B;
+	sum += CSRight_B;
+	PositionX = AI_IN[9];
+	packet[9] = PositionX;
+	sum += PositionX;
+	PositionY = AI_IN[10];
+	packet[10] = PositionY;
+	sum += PositionY;
+	TM_State = AI_IN[11];
+	packet[11] = TM_State;
+	sum += TM_State;
+	Compass = AI_IN[12];
+	packet[12] = Compass;
+	sum += Compass;
+	Time = AI_IN[13];
+	packet[13] = Time;
+	sum += Time;
 	packet[14] = sum;
-
 }
 DLL_EXPORT void GetCommand(int *AI_OUT)
 {
@@ -121,22 +146,12 @@ DLL_EXPORT void GetCommand(int *AI_OUT)
 
 DLL_EXPORT void OnTimer()
 {
-	switch (CurGame)
+	if (CurGame == 0)
 	{
-	case 9:
-		break;
-	case 10:
-		WheelLeft = 0;
-		WheelRight = 0;
-		LED_1 = 0;
-		MyState = 0;
-		break;
-	case 0:
 		Game0();
-		break;
-	case 1:
+	}
+	else
+	{
 		Game1();
-	default:
-		break;
 	}
 }

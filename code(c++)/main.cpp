@@ -33,7 +33,7 @@ Game1_Hikaru game1;
 
 int triger = 0;
 
-void Game0()
+static void Game0()
 {
 	if (getRepeatedNum() == 0)
 	{
@@ -44,7 +44,7 @@ void Game0()
 	commonLoop0();
 }
 
-void Game1()
+static void Game1()
 {
 	if (getRepeatedNum() == 0 && triger == 0)
 	{
