@@ -14,6 +14,7 @@ std::random_device rnd;
 void UserGame0::setup(void)
 {
 	InputColorInformation();
+	setRunMode(MODE_NORMAL);
 }
 
 void UserGame0::loop(void)
@@ -39,6 +40,7 @@ void UserGame0::taskOnTeleport(void)
 
 void UserGame1::setup(void)
 {
+	setRunMode(MODE_NORMAL);
 	InputColorInformation();
 }
 
