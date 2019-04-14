@@ -13,16 +13,16 @@ using namespace std;
 #define COSPACE_HEIGHT 180
 #define SIZE 10
 
-#define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
-#define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
+#define MAP_WIDTH (COSPACE_WIDTH / SIZE)
+#define MAP_HEIGHT (COSPACE_HEIGHT / SIZE)
 
 #define POSSIBILITY_VALUE_MAX 10.0
 #define POSSIBILITY_VALUE_MIN 0.1
 
 #define NOTHING 0
-#define WALL 1
-#define YELLOW 2
-#define DEPOSIT 3
+#define WALL 2
+#define YELLOW 3
+#define DEPOSIT 4
 
 int map_data[24][18] = {
     {0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2},
@@ -50,112 +50,79 @@ int map_data[24][18] = {
     {2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-float map_possibility[MAP_HEIGHT][MAP_WIDTH];
-int current_map_possibility[MAP_HEIGHT][MAP_WIDTH];
+float map_possibility[MAP_WIDTH][MAP_HEIGHT];
+int current_map_possibility[MAP_WIDTH][MAP_HEIGHT];
 
-int equation[100][4] = {
+int equation[68][4] = {
     {0, 0, 0, 180},
     {0, 0, 240, 0},
     {0, 180, 240, 180},
     {240, 0, 240, 180},
     {0, 10, 30, 10},
-    {6, 10, 120, 10},
-    {15, 10, 180, 10},
+    {60, 10, 120, 10},
+    {150, 10, 180, 10},
     {0, 20, 30, 20},
-    {4, 20, 50, 20},
-    {9, 20, 120, 20},
-    {4, 30, 50, 30},
+    {40, 20, 50, 20},
+    {90, 20, 120, 20},
+    {40, 30, 50, 30},
     {0, 60, 30, 60},
-    {18, 60, 210, 60},
+    {180, 60, 210, 60},
     {0, 70, 30, 70},
-    {18, 70, 240, 70},
-    {14, 80, 180, 80},
-    {21, 80, 240, 80},
-    {8, 90, 120, 90},
-    {14, 90, 180, 90},
-    {19, 90, 210, 90},
-    {3, 100, 60, 100},
-    {8, 100, 120, 100},
-    {13, 100, 150, 100},
-    {19, 100, 210, 100},
-    {3, 110, 60, 110},
-    {13, 110, 150, 110},
-    {21, 110, 240, 110},
-    {4, 120, 60, 120},
-    {21, 120, 240, 120},
-    {22, 130, 240, 130},
-    {16, 140, 180, 140},
-    {22, 140, 240, 140},
-    {16, 150, 200, 150},
-    {12, 160, 150, 160},
-    {18, 160, 200, 160},
-    {6, 170, 90, 170},
-    {12, 170, 150, 170},
-    {10, 10, 10, 20},
-    {10, 60, 10, 70},
-    {20, 10, 20, 20},
-    {20, 60, 20, 70},
+    {180, 70, 240, 70},
+    {140, 80, 180, 80},
+    {210, 80, 240, 80},
+    {80, 90, 120, 90},
+    {140, 90, 180, 90},
+    {190, 90, 210, 90},
+    {30, 100, 60, 100},
+    {80, 100, 120, 100},
+    {130, 100, 150, 100},
+    {190, 100, 210, 100},
+    {30, 110, 40, 110},
+    {130, 110, 150, 110},
+    {210, 110, 240, 110},
+    {40, 120, 60, 120},
+    {210, 120, 240, 120},
+    {220, 130, 240, 130},
+    {160, 140, 180, 140},
+    {220, 140, 240, 140},
+    {160, 150, 200, 150},
+    {120, 160, 150, 160},
+    {180, 160, 200, 160},
+    {60, 170, 90, 170},
+    {120, 170, 150, 170},
     {30, 10, 30, 20},
     {30, 60, 30, 70},
     {30, 100, 30, 110},
     {40, 20, 40, 30},
-    {40, 100, 40, 120},
+    {40, 110, 40, 120},
     {50, 20, 50, 30},
-    {50, 100, 50, 120},
     {60, 0, 60, 10},
     {60, 100, 60, 120},
     {60, 170, 60, 180},
-    {70, 0, 70, 10},
-    {70, 170, 70, 180},
-    {80, 0, 80, 10},
     {80, 90, 80, 100},
-    {80, 170, 80, 180},
     {90, 0, 90, 20},
-    {90, 90, 90, 100},
     {90, 170, 90, 180},
-    {100, 10, 100, 20},
-    {100, 90, 100, 100},
-    {110, 10, 110, 20},
-    {110, 90, 110, 100},
     {120, 10, 120, 20},
     {120, 90, 120, 100},
     {120, 160, 120, 170},
     {130, 100, 130, 110},
-    {130, 160, 130, 170},
     {140, 80, 140, 90},
-    {140, 100, 140, 110},
-    {140, 160, 140, 170},
     {150, 0, 150, 10},
-    {150, 80, 150, 90},
     {150, 100, 150, 110},
     {150, 160, 150, 170},
-    {160, 0, 160, 10},
-    {160, 80, 160, 90},
     {160, 140, 160, 150},
-    {170, 0, 170, 10},
-    {170, 80, 170, 90},
-    {170, 140, 170, 150},
     {180, 0, 180, 10},
     {180, 60, 180, 70},
     {180, 80, 180, 90},
     {180, 140, 180, 160},
-    {190, 60, 190, 70},
     {190, 90, 190, 100},
-    {190, 150, 190, 160},
-    {200, 60, 200, 70},
-    {200, 90, 200, 100},
     {200, 150, 200, 160},
     {210, 60, 210, 80},
     {210, 90, 210, 100},
     {210, 110, 210, 120},
-    {220, 70, 220, 80},
-    {220, 110, 220, 120},
-    {220, 130, 220, 140},
-    {230, 70, 230, 80},
-    {230, 110, 230, 120},
-    {230, 130, 230, 140}};
-
-int equation_num;
+    {220, 130, 220, 140}};
+int equation_num = 68;
 
 int calculated_x, calculated_y;
 
@@ -165,7 +132,7 @@ void init(void)
     {
         rep(wj, MAP_WIDTH)
         {
-            map_possibility[hi][wj] = 0;
+            map_possibility[wj][hi] = 0;
         }
     }
 }
@@ -362,57 +329,57 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
     }
 
     // 上
-    for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
+    rep(wj, MAP_WIDTH)
     {
-        rep(wj, MAP_WIDTH)
+        for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
         {
-            current_map_possibility[hi][wj] = 0;
+            current_map_possibility[wj][hi] = 0;
         }
     }
 
     // 左
-    rep(hi, MAP_HEIGHT)
+
+    rep(wj, margin[1])
     {
-        rep(wj, margin[1])
+        rep(hi, MAP_HEIGHT)
         {
-            current_map_possibility[hi][wj] = 0;
+            current_map_possibility[wj][hi] = 0;
         }
     }
 
     // 下
-    rep(hi, margin[2])
+    rep(wj, MAP_WIDTH)
     {
-        rep(wj, MAP_WIDTH)
+        rep(hi, margin[2])
         {
-            current_map_possibility[hi][wj] = 0;
+            current_map_possibility[wj][hi] = 0;
         }
     }
 
     // 右
-    rep(hi, MAP_HEIGHT)
+    for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
     {
-        for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
+        rep(hi, MAP_HEIGHT)
         {
-            current_map_possibility[hi][wj] = 0;
+            current_map_possibility[wj][hi] = 0;
         }
     }
 
     double difference = SIZE;
-    for (int hi = margin[2]; hi < MAP_HEIGHT - margin[0]; hi++)
+    for (int wj = margin[1]; wj < MAP_WIDTH - margin[3]; wj++)
     {
-        double y = (hi - 0.5) * SIZE;
-        for (int wj = margin[1]; wj < MAP_WIDTH - margin[3]; wj++)
+        double x = (wj - 0.5) * SIZE;
+        for (int hi = margin[2]; hi < MAP_HEIGHT - margin[0]; hi++)
         {
-            if (map_data[hi][wj] == WALL)
+            double y = (hi - 0.5) * SIZE;
+            if (map_data[wj][hi] == WALL)
             {
-                current_map_possibility[hi][wj] = 0;
+                current_map_possibility[wj][hi] = 0;
                 continue;
             }
 
             int complete[3] = {0, 0, 0};
-            current_map_possibility[hi][wj] = 0;
-
-            double x = (wj - 0.5) * SIZE;
+            current_map_possibility[wj][hi] = 0;
 
             rep(i, 3)
             {
@@ -454,25 +421,25 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 
             if (complete[0] < 2)
             {
-                current_map_possibility[hi][wj] = 0;
+                current_map_possibility[wj][hi] = 0;
             }
             else if (complete[0] == 2)
             {
-                current_map_possibility[hi][wj] = POSSIBILITY_VALUE_MAX / 2;
+                current_map_possibility[wj][hi] = POSSIBILITY_VALUE_MAX / 2;
             }
             else
             {
-                current_map_possibility[hi][wj] = POSSIBILITY_VALUE_MAX;
+                current_map_possibility[wj][hi] = POSSIBILITY_VALUE_MAX;
             }
         }
     }
 
     float k = 0.9;
-    rep(hi, MAP_HEIGHT)
+    rep(wj, MAP_WIDTH)
     {
-        rep(wj, MAP_WIDTH)
+        rep(hi, MAP_HEIGHT)
         {
-            map_possibility[hi][wj] *= k;
+            map_possibility[wj][hi] *= k;
             int num = 0;
             float add = 0;
             int left = wj - move_x, right = wj;
@@ -490,10 +457,11 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
                 top = temp;
             }
             // printf("%d %d %d %d\n", left, right, under, top);
-            for (int hi_range = under; hi_range <= top; hi_range++)
+            for (int wj_range = left; wj_range <= right; wj_range++)
             {
-                for (int wj_range = left; wj_range <= right; wj_range++)
+                for (int hi_range = under; hi_range <= top; hi_range++)
                 {
+
                     if (hi_range < 0 || hi_range >= MAP_HEIGHT || wj_range < 0 || wj_range >= MAP_WIDTH)
                     {
                         continue;
@@ -501,31 +469,31 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
                     num++; // 距離の二乗に反比例
                     // addの合計値に反比例
                     // 可能性が同じものが多い場合は、加える可能性を低くする
-                    add += (float)current_map_possibility[hi_range][wj_range] * (1.0 - k);
+                    add += (float)current_map_possibility[wj_range][hi_range] * (1.0 - k);
                 }
             }
             // add = add / num;
-            map_possibility[hi][wj] += add;
+            map_possibility[wj][hi] += add;
             // printf("%f\n", add);
         }
 
         float min = 1000000, max = 0;
         int max_id = -1;
-        rep(hi, MAP_HEIGHT)
+        rep(wj, MAP_WIDTH)
         {
-            rep(wj, MAP_WIDTH)
+            rep(hi, MAP_HEIGHT)
             {
-                if (map_data[hi][wj] == WALL)
+                if (map_data[wj][hi] == WALL)
                 {
                     continue;
                 }
-                if (map_possibility[hi][wj] < min)
+                if (map_possibility[wj][hi] < min)
                 {
-                    min = map_possibility[hi][wj];
+                    min = map_possibility[wj][hi];
                 }
-                if (map_possibility[hi][wj] > max)
+                if (map_possibility[wj][hi] > max)
                 {
-                    max = map_possibility[hi][wj];
+                    max = map_possibility[wj][hi];
                     max_id = hi * MAP_WIDTH + wj;
                 }
             }
@@ -535,16 +503,16 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
         // correctionで、値の位置を調整する
         float magnification = POSSIBILITY_VALUE_MAX / (max - min);
         float correction = POSSIBILITY_VALUE_MIN - min * magnification;
-        rep(hi, MAP_HEIGHT)
+        rep(wj, MAP_WIDTH)
         {
-            rep(wj, MAP_WIDTH)
+            rep(hi, MAP_HEIGHT)
             {
-                if (map_data[hi][wj] == WALL)
+                if (map_data[wj][hi] == WALL)
                 {
-                    map_possibility[hi][wj] = 0;
+                    map_possibility[wj][hi] = 0;
                     continue;
                 }
-                map_possibility[hi][wj] = map_possibility[hi][wj] * magnification + correction;
+                map_possibility[wj][hi] = map_possibility[wj][hi] * magnification + correction;
             }
         }
 
@@ -556,9 +524,6 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 
 void init2()
 {
-    setEquations(0, 0, COSPACE_WIDTH, COSPACE_HEIGHT);
-    setEquations(60, COSPACE_HEIGHT - 30, 90, COSPACE_HEIGHT);
-    setEquations(90, 60, 120, 90);
 }
 
 void showCurrentMapPossibility()
@@ -567,13 +532,13 @@ void showCurrentMapPossibility()
     {
         rep(wj, MAP_WIDTH)
         {
-            if (map_data[hi][wj] == WALL)
+            if (map_data[wj][hi] == WALL)
             {
                 cout << "□";
                 continue;
             }
 
-            cout << setw(2) << current_map_possibility[hi][wj];
+            cout << setw(2) << current_map_possibility[wj][hi];
         }
         cout << endl;
     }
@@ -589,7 +554,7 @@ void showMap2()
     {
         rep(wj, MAP_WIDTH)
         {
-            if (map_data[hi][wj] == WALL)
+            if (map_data[wj][hi] == WALL)
             {
                 cout << "*";
                 continue;
@@ -599,11 +564,11 @@ void showMap2()
             {
                 cout << "#";
             }
-            else if (map_possibility[hi][wj] > 0.8 * POSSIBILITY_VALUE_MAX)
+            else if (map_possibility[wj][hi] > 0.8 * POSSIBILITY_VALUE_MAX)
             {
                 cout << "+";
             }
-            else if (map_possibility[hi][wj] > 0.6 * POSSIBILITY_VALUE_MAX)
+            else if (map_possibility[wj][hi] > 0.6 * POSSIBILITY_VALUE_MAX)
             {
                 cout << "-";
             }

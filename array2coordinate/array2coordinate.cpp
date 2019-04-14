@@ -105,6 +105,10 @@ int main()
         {
             outputfile << "}," << endl;
         }
+        if (equations[i][0] % 10 != 0)
+        {
+            cout << i << "strange" << endl;
+        }
     }
     outputfile << "};" << endl;
     outputfile.close();
