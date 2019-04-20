@@ -12,7 +12,6 @@ enum MapObjectNumber
 
 void showMap2();
 void init();
-void init2();
 
 void setEquation(int x1, int y1, int x2, int y2);
 // 長方形で、壁を登録する

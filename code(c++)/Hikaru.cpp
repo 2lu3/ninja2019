@@ -627,6 +627,15 @@ void Game1_Hikaru::loop()
 				{
 					if (rand() % 5 == 0)
 					{
+						process++;
+					}
+				}
+			}
+			else if(process == 3) {
+				if (GoInDots(310, 30, 30, 30, POINT_BLACK))
+				{
+					if (rand() % 5 == 0)
+					{
 						process = 0;
 					}
 				}
