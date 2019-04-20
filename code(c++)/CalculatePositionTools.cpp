@@ -24,7 +24,7 @@ using namespace std;
 #define YELLOW 3
 #define DEPOSIT 4
 
-int map_position_data[24][18] = {
+int map_data[24][18] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
