@@ -52,7 +52,7 @@ void Game0()
 
 void Game1()
 {
-	if (getRepeatedNum() == 0 && triger == 0)
+	if (getRepeatedNum() == 0)
 	{
 		game1.setup();
 		triger = 1;

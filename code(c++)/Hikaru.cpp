@@ -31,19 +31,11 @@
 
 using namespace std;
 
-FILE *logfile;
-FILE *errfile;
-FILE *Motor_file;
-
 int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
 int absolute_x = -1, absolute_y = -1;
 int now_dot_id;
 int emergency_now_dot_id = 593;
-// int process = -1;
 int super_sameoperate = 0;
-//[WheelLeft][WheelRight][0]:distance
-//[WheelLeft][WheelRight][1]:angle
-int Motor_log[11][11][2];
 int searching_object;
 
 struct Dot
@@ -96,24 +88,22 @@ const int border_same_obj_number = 3;
 
 void Game0_Hikaru::setup(void)
 {
-	UserGame0::setup();
 	ProcessingTime pt;
 	pt.start();
+
+	UserGame0::setup();
 
 	delErrorFile();
 	delLogFile();
 	InputColorInformation();
 
-	init();
-
 	double seconds = pt.end();
-	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_DEBUG);
+	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
 }
+
 void Game0_Hikaru::loop(void)
 {
 	UserGame0::loop();
-	calculate2(US_Left, US_Front, US_Right, Compass);
-	showMap2();
 	logMessage("World1 loop start");
 	if (SuperDuration > 0)
 	{
@@ -403,7 +393,9 @@ int process = 0;
 
 void Game1_Hikaru::loop()
 {
-	cout << process << endl;
+	ProcessingTime pt;
+	pt.start();
+	// cout << process << endl;
 	UserGame1::loop();
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
@@ -758,6 +750,8 @@ void Game1_Hikaru::loop()
 		log_superobj_num = 0;
 		super_sameoperate = 0;
 	}
+	double seconds = pt.end();
+	cout << "loop time :" + to_string(seconds) + " milliseconds" << endl;
 }
 
 long WhereIsMotor(void)
