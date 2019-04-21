@@ -12,6 +12,9 @@ button_labels = ["Red", "Cyan", "Black", "Yellow", "Wall", "Swampland", "Deposit
 button_values = [10, 15, 20, -2, -3, -1, 0, 1]
 buttons_is_checked = None
 
+def onClickOutput(event):
+    print("finished")
+
 def click(event):
     for i in range(len(button_labels)):
         print(buttons_is_checked[i].get())
@@ -29,6 +32,10 @@ def setButtons(root):
         button = tk.Checkbutton(root, text=button_labels[i], variable=buttons_is_checked[i], width = button_width, anchor="w")
         button.bind("<Button-1>", onClickButton)
         button.place(x = image_width + margin * 2, y = margin * (i + 1))
+
+    button = tk.Button(root, text="出力")
+    button.bind("<Button-1>", onClickOutput)
+    button.place(x = image_width + margin * 2, y = margin * (len(button_labels) + 3))
 
 
 
