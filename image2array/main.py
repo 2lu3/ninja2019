@@ -2,6 +2,7 @@ import tkinter as tk
 import time
 from PIL import Image, ImageTk
 import cv2
+import os
 
 image_width = None
 image_height = None
@@ -78,6 +79,45 @@ def reloadImage():
 
 
 def onClickOutput(event):
+    size = 20
+    output_width = int(image_width / size)
+    output_height = int(image_height / size)
+    output_map = [[[0 for i in range(4)] for j in range(output_width)] for k in range(output_height)]
+    for hi in range(output_height):
+        for wj in range(output_width):
+            max_id = 0
+            max_num = 0
+            is_object = [0, 0, 0]
+            num = [0 for i in range(border_area_object)]
+            for hi_add in range(size):
+                for wj_add in range(size):
+                    for k in range(3):
+                        if map_data[hi * size + hi_add][wj * size + wj_add][border_area_object + k + 1] == 1:
+                            is_object[k] = 1
+                    for k in range(border_area_object):
+                        if map_data[hi * size + hi_add][wj * size + wj_add][k] == 1:
+                            num[k] += 1
+            for k in range(border_area_object):
+                if num[k] > max_num:
+                    max_num = num[k]
+                    max_id = k
+            output_map[hi][wj][0] = max_id
+            print(str(hi) + " " + str(wj) + " " + str(max_id))
+            for k in range(3):
+                output_map[hi][wj][k + 1] = is_object[k] + 1
+
+    with open("output.txt", mode='w') as f:
+        for k in range(4):
+            for hi in range(output_height):
+                for wj in range(output_width):
+                    f.write(str(output_map[hi][wj][k]) + " ")
+                f.write("\n")
+            f.write("\n")
+        f.write("\n")
+    print("finished")
+
+
+
     print("finished")
 
 def onImageClick(event):
