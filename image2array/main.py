@@ -13,7 +13,9 @@ canvas = None
 image_pil = None
 tkimg = None
 show_option = 0
-listBox = None
+paint_option = 0
+listShowMode = None
+listPaintBrush = None
 
 # 0 : オブジェクトのみ
 # 1 : 地形のみ
@@ -24,7 +26,7 @@ button_labels = ["White", "Yellow", "Wall", "Swampland",  "Deposit", "SuperArea"
 button_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 registered_color = [
         [255, 255, 255], # white
-        [255, 255,0], # yellow
+        [255, 255, 0], # yellow
         [221, 186, 151], # wall
         [166, 166, 166], # swampland
         [255, 192, 0], # deposit
@@ -33,7 +35,6 @@ registered_color = [
         [63, 72, 204], # cyan
         [0, 0, 0] # black
     ]
-buttons_is_checked = None
 map_data = None
 
 start_x = 0
@@ -46,20 +47,22 @@ end_y = 0
 def reloadImage():
     global tkimg, image_rgb, image_pil, map_data, registered_color, canvas, show_option
 
-    option = listBox.curselection()
-    if option == 0: # マップ情報のみ
+
+    if show_option == 0: # マップ情報のみ
         for hi in range(image_height):
             for wj in range(image_width):
                 image_rgb[hi][wj] = registered_color[map_data[hi][wj].index(1)]
-    elif option == 1: # Redのみ
-        red_label_index = button_labels.index("Red")
+    elif show_option == 1 or show_option == 2 or show_option == 3: # Objectのみ
+        object_label_index = border_area_object + show_option
         white_label_index = button_labels.index("White")
         for hi in range(image_height):
             for wj in range(image_width):
-                if map_data[hi][wj][red_label_index] == 1:
-                    image_rgb[hi][wj] = registered_color[red_label_index]
+                if map_data[hi][wj][object_label_index] == 1:
+                    image_rgb[hi][wj] = registered_color[object_label_index]
                 else:
-                    image_rgb[hi][wj] = registered_color[white_label_index]
+                    image_rgb[hi][wj] = registered_color[map_data[hi][wj].index(1)]
+                    if map_data[hi][wj].index(1) > border_area_object:
+                        print("error")
 
 
 
@@ -91,11 +94,19 @@ def onImageMotion(event):
 
 
 def onImageRelease(event):
-
     global start_x, start_y, end_x, end_y, image_rgb, image_pil, tkimg
-
-
     canvas.delete("temp")
+
+    if show_option == 0:
+        # マップのみ
+        if paint_option > border_area_object:
+            print("failed")
+            return
+    else:
+        if show_option + border_area_object != paint_option:
+            print("failed")
+            return
+
 
     end_x = event.x
     end_y = event.y
@@ -105,42 +116,58 @@ def onImageRelease(event):
     end_x -= margin
     end_y -= margin
 
-
-    for hi in range(start_y, end_y):
-        for wj in range(start_x, end_x):
-            if hi < 0 or hi >= image_height or wj < 0 or wj >= image_width:
-                continue
-            else:
-                for k in range(len(buttons_is_checked)):
-                    if buttons_is_checked[k].get() == True:
-                        map_data[hi][wj][k] = 1
-                        if k <= 5:
-                            image_rgb[hi][wj] = registered_color[k]
-                    else:
+    if show_option == 0:
+        for hi in range(start_y, end_y):
+            for wj in range(start_x, end_x):
+                if hi < 0 or hi >= image_height or wj < 0 or wj >= image_width:
+                    continue
+                else:
+                    for k in range(border_area_object):
                         map_data[hi][wj][k] = 0
-
+                    map_data[hi][wj][paint_option] = 1
+    else:
+        for hi in range(start_y, end_y):
+            for wj in range(start_x, end_x):
+                if hi < 0 or hi >= image_height or wj < 0 or wj >= image_width:
+                    continue
+                else:
+                    map_data[hi][wj][paint_option] = 1
     reloadImage()
 
 def onClickModeChange(event):
+    global show_option
+    show_option = listShowMode.curselection()[0]
+    print("show mode : " + button_labels[show_option + border_area_object])
     reloadImage()
 
 
+def onClickPaintMode(event):
+    global paint_option
+    paint_option = listPaintBrush.curselection()[0]
+    print("paint mode : " + button_labels[paint_option])
+
 
 def setButtons(root):
-    global listBox
+    global listShowMode, listPaintBrush
     # global button_labels, button_values, buttons_is_checked
     button_width = 10
-    for i in range(len(button_labels)):
-        button = tk.Checkbutton(root, text=button_labels[i], variable=buttons_is_checked[i], width = button_width, anchor="w")
-        # button.bind("<Button-1>", onClick)
-        button.place(x = image_width + margin * 2, y = margin * (i + 1))
+    listPaintBrush =tk.Listbox(root, height = len(button_labels))
+    for line in button_labels:
+        listPaintBrush.insert(tk.END, line)
+    listPaintBrush.select_set(0)
+    listPaintBrush.bind("<ButtonRelease-1>", onClickPaintMode)
+    listPaintBrush.place(x = image_width + margin * 2, y = margin * 1)
 
-    listBox =tk.Listbox(root, height = 4)
+    # for i in range(len(button_labels)):
+    #     button = tk.Checkbutton(root, text=button_labels[i], variable=buttons_is_checked[i], width = button_width, anchor="w")
+    #     button.place(x = image_width + margin * 2, y = margin * (i + 1))
+
+    listShowMode =tk.Listbox(root, height = 4)
     for line in ["床情報", "Red", "Cyan", "Black"]:
-        listBox.insert(tk.END, line)
-    listBox.select_set(0)
-    listBox.bind("<Button-1>", onClickModeChange)
-    listBox.place(x = image_width + margin * 2, y = margin * (len(button_labels) + 2))
+        listShowMode.insert(tk.END, line)
+    listShowMode.select_set(0)
+    listShowMode.bind("<ButtonRelease-1>", onClickModeChange)
+    listShowMode.place(x = image_width + margin * 2, y = margin * (len(button_labels) + 2))
 
     button = tk.Button(root, text="出力")
     button.bind("<Button-1>", onClickOutput)
@@ -153,21 +180,20 @@ def formatImage():
             min_val = 0
             min_color_num = 0
             for i in range(border_area_object):
-                if (registered_color[i][0] - image_rgb[hi][wj][0]) + (registered_color[i][1] - image_rgb[hi][wj][1]) + (registered_color[i][2] - image_rgb[hi][wj][2]) <= 20:
+                if (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2 <= 50:
                     min_color_num = i
                     break
             map_data[hi][wj][min_color_num] = 1
 
 
 def main():
-    global button_labels, button_values, buttons_is_checked, image_rgb, canvas, map_data, image_width, image_height
+    global button_labels, button_values, image_rgb, canvas, map_data, image_width, image_height
 
 
     # 初期化
     root = tk.Tk()
     # 名前
     root.title("Image2Array")
-    buttons_is_checked = [tk.BooleanVar() for i in range(len(button_labels))]
 
 
 
@@ -201,7 +227,7 @@ def main():
 
 
     # 画像の周りに線を表示
-    line_margin = 1
+    line_margin = 2
     canvas.create_rectangle(margin - line_margin / 2, margin - line_margin / 2, image_width + margin + line_margin / 2, image_height + margin + line_margin / 2, outline="black", width = line_margin)
 
     canvas.bind("<Button-1>", onImageClick)
