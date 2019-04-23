@@ -8,7 +8,7 @@ image_width = None
 image_height = None
 margin = 20
 button_margin = 120
-magnification = 10
+magnification = 2
 
 image_rgb = None
 canvas = None
@@ -141,7 +141,21 @@ def onClickOutput(event):
                 f.write("\n")
             f.write("\n")
         f.write("\n")
-    print("finished")
+
+    with open("output_array.txt", mode='w') as f:
+        for k in range(4):
+            f.write("int map_data[" + str(output_height) + "][" + str(output_width) + "] = {")
+            for hi in range(output_height):
+                f.write("{")
+                for wj in range(output_width - 1):
+                    f.write(str(output_map[hi][wj][k]) + ",")
+                f.write(str(output_map[hi][output_width - 1][k]))
+                if hi != output_height - 1:
+                    f.write("},\n")
+                else:
+                    f.write("}\n")
+            f.write("}\n")
+        f.write("\n")
 
 
 

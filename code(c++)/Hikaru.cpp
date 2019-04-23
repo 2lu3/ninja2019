@@ -40,13 +40,15 @@ int searching_object;
 
 struct Dot
 {
-	int x, y;												//dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;												//一辺の長さ
-	int point;											//ドットの種類(-3:yellow -2:wall etc.)
-	int done;												//Dijkstra()
-	int id;													//y * 36 + x
-	int from;												//Dijkstra()
-	int cost;												//Dijkstra()
+	int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
+	int wide;	//一辺の長さ
+	int point; //ドットの種類(-3:yellow -2:wall etc.)
+	int done;	//Dijkstra()
+	long id;	 //y * 36 + x
+	int from;	//Dijkstra()
+	int cost;	//Dijkstra()
+	int is_opened;
+	int score;
 	int distance_from_start;				//Dijkstra()
 	int curved_times;								//Dijkstra()
 	int arrived_times;							//そこにいた回数
@@ -1468,6 +1470,259 @@ void Dijkstra()
 
 	//fprintf(logfile, " %d End Dijkstra()\n", getRepeatedNum());
 }
+
+class Astar
+{
+private:
+	class Que
+	{
+	private:
+		long que[MAX_DOT_NUMBER];
+		long start_point = 0, end_point = 0, reading_point = 0;
+
+	public:
+		const long error = -1;
+		int add(long id)
+		{
+			if (start_point == (end_point + 1) % MAX_DOT_NUMBER)
+			{
+				return error;
+			}
+			que[end_point++] = id;
+			if (end_point == MAX_DOT_NUMBER)
+			{
+				end_point = 0;
+			}
+			return -1;
+		}
+
+		int read(void)
+		{
+			if (reading_point == end_point)
+			{
+				return error;
+			}
+			long value = que[reading_point++];
+			if (reading_point == MAX_DOT_NUMBER)
+			{
+				reading_point = 0;
+			}
+			return value;
+		}
+
+		void readReset(void)
+		{
+			reading_point = start_point;
+		}
+
+		long pop(void)
+		{
+			if (start_point == end_point)
+			{
+				return error;
+			}
+			long value = que[start_point++];
+			if (start_point == MAX_DOT_NUMBER)
+			{
+				start_point = 0;
+			}
+			return value;
+		}
+
+		long search(long value)
+		{
+			long index = start_point;
+			while (index != end_point)
+			{
+				if (que[index] == value)
+				{
+					return index;
+				}
+				index++;
+				if (index == MAX_DOT_NUMBER)
+				{
+					index = 0;
+				}
+			}
+			return error;
+		}
+
+		long pop(long value)
+		{
+			long id = search(value);
+			if (start_point < end_point)
+			{
+				if (start_point <= id && id < end_point)
+				{
+					value = que[id];
+					for (long i = id; i < end_point - 1; i++)
+					{
+						que[i] = que[i + 1];
+					}
+					end_point--;
+				}
+				else
+				{
+					return error;
+				}
+			}
+			else if (start_point == end_point)
+			{
+				return error;
+			}
+			else
+			{
+				if (start_point <= id + MAX_DOT_NUMBER && id < end_point)
+				{
+					value = que[id];
+					for (long i = id; i < MAX_DOT_NUMBER - 1; i++)
+					{
+						que[i] = que[i + 1];
+					}
+					que[MAX_DOT_NUMBER - 1] = que[0];
+					for (long i = 0; i < end_point - 1; i++)
+					{
+						que[i] = que[i + 1];
+					}
+					end_point--;
+				}
+				else
+				{
+					return error;
+				}
+			}
+			return value;
+		}
+
+		void showList(void)
+		{
+			if (start_point <= end_point)
+			{
+				for (long i = start_point; i < end_point; i++)
+				{
+					cout << que[i] << " ";
+				}
+				cout << endl;
+			}
+			else
+			{
+				for (long i = start_point; i < MAX_DOT_NUMBER; i++)
+				{
+					cout << que[i] << " ";
+				}
+				for (long i = 0; i < start_point; i++)
+				{
+					cout << que[i] << " ";
+				}
+				cout << endl;
+			}
+		}
+	};
+
+public:
+	void calculate(int goal_id)
+	{
+		int goal_y = goal_id / DOT_WIDTH_NUMBER;
+		int goal_x = goal_id - DOT_WIDTH_NUMBER * goal_y;
+		for (int i = 0; i < MAX_DOT_NUMBER; i++)
+		{
+			dot[i].cost = -1;
+			dot[i].done = -1;
+			dot[i].from = -1;
+			dot[i].is_opened = 0;
+		}
+
+		int now_node_id = now_dot_id;
+
+		if (now_node_id < 0 || now_node_id >= MAX_DOT_NUMBER)
+		{
+			printf("\n\n\nDijkstra2(): now_dot_id's value is %d\n\n\n", now_node_id);
+			return;
+		}
+		dot[now_node_id].cost = 0;
+		dot[now_node_id].from = now_node_id;
+
+		Que que;
+		que.add(now_dot_id);
+
+		struct Dot investigating_node;
+
+		while (true)
+		{
+			investigating_node.is_opened = 0;
+			long flag = que.read();
+			long id;
+			do
+			{
+				id = flag;
+
+				//If the dot is yellow or wall
+				if (dot[id].point < POINT_SWAMPLAND)
+				{
+					continue;
+				}
+
+				//未代入の場合
+				if (investigating_node.is_opened == 0)
+				{
+					investigating_node = dot[id];
+					continue;
+				}
+
+				//新しいドットのコストが小さい場合
+				if (dot[id].score < investigating_node.score)
+				{
+					investigating_node = dot[id];
+				}
+				else if (dot[id].score == investigating_node.score)
+				{
+					if (dot[id].cost < investigating_node.cost)
+					{
+						investigating_node = dot[id];
+					}
+				}
+				flag = que.read();
+			} while (flag != -1);
+
+			//新しいドットがない場合
+			if (investigating_node.is_opened == 0)
+			{
+				break;
+			}
+			que.readReset();
+			que.pop(investigating_node.id);
+
+			dot[investigating_node.id].done = 0;
+
+			for (int i = 0; i < investigating_node.edge_num; i++)
+			{
+				int target_id = investigating_node.edge_to[i];
+				int y = target_id / DOT_WIDTH_NUMBER;
+				int x = target_id - y * DOT_WIDTH_NUMBER;
+				if (target_id < 0 || target_id >= MAX_DOT_NUMBER)
+				{
+					continue;
+				}
+
+				//If target_dot is yellow or wall
+				if (dot[target_id].point < POINT_SWAMPLAND)
+				{
+					continue;
+				}
+
+				int target_cost = investigating_node.cost + investigating_node.edge_cost[i];
+				int target_score = target_cost + abs(y - goal_y) + abs(x - goal_x);
+
+				if (dot[target_id].cost < 0 || target_cost < dot[target_id].cost)
+				{
+					dot[target_id].cost = target_cost;
+					dot[target_id].from = investigating_node.id;
+					dot[target_id].score = target_score;
+				}
+			}
+		}
+	}
+};
 
 int GoToDot(int x, int y)
 {
