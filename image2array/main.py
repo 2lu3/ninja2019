@@ -8,6 +8,7 @@ image_width = None
 image_height = None
 margin = 20
 button_margin = 120
+magnification = 10
 
 image_rgb = None
 canvas = None
@@ -74,14 +75,39 @@ def reloadImage():
     canvas.create_image(margin, margin, image=tkimg, anchor=tk.NW)
 
 
+def onClickLoadData(event):
+    global map_data
+    map_data = [[[0 for i in range(len(button_labels))] for j in range(image_width)] for k in range(image_height)]
+    width = int(image_width / magnification)
+    height = int(image_height / magnification)
+    with open("output.txt", mode='r') as f:
+        line = []
+        for i in range(height + 1):
+            line.append(f.readline().split())
+        del line[-1]
+        for hi in range(height):
+            for wj in range(width):
+                for hi_add in range(magnification):
+                    for wj_add in range(magnification):
+                        map_data[hi * magnification + hi_add][wj * magnification + wj_add][int(line[hi][wj])] = 1
 
+        for i in range(3):
+            line = []
+            for j in range(height + 1):
+                line.append(f.readline().split())
+            del line[-1]
+            for hi in range(height):
+                for wj in range(width):
+                    for hi_add in range(magnification):
+                        for wj_add in range(magnification):
+                            map_data[hi * magnification + hi_add][wj * magnification + wj_add][i + border_area_object + 1] = int(line[hi][wj])
+    # pass
 
 
 
 def onClickOutput(event):
-    size = 20
-    output_width = int(image_width / size)
-    output_height = int(image_height / size)
+    output_width = int(image_width / magnification)
+    output_height = int(image_height / magnification)
     output_map = [[[0 for i in range(4)] for j in range(output_width)] for k in range(output_height)]
     for hi in range(output_height):
         for wj in range(output_width):
@@ -89,22 +115,23 @@ def onClickOutput(event):
             max_num = 0
             is_object = [0, 0, 0]
             num = [0 for i in range(border_area_object)]
-            for hi_add in range(size):
-                for wj_add in range(size):
+            for hi_add in range(magnification):
+                for wj_add in range(magnification):
                     for k in range(3):
-                        if map_data[hi * size + hi_add][wj * size + wj_add][border_area_object + k + 1] == 1:
+                        if map_data[hi * magnification + hi_add][wj * magnification + wj_add][border_area_object + k + 1] == 1:
                             is_object[k] = 1
                     for k in range(border_area_object):
-                        if map_data[hi * size + hi_add][wj * size + wj_add][k] == 1:
+                        if map_data[hi * magnification + hi_add][wj * magnification + wj_add][k] == 1:
                             num[k] += 1
             for k in range(border_area_object):
                 if num[k] > max_num:
                     max_num = num[k]
                     max_id = k
             output_map[hi][wj][0] = max_id
-            print(str(hi) + " " + str(wj) + " " + str(max_id))
+            # print(str(hi) + " " + str(wj) + " " + str(max_id))
             for k in range(3):
-                output_map[hi][wj][k + 1] = is_object[k] + 1
+                # print(is_object[k])
+                output_map[hi][wj][k + 1] = is_object[k]
 
     with open("output.txt", mode='w') as f:
         for k in range(4):
@@ -212,6 +239,10 @@ def setButtons(root):
     button = tk.Button(root, text="出力")
     button.bind("<Button-1>", onClickOutput)
     button.place(x = image_width + margin * 2, y = margin * (len(button_labels) + 8))
+
+    button = tk.Button(root, text="ロード")
+    button.bind("<Button-1>", onClickLoadData)
+    button.place(x = image_width + margin * 2, y = margin * (len(button_labels) + 10))
 
 def formatImage():
     global map_data, image_rgb
