@@ -8,7 +8,7 @@ image_width = None
 image_height = None
 margin = 20
 button_margin = 120
-magnification = 4
+magnification = 10
 
 image_rgb = None
 canvas = None
@@ -144,7 +144,7 @@ def onClickOutput(event):
         f.write("\n")
 
     with open("output_array.txt", mode='w') as f:
-        array_name = ["map_data", "red_data", "cyan_data", "black_data"]
+        array_name = ["map_output_data", "red_data", "cyan_data", "black_data"]
         for k in range(4):
             f.write("int " + array_name[k] + "[" + str(output_height) + "][" + str(output_width) + "] = {")
             for hi in range(output_height):

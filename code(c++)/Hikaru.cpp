@@ -1,4 +1,5 @@
 #include "Hikaru.hpp"
+#include "MapData.hpp"
 #include <iostream>
 
 #define FOR for
@@ -21,7 +22,7 @@
 
 #define COSPACE_WIDTH 360
 #define COSPACE_HEIGHT 270
-#define SIZE 10
+#define SIZE 5
 #define DOT_WIDTH_NUMBER (COSPACE_WIDTH / SIZE)
 #define DOT_HEIGHT_NUMBER (COSPACE_HEIGHT / SIZE)
 #define MAX_DOT_NUMBER (COSPACE_WIDTH * COSPACE_HEIGHT / SIZE / SIZE)
@@ -43,24 +44,24 @@ int searching_object;
 
 struct Dot
 {
-	int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;  //一辺の長さ
+	int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
+	int wide;	//一辺の長さ
 	int point; //ドットの種類(-3:yellow -2:wall etc.)
-	int done;  //Dijkstra()
-	long id;   //y * 36 + x
-	int from;  //Dijkstra()
-	int cost;  //Dijkstra()
+	int done;	//Dijkstra()
+	long id;	 //y * 36 + x
+	int from;	//Dijkstra()
+	int cost;	//Dijkstra()
 	int is_opened;
 	int score;
-	int distance_from_start;		//Dijkstra()
-	int curved_times;				//Dijkstra()
-	int arrived_times;				//そこにいた回数
-	int edge_num;					//そのドットに行くことのできるドットの数
-	int edge_to[MAX_EDGE_NUMBER];   //
+	int distance_from_start;				//Dijkstra()
+	int curved_times;								//Dijkstra()
+	int arrived_times;							//そこにいた回数
+	int edge_num;										//そのドットに行くことのできるドットの数
+	int edge_to[MAX_EDGE_NUMBER];		//
 	int edge_cost[MAX_EDGE_NUMBER]; //
-	int red;						//もし、Redがとれるなら、1
-	int cyan;						//もし、Cyanがとれないなら0
-	int black;						//もし、Blackが...
+	int red;												//もし、Redがとれるなら、1
+	int cyan;												//もし、Cyanがとれないなら0
+	int black;											//もし、Blackが...
 	int color;
 };
 struct Dot dot[MAX_DOT_NUMBER];
@@ -172,7 +173,7 @@ void Game0_Hikaru::loop(void)
 			motor(-3, -1);
 		}
 		setAction(YELLOW_AVOIDANCE);
-		Duration = 5;
+		Duration = 3;
 	}
 	else if (obstacle(8, 10, 8))
 	{
@@ -364,11 +365,11 @@ FILE *object_file;
 
 void Game1_Hikaru::setup(void)
 {
+	system("cls");
 	UserGame1::setup();
 	// fp = fopen("motor.txt", "a");
 	InputDotInformation();
 	InputColorInformation();
-	system("cls");
 	system("chcp 65001");
 	srand((unsigned int)time(NULL));
 
@@ -396,6 +397,7 @@ void Game1_Hikaru::loop()
 	pt.start();
 	// cout << process << endl;
 	UserGame1::loop();
+	cout << dot[31 * DOT_WIDTH_NUMBER + 10].black << endl;
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
 	static int prev_repeated_num = 0;
@@ -558,14 +560,7 @@ void Game1_Hikaru::loop()
 	else if (LoadedObjects >= 6)
 	{
 		searching_object = -1;
-		if (log_x < 180 && log_y < 30)
-		{
-			GoToDots(15, 15, 1, 1);
-		}
-		else
-		{
-			GoToDots(255, 120, 1, 1);
-		}
+		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
 	}
 	else if (Time > 450 && LoadedObjects > 2)
 	{
@@ -1068,53 +1063,24 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 
 void InputDotInformation(void)
 {
-	int map_position_data[36][27] = {
-		{3, 3, 3, 0, 4, 4, 4, 4, 0, 0, 0, 1, 1, 1, 1, 1, 0, 9, 9, 9, 0, 2, 0, 0, 0, 0, 0},
-		{3, 3, 3, 0, 4, 4, 4, 4, 0, 0, 0, 1, 1, 1, 1, 1, 0, 9, 9, 9, 0, 2, 9, 9, 9, 9, 0},
-		{3, 3, 3, 0, 4, 4, 4, 8, 8, 9, 9, 9, 1, 1, 1, 9, 9, 9, 9, 9, 0, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 9, 9, 9, 1, 1, 1, 9, 9, 9, 9, 9, 0, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 9, 9, 9, 0, 0, 9, 9, 9, 9, 9, 2, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 0, 2, 2, 2, 9, 9, 9, 9, 9, 0, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0},
-		{0, 0, 0, 0, 4, 4, 4, 8, 8, 8, 8, 8, 8, 2, 2, 2, 0, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
-		{0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-		{0, 0, 7, 7, 7, 0, 0, 8, 8, 8, 8, 8, 8, 8, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-		{0, 0, 7, 7, 7, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-		{0, 0, 7, 7, 7, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-		{0, 0, 7, 7, 7, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 2, 1, 1, 1, 3, 3, 3, 1, 1, 1, 1, 9, 9, 9, 0, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 2, 1, 1, 1, 3, 3, 3, 1, 1, 1, 1, 9, 9, 9, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 2, 1, 1, 1, 3, 3, 3, 1, 1, 1, 1, 9, 9, 9, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 9, 9, 9, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 2, 0, 0, 9, 9, 9, 9, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 2, 0, 0, 9, 9, 9, 9, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 2, 0, 0, 0, 0, 0, 0, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 9, 9, 9, 9, 9},
-		{0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 0, 0, 0, 0, 0}};
-
-	short map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
+	rep(hi, DOT_HEIGHT_NUMBER)
+	{
+		rep(wj, DOT_WIDTH_NUMBER)
+		{
+			cout << map_output_data[hi][wj];
+		}
+		cout << endl;
+	}
+	cout << endl;
+	int map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
 	for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
 	{
 		for (int j = 0; j < DOT_HEIGHT_NUMBER; j++)
 		{
-			switch (map_position_data[i][j])
+			switch (map_output_data[DOT_HEIGHT_NUMBER - j - 1][i])
 			{
 			case 0: //white
-				map_position_color_data[i][j] = 0;
+				map_position_color_data[i][j] = POINT_WHITE;
 				break;
 			case 1: //yellow
 				map_position_color_data[i][j] = POINT_YELLOW;
@@ -1122,28 +1088,17 @@ void InputDotInformation(void)
 			case 2: //wall
 				map_position_color_data[i][j] = POINT_WALL;
 				break;
-			case 3: //deposit
-				map_position_color_data[i][j] = POINT_DEPOSIT;
-				break;
-			case 4: //swampland
+			case 3: //swampland
 				map_position_color_data[i][j] = POINT_SWAMPLAND;
 				break;
-			case 5: //black
-				map_position_color_data[i][j] = POINT_BLACK;
+			case 4: //deposit
+				map_position_color_data[i][j] = POINT_DEPOSIT;
 				break;
-			case 6: //cyan
-				map_position_color_data[i][j] = POINT_CYAN;
-				break;
-			case 7: //red
-				map_position_color_data[i][j] = POINT_RED;
-				break;
-			case 8: //black + cyan
-				map_position_color_data[i][j] = POINT_BLACK + POINT_CYAN;
-				break;
-			case 9: // all
-				map_position_color_data[i][j] = POINT_BLACK + POINT_CYAN + POINT_RED;
+			case 5: // super area
+				map_position_color_data[i][j] = POINT_SUPERAREA;
 				break;
 			default:
+				map_position_color_data[i][j] = POINT_WHITE;
 				break;
 			}
 		}
@@ -1172,50 +1127,12 @@ void InputDotInformation(void)
 		//point means what's this dot belongs?
 		//For example, this dot belongs yellow.
 		//this map_position_color_data is defined at 60 lines upper(may be)
-		// dot[i].point = map_position_color_data[x][y];
-		dot[i].point = 1;
+		dot[i].point = map_position_color_data[x][y];
+		// dot[i].point = 1;
 		dot[i].color = map_position_color_data[x][y];
-		switch (map_position_color_data[x][y])
-		{
-		case POINT_RED:
-			dot[i].red = 1;
-			dot[i].cyan = 0;
-			dot[i].black = 0;
-			break;
-		case POINT_CYAN:
-			dot[i].red = 0;
-			dot[i].cyan = 1;
-			dot[i].black = 0;
-			break;
-		case POINT_BLACK:
-			dot[i].red = 0;
-			dot[i].cyan = 0;
-			dot[i].black = 1;
-			break;
-		case POINT_RED + POINT_CYAN:
-			dot[i].red = 1;
-			dot[i].cyan = 1;
-			dot[i].black = 0;
-			break;
-		case POINT_RED + POINT_BLACK:
-			dot[i].red = 1;
-			dot[i].cyan = 0;
-			dot[i].black = 1;
-			break;
-		case POINT_CYAN + POINT_BLACK:
-			dot[i].red = 0;
-			dot[i].cyan = 1;
-			dot[i].black = 1;
-			break;
-		case POINT_RED + POINT_CYAN + POINT_BLACK:
-			dot[i].red = 1;
-			dot[i].cyan = 1;
-			dot[i].black = 1;
-			break;
-		default:
-			dot[i].point = map_position_color_data[x][y];
-			break;
-		}
+		dot[i].red = red_data[DOT_HEIGHT_NUMBER - y - 1][x];
+		dot[i].cyan = cyan_data[DOT_HEIGHT_NUMBER - y - 1][x];
+		dot[i].black = black_data[DOT_HEIGHT_NUMBER - y - 1][x];
 
 		//these are for dijkstra
 		// dot[i].done = -1;
@@ -1277,6 +1194,50 @@ void InputDotInformation(void)
 			dot[i].edge_num++;
 		}
 	}
+	for (int hi = DOT_HEIGHT_NUMBER - 1; hi >= 0; hi--)
+	{
+		rep(wj, DOT_WIDTH_NUMBER)
+		{
+			switch (dot[hi * DOT_WIDTH_NUMBER + wj].point)
+			{
+			case POINT_YELLOW:
+				cout << "$";
+				break;
+			case POINT_WALL:
+				cout << "#";
+				break;
+			case POINT_DEPOSIT:
+				cout << "@";
+				break;
+			case POINT_SUPERAREA:
+				cout << "^";
+				break;
+			case POINT_SWAMPLAND:
+				cout << "|";
+				break;
+			default:
+				if (dot[hi * DOT_WIDTH_NUMBER + wj].black == 1)
+				{
+					cout << "B";
+				}
+				else if (dot[hi * DOT_WIDTH_NUMBER + wj].cyan == 1)
+				{
+					cout << "C";
+				}
+				else if (dot[hi * DOT_WIDTH_NUMBER + wj].red == 1)
+				{
+					cout << "R";
+				}
+				else
+				{
+					cout << " ";
+				}
+				break;
+			}
+		}
+		cout << endl;
+	}
+	cout << endl;
 }
 
 void Dijkstra()
@@ -1511,7 +1472,7 @@ int GoToDot(int x, int y)
 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
 	//fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-	if (PositionX == -1 && PLUSMINUS(log_x / SIZE, x, 1) && PLUSMINUS(log_y / SIZE, y, 1))
+	if (PositionX == -1 || (PLUSMINUS(log_x, x * SIZE, SIZE) && PLUSMINUS(log_y, y * SIZE, SIZE)))
 	{
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
 		return 1;
@@ -1818,11 +1779,12 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
 	static int prev_x = -1;
 	static int prev_y = -1;
+	static int prev_color = -1000;
 	static int target_x = -1;
 	static int target_y = -1;
 	static int same_target = 0;
 	static int same_target_border = 0;
-	if (x != prev_x || y != prev_y)
+	if (x != prev_x || y != prev_y || color != prev_color)
 	{
 		printf("changed dots\n");
 		same_target = 0;
@@ -1901,8 +1863,20 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 						continue;
 					}
 				}
+				else if (color == POINT_DEPOSIT)
+				{
+					if (dot[investigating_dot_id].point != POINT_DEPOSIT)
+					{
+						continue;
+					}
+				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100 + rnd() % 1000;
+				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100 + abs(rnd() % 100);
+				if (color == POINT_DEPOSIT)
+				{
+					costs = 1000 - -pow(i * SIZE - log_x, 2) - pow(j * SIZE - log_y, 2);
+				}
+				// cout << "position cost " << pow(i * SIZE - log_x, 2) / 100 + pow(j * SIZE - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
 				// for (int i = 0; i < 100000; i++) {
 				// 	// for (int j = 0; j < 1000000; j++) {
 				// 		// for (int k = 0; k < 100000; k++) {
@@ -1916,6 +1890,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 				}
 			}
 		}
+		cout << "cost " << min << endl;
 		if (id == -1)
 		{
 			//fprintf(errfile, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
@@ -1966,6 +1941,11 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 		// 	}
 		// } while(dot[target_y * DOT_WIDTH_NUMBER + target_x].point <= POINT_WALL);
 	}
+
+	prev_x = x;
+	prev_y = y;
+	prev_color = color;
+
 	same_target++;
 	// printf("%d\n", same_target);
 	// printf("%d %d\n", same_target, same_target_border);
@@ -2107,7 +2087,7 @@ void GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
