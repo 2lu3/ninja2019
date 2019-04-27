@@ -114,16 +114,16 @@ def onClickOutput(event):
             max_id = 0
             max_num = 0
             is_object = [0, 0, 0]
-            num = [0 for i in range(border_area_object)]
+            num = [0 for i in range(border_area_object + 1)]
             for hi_add in range(magnification):
                 for wj_add in range(magnification):
                     for k in range(3):
                         if map_data[hi * magnification + hi_add][wj * magnification + wj_add][border_area_object + k + 1] == 1:
                             is_object[k] = 1
-                    for k in range(border_area_object):
+                    for k in range(border_area_object + 1):
                         if map_data[hi * magnification + hi_add][wj * magnification + wj_add][k] == 1:
                             num[k] += 1
-            for k in range(border_area_object):
+            for k in range(border_area_object + 1):
                 if num[k] > max_num:
                     max_num = num[k]
                     max_id = k
@@ -205,7 +205,7 @@ def onImageRelease(event):
                 if hi < 0 or hi >= image_height or wj < 0 or wj >= image_width:
                     continue
                 else:
-                    for k in range(border_area_object):
+                    for k in range(border_area_object + 1):
                         map_data[hi][wj][k] = 0
                     map_data[hi][wj][paint_option] = 1
     else:
@@ -264,10 +264,10 @@ def formatImage():
     global map_data, image_rgb
     for hi in range(image_height):
         for wj in range(image_width):
-            min_val = 0
+            min_val = 10000
             min_color_num = 0
-            for i in range(border_area_object):
-                if (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2 <= 50:
+            for i in range(border_area_object + 1):
+                if (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2 <= min_val:
                     min_color_num = i
                     break
             map_data[hi][wj][min_color_num] = 1
