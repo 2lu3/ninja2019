@@ -3,7 +3,8 @@ import time
 from PIL import Image, ImageTk
 import cv2
 import os
-
+import sys
+sys.setrecursionlimit(10000000)
 image_width = None
 image_height = None
 margin = 20
@@ -269,11 +270,15 @@ def formatImage():
         for wj in range(image_width):
             min_val = 10000
             min_color_num = 0
-            for i in range(border_area_object + 1):
+            for i in range(len(button_labels)):
                 if (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2 <= min_val:
                     min_color_num = i
                     break
             map_data[hi][wj][min_color_num] = 1
+            if min_color_num > border_area_object:
+                map_data[hi][wj][button_labels.index("White")] = 1
+
+
 
 
 def main():

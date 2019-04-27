@@ -44,24 +44,24 @@ int searching_object;
 
 struct Dot
 {
-	int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;	//一辺の長さ
+	int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
+	int wide;  //一辺の長さ
 	int point; //ドットの種類(-3:yellow -2:wall etc.)
-	int done;	//Dijkstra()
-	long id;	 //y * 36 + x
-	int from;	//Dijkstra()
-	int cost;	//Dijkstra()
+	int done;  //Dijkstra()
+	long id;   //y * 36 + x
+	int from;  //Dijkstra()
+	int cost;  //Dijkstra()
 	int is_opened;
 	int score;
-	int distance_from_start;				//Dijkstra()
-	int curved_times;								//Dijkstra()
-	int arrived_times;							//そこにいた回数
-	int edge_num;										//そのドットに行くことのできるドットの数
-	int edge_to[MAX_EDGE_NUMBER];		//
+	int distance_from_start;		//Dijkstra()
+	int curved_times;				//Dijkstra()
+	int arrived_times;				//そこにいた回数
+	int edge_num;					//そのドットに行くことのできるドットの数
+	int edge_to[MAX_EDGE_NUMBER];   //
 	int edge_cost[MAX_EDGE_NUMBER]; //
-	int red;												//もし、Redがとれるなら、1
-	int cyan;												//もし、Cyanがとれないなら0
-	int black;											//もし、Blackが...
+	int red;						//もし、Redがとれるなら、1
+	int cyan;						//もし、Cyanがとれないなら0
+	int black;						//もし、Blackが...
 	int color;
 };
 struct Dot dot[MAX_DOT_NUMBER];
@@ -77,6 +77,7 @@ void InputDotInformation(void);
 int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
 int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
 int HowManyCurved(int id);
+void AutoStrategy(void);
 
 // int GoToColor(int color);
 // int GoToColorArea(int num);
@@ -2087,7 +2088,7 @@ void GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
@@ -2508,4 +2509,11 @@ void GoToAngle(int angle, int distance)
 	// 		}
 	// 	}
 	// }
+}
+
+void AutoStrategy(void)
+{
+	/*
+	30 x 30のエリアを順番に行く
+	*/
 }
