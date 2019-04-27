@@ -4,17 +4,21 @@ using namespace std;
 
 //enum Fruit fruit;
 
-int compassJudge(int min, int max) {
-    int max_for_num = 5;
+int compassJudge(int min, int max)
+{
 	min %= 360;
-    if (min < 0) min += 360;
+	if (min < 0)
+		min += 360;
 	max %= 360;
-	if (max < 0) max += 360;
+	if (max < 0)
+		max += 360;
 
-	if (min < max) {
+	if (min < max)
+	{
 		return min <= Compass && Compass <= max;
 	}
-	else {
+	else
+	{
 		return !(max <= Compass && Compass <= min);
 	}
 }

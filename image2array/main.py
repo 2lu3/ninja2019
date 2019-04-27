@@ -1,4 +1,4 @@
-import tkinter as tk
+﻿import tkinter as tk
 import time
 from PIL import Image, ImageTk
 import cv2
@@ -8,7 +8,7 @@ image_width = None
 image_height = None
 margin = 20
 button_margin = 120
-magnification = 2
+magnification = 4
 
 image_rgb = None
 canvas = None
@@ -143,8 +143,9 @@ def onClickOutput(event):
         f.write("\n")
 
     with open("output_array.txt", mode='w') as f:
+        array_name = ["map_data", "red_data", "cyan_data", "black_data"]
         for k in range(4):
-            f.write("int map_data[" + str(output_height) + "][" + str(output_width) + "] = {")
+            f.write("int " + array_name[k] + "[" + str(output_height) + "][" + str(output_width) + "] = {")
             for hi in range(output_height):
                 f.write("{")
                 for wj in range(output_width - 1):
@@ -154,7 +155,8 @@ def onClickOutput(event):
                     f.write("},\n")
                 else:
                     f.write("}\n")
-            f.write("}\n")
+            f.write("};\n")
+            f.write("\n")
         f.write("\n")
 
 

@@ -124,7 +124,7 @@ bool outputData(string file_name, string message)
 	if (!output_file)
 	{
 		cerr << "outputData() : Failed to output data file"
-				 << " " << file_name << " " << message << endl;
+			 << " " << file_name << " " << message << endl;
 		return false;
 	}
 	if (getDefaultRunMode() >= MODE_DEBUG)
@@ -146,5 +146,5 @@ bool outputData(string file_name, string message, Mode option)
 	{
 		cout << message << endl;
 	}
-	return true;
+	return result;
 }
