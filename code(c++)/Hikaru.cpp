@@ -2208,11 +2208,11 @@ void GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(3, -1);
+						motor(3, -5);
 					}
 					else
 					{
-						motor(-1, 3);
+						motor(-5, 3);
 					}
 				}
 			}
