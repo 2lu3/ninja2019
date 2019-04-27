@@ -59,6 +59,7 @@ def reloadImage():
         white_label_index = button_labels.index("White")
         for hi in range(image_height):
             for wj in range(image_width):
+                # Yellow, Wall, Depositは上書き禁止
                 if map_data[hi][wj][object_label_index] == 1:
                     image_rgb[hi][wj] = registered_color[object_label_index]
                 else:
@@ -213,14 +214,16 @@ def onImageRelease(event):
             for wj in range(start_x, end_x):
                 if hi < 0 or hi >= image_height or wj < 0 or wj >= image_width:
                     continue
-                else:
+                elif map_data[hi][wj][button_labels.index("Yellow")] != 1 and map_data[hi][wj][button_labels.index("Wall")] != 1 and map_data[hi][wj][button_labels.index("Deposit")] != 1:
                     map_data[hi][wj][paint_option] = 1
     reloadImage()
 
 def onClickModeChange(event):
-    global show_option
+    global show_option, paint_option
     show_option = listShowMode.curselection()[0]
     print("show mode : " + button_labels[show_option + border_area_object])
+    if show_option != 0:
+        paint_option = show_option + border_area_object
     reloadImage()
 
 
