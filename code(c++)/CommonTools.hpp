@@ -60,5 +60,6 @@ Mode getDefaultRunMode();
 void setDefaultRunMode(Mode pushed_mode);
 void setRunMode(Mode pushed_mode);
 Mode getRunMode(void);
+void resetLoadedObjects(void);
 
 #endif // !COMMON_TOOLS
