@@ -24,7 +24,8 @@ enum Action
 	FIND_OBJ,
 	DEPOSIT_OBJ,
 	TELEPORT,
-	YELLOW_AVOIDANCE
+	YELLOW_AVOIDANCE,
+	TO_DEPOSIT
 };
 //extern enum Action action;
 

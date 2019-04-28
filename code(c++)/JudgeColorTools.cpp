@@ -79,7 +79,7 @@ int IsOnStuff(int num)
 	int color_width = 10;
 	if (num == COLOR_SUPER_OBJ)
 	{
-		color_width += 20;
+		color_width += 30;
 	}
 	if ((color_world2[num][0] + color_width > CSLeft_R && color_world2[num][0] - color_width < CSLeft_R && color_world2[num][1] + color_width > CSLeft_G && color_world2[num][1] - color_width < CSLeft_G && color_world2[num][2] + color_width > CSLeft_B && color_world2[num][2] - color_width < CSLeft_B) || (color_world2[num][3] + color_width > CSLeft_R && color_world2[num][3] - color_width < CSLeft_R && color_world2[num][4] + color_width > CSLeft_G && color_world2[num][4] - color_width < CSLeft_G && color_world2[num][5] + color_width > CSLeft_B && color_world2[num][5] - color_width < CSLeft_B))
 	{

@@ -38,7 +38,7 @@ using namespace std;
 int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
 int absolute_x = -1, absolute_y = -1;
 int now_dot_id;
-int emergency_now_dot_id = 593;
+int emergency_now_dot_id = 80;
 int super_sameoperate = 0;
 int searching_object;
 
@@ -489,19 +489,19 @@ void Game1_Hikaru::loop()
 	{
 		SuperDuration--;
 	}
-	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < BORDER_SAME_OBJECT_NUMBER)
+	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[0]++;
 		SuperDuration = FIND_OBJECT_DURATION;
 	}
-	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < BORDER_SAME_OBJECT_NUMBER)
+	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[1]++;
 		SuperDuration = FIND_OBJECT_DURATION;
 	}
-	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < BORDER_SAME_OBJECT_NUMBER)
+	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[2]++;
@@ -523,14 +523,21 @@ void Game1_Hikaru::loop()
 			}
 		}
 
-		//I delete log_superobj_x[2], I have to move the data of log_superobj_x[3] to [2].
-		for (int i = num + 1; i < log_superobj_num; i++)
+		if (min < 1200)
 		{
-			log_superobj_x[i] = log_superobj_x[i - 1];
-			log_superobj_y[i] = log_superobj_y[i - 1];
+			//I delete log_superobj_x[2], I have to move the data of log_superobj_x[3] to [2].
+			for (int i = num + 1; i < log_superobj_num; i++)
+			{
+				log_superobj_x[i] = log_superobj_x[i - 1];
+				log_superobj_y[i] = log_superobj_y[i - 1];
+			}
+			loaded_objects[3]++;
+			log_superobj_num--;
 		}
-		loaded_objects[3]++;
-		log_superobj_num--;
+		else
+		{
+			motor(3, 3);
+		}
 	}
 	else if (Duration > 0)
 	{
@@ -1087,15 +1094,15 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 
 void InputDotInformation(void)
 {
-	rep(hi, DOT_HEIGHT_NUMBER)
-	{
-		rep(wj, DOT_WIDTH_NUMBER)
-		{
-			cout << map_output_data[hi][wj];
-		}
-		cout << endl;
-	}
-	cout << endl;
+	// rep(hi, DOT_HEIGHT_NUMBER)
+	// {
+	// 	rep(wj, DOT_WIDTH_NUMBER)
+	// 	{
+	// 		cout << map_output_data[hi][wj];
+	// 	}
+	// 	cout << endl;
+	// }
+	// cout << endl;
 	int map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
 	for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
 	{
@@ -1223,50 +1230,50 @@ void InputDotInformation(void)
 			dot[i].edge_num++;
 		}
 	}
-	for (int hi = DOT_HEIGHT_NUMBER - 1; hi >= 0; hi--)
-	{
-		rep(wj, DOT_WIDTH_NUMBER)
-		{
-			switch (dot[hi * DOT_WIDTH_NUMBER + wj].point)
-			{
-			case POINT_YELLOW:
-				cout << "$";
-				break;
-			case POINT_WALL:
-				cout << "#";
-				break;
-			case POINT_DEPOSIT:
-				cout << "@";
-				break;
-			case POINT_SUPERAREA:
-				cout << "^";
-				break;
-			case POINT_SWAMPLAND:
-				cout << "|";
-				break;
-			default:
-				if (dot[hi * DOT_WIDTH_NUMBER + wj].black == 1)
-				{
-					cout << "B";
-				}
-				else if (dot[hi * DOT_WIDTH_NUMBER + wj].cyan == 1)
-				{
-					cout << "C";
-				}
-				else if (dot[hi * DOT_WIDTH_NUMBER + wj].red == 1)
-				{
-					cout << "R";
-				}
-				else
-				{
-					cout << " ";
-				}
-				break;
-			}
-		}
-		cout << endl;
-	}
-	cout << endl;
+	// for (int hi = DOT_HEIGHT_NUMBER - 1; hi >= 0; hi--)
+	// {
+	// 	rep(wj, DOT_WIDTH_NUMBER)
+	// 	{
+	// 		switch (dot[hi * DOT_WIDTH_NUMBER + wj].point)
+	// 		{
+	// 		case POINT_YELLOW:
+	// 			cout << "$";
+	// 			break;
+	// 		case POINT_WALL:
+	// 			cout << "#";
+	// 			break;
+	// 		case POINT_DEPOSIT:
+	// 			cout << "@";
+	// 			break;
+	// 		case POINT_SUPERAREA:
+	// 			cout << "^";
+	// 			break;
+	// 		case POINT_SWAMPLAND:
+	// 			cout << "|";
+	// 			break;
+	// 		default:
+	// 			if (dot[hi * DOT_WIDTH_NUMBER + wj].black == 1)
+	// 			{
+	// 				cout << "B";
+	// 			}
+	// 			else if (dot[hi * DOT_WIDTH_NUMBER + wj].cyan == 1)
+	// 			{
+	// 				cout << "C";
+	// 			}
+	// 			else if (dot[hi * DOT_WIDTH_NUMBER + wj].red == 1)
+	// 			{
+	// 				cout << "R";
+	// 			}
+	// 			else
+	// 			{
+	// 				cout << " ";
+	// 			}
+	// 			break;
+	// 		}
+	// 	}
+	// 	cout << endl;
+	// }
+	// cout << endl;
 }
 
 void Dijkstra()
@@ -2202,7 +2209,7 @@ void GoToAngle(int angle, int distance)
 				printf("log_superobj_num > 0 %d\n", angle);
 				if (abs(angle) < 30)
 				{
-					if (distance < 10)
+					if (distance < 5)
 					{
 						motor(-5, -5);
 					}
@@ -2366,15 +2373,7 @@ void GoToAngle(int angle, int distance)
 					}
 					else
 					{
-						if (angle < 0)
-						{
-
-							motor(5, 3);
-						}
-						else
-						{
-							motor(3, 5);
-						}
+						motor(5, 5);
 					}
 				}
 				else if (abs(angle) < 80)
