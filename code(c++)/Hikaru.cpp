@@ -22,7 +22,7 @@
 
 #define COSPACE_WIDTH 360
 #define COSPACE_HEIGHT 270
-#define SIZE 5
+#define SIZE 10
 #define DOT_WIDTH_NUMBER (COSPACE_WIDTH / SIZE)
 #define DOT_HEIGHT_NUMBER (COSPACE_HEIGHT / SIZE)
 #define MAX_DOT_NUMBER (COSPACE_WIDTH * COSPACE_HEIGHT / SIZE / SIZE)
@@ -44,24 +44,24 @@ int searching_object;
 
 struct Dot
 {
-	int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;  //一辺の長さ
+	int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
+	int wide;	//一辺の長さ
 	int point; //ドットの種類(-3:yellow -2:wall etc.)
-	int done;  //Dijkstra()
-	long id;   //y * 36 + x
-	int from;  //Dijkstra()
-	int cost;  //Dijkstra()
+	int done;	//Dijkstra()
+	long id;	 //y * 36 + x
+	int from;	//Dijkstra()
+	int cost;	//Dijkstra()
 	int is_opened;
 	int score;
-	int distance_from_start;		//Dijkstra()
-	int curved_times;				//Dijkstra()
-	int arrived_times;				//そこにいた回数
-	int edge_num;					//そのドットに行くことのできるドットの数
-	int edge_to[MAX_EDGE_NUMBER];   //
+	int distance_from_start;				//Dijkstra()
+	int curved_times;								//Dijkstra()
+	int arrived_times;							//そこにいた回数
+	int edge_num;										//そのドットに行くことのできるドットの数
+	int edge_to[MAX_EDGE_NUMBER];		//
 	int edge_cost[MAX_EDGE_NUMBER]; //
-	int red;						//もし、Redがとれるなら、1
-	int cyan;						//もし、Cyanがとれないなら0
-	int black;						//もし、Blackが...
+	int red;												//もし、Redがとれるなら、1
+	int cyan;												//もし、Cyanがとれないなら0
+	int black;											//もし、Blackが...
 	int color;
 };
 struct Dot dot[MAX_DOT_NUMBER];
@@ -398,7 +398,6 @@ void Game1_Hikaru::loop()
 	pt.start();
 	// cout << process << endl;
 	UserGame1::loop();
-	cout << dot[31 * DOT_WIDTH_NUMBER + 10].black << endl;
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
 	static int prev_repeated_num = 0;
@@ -459,6 +458,7 @@ void Game1_Hikaru::loop()
 				dot[y * DOT_WIDTH_NUMBER + x].arrived_times += 3;
 			}
 		}
+		cout << "log x y" << log_x << " " << log_y << endl;
 	}
 
 	if (SuperObj_Num != 0)
@@ -670,8 +670,31 @@ void Game1_Hikaru::loop()
 		}
 		else
 		{
+			if (process == 0)
+			{
+				if (GoInDots(180, 170, 112, 50, POINT_RED))
+				{
+					if (rand() % 5 == 0)
+					{
+						process++;
+					}
+				}
+			}
+			else if (process == 0)
+			{
+				if (GoInDots(180, 135, 180, 135, POINT_RED))
+				{
+					if (rand() % 5)
+					{
+						process++;
+					}
+				}
+			}
+			else
+			{
+				process = 0;
+			}
 
-			GoInDots(180, 135, 180, 135, POINT_RED);
 			/*
 			if (process == 0)
 			{
@@ -1132,6 +1155,11 @@ void InputDotInformation(void)
 		// dot[i].point = 1;
 		dot[i].color = map_position_color_data[x][y];
 		dot[i].red = red_data[DOT_HEIGHT_NUMBER - y - 1][x];
+		// if (dot[i].red == 0 && dot[i].color == POINT_WHITE)
+		// {
+		// 	dot[i].cyan = 1;
+		// 	dot[i].black = 1;
+		// }
 		dot[i].cyan = cyan_data[DOT_HEIGHT_NUMBER - y - 1][x];
 		dot[i].black = black_data[DOT_HEIGHT_NUMBER - y - 1][x];
 
@@ -1872,7 +1900,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 					}
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100 + abs(rnd() % 100);
+				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100; // + abs(rnd() % 100);
 				if (color == POINT_DEPOSIT)
 				{
 					costs = 1000 - -pow(i * SIZE - log_x, 2) - pow(j * SIZE - log_y, 2);
@@ -2088,7 +2116,7 @@ void GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
@@ -2330,7 +2358,7 @@ void GoToAngle(int angle, int distance)
 			// }
 			else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
 			{
-				if (abs(angle) < 20)
+				if (abs(angle) < 10)
 				{
 					if (rand() % 4)
 					{
@@ -2338,18 +2366,26 @@ void GoToAngle(int angle, int distance)
 					}
 					else
 					{
-						motor(5, 5);
+						if (angle < 0)
+						{
+
+							motor(5, 3);
+						}
+						else
+						{
+							motor(3, 5);
+						}
 					}
 				}
 				else if (abs(angle) < 80)
 				{
 					if (angle < 0)
 					{
-						motor(5, 3);
+						motor(5, 2);
 					}
 					else
 					{
-						motor(3, 5);
+						motor(2, 5);
 					}
 				}
 				else if (abs(angle) < 120)
@@ -2481,7 +2517,14 @@ void GoToAngle(int angle, int distance)
 		motor(-3, -3);
 		break;
 	case 6: //front right
-		motor(-2, -3);
+		if (CurGame == 0)
+		{
+			motor(3, 3);
+		}
+		else
+		{
+			motor(-2, -3);
+		}
 		break;
 	case 7: //left front right
 		motor(-3, -3);

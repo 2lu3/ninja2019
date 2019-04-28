@@ -9,7 +9,7 @@ image_width = None
 image_height = None
 margin = 20
 button_margin = 120
-magnification = 10
+magnification = 20
 
 image_rgb = None
 canvas = None
