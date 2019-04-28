@@ -15,6 +15,7 @@
 #define POINT_WALL -2
 #define POINT_YELLOW -3
 
+
 #define RED_LOADED_ID 0
 #define CYAN_LOADED_ID 1
 #define BLACK_LOADED_ID 2
@@ -35,14 +36,15 @@
 
 using namespace std;
 
-int go_to_up = 0;
-bool go_to_deposit = false;
-bool ikkaime = true;
+int go_to_up=0;
+bool go_to_deposit=false;
+bool ikkaime =true;
 bool hukki = false;
 
 void GoToAngle2(int angle, int distance);
 
 int process_world1;
+
 
 const int border_same_obj_number = 3;
 
@@ -70,10 +72,9 @@ void Game0_Masuda::loop(void)
 	{
 		SuperDuration--;
 	}
-	else if (hukki && Duration == 0)
-	{
+	else if (hukki && Duration == 0 ) {
 		Duration = 30;
-		motor(-3, -3);
+		motor(-3,-3);
 		hukki = false;
 		// if (go_to_up) {
 		// 	if (Duration < 60) {
@@ -92,6 +93,7 @@ void Game0_Masuda::loop(void)
 		// 		motor(-3,3);
 		// 	}
 		// }
+
 	}
 	else if (IsOnDepositArea() && LoadedObjects >= 5)
 	{
@@ -125,14 +127,14 @@ void Game0_Masuda::loop(void)
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = FIND_OBJ_DURATION;
 	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < border_same_obj_number && LoadedObjects < 6)
+	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < border_same_obj_number && LoadedObjects < 6 && (loaded_objects[CYAN_LOADED_ID] + loaded_objects[RED_LOADED_ID] < 5))
 	{
 		logMessage("find cyan obj");
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = FIND_OBJ_DURATION;
 	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < border_same_obj_number && LoadedObjects < 6)
+	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < border_same_obj_number && LoadedObjects < 6 && (loaded_objects[CYAN_LOADED_ID] + loaded_objects[RED_LOADED_ID] < 5))
 	{
 		logMessage("find red obj");
 		setAction(FIND_OBJ);
@@ -143,16 +145,13 @@ void Game0_Masuda::loop(void)
 	{
 		Duration--;
 	}
-	else if (IsOnYellowLine() && LoadedObjects > 0)
+	else if (IsOnYellowLine() )//(IsOnYellowLine() && LoadedObjects > 0)
 	{
-		if (LoadedObjects < 4)
-		{
-			motor(-3, -3);
+		if (LoadedObjects<4) {
+			motor(-3,-5	);
 			Duration = 25;
 			setAction(YELLOW_AVOIDANCE);
-		}
-		else
-		{
+		}else{
 			if (IsOnYellowLine() == 1)
 			{
 				motor(-1, -3);
@@ -164,6 +163,7 @@ void Game0_Masuda::loop(void)
 			setAction(YELLOW_AVOIDANCE);
 			Duration = 3;
 		}
+
 	}
 	else if (obstacle(8, 10, 8))
 	{
@@ -201,8 +201,7 @@ void Game0_Masuda::loop(void)
 		// 		logMessage("obstacle value is " + obstacle(10, 10, 10), MODE_NORMAL);
 		// }
 	}
-	else if ((LoadedObjects >= 5 && IsOnBlueFloor()) || go_to_deposit)
-	{
+	else if ((LoadedObjects >=5 && IsOnBlueFloor() )|| go_to_deposit) {
 		setAction(TO_DEPOSIT);
 		Duration = 113;
 		// std::cout << "deponiikuifnonaka" << '\n';
@@ -248,113 +247,104 @@ void Game0_Masuda::loop(void)
 	else if (LoadedObjects >= 5)
 	{
 		cout << "deposit" << endl;
-		if (LoadedObjects >= 6)
-		{
-			if (US_Front < 14) //突当りで曲がるよ
+		if (LoadedObjects >= 6) {
+				if (US_Front < 14) //突当りで曲がるよ
+				{
+					motor(-3, 1);
+				}
+				else if (US_Left < 8)//なんでか左が反応してる、、、元に戻ろう
+				{
+					motor(-3, -1);
+				}
+				else if (US_Right < 8)//
+				{
+					motor(-3, -1);
+				}
+				else if (US_Right < 15)
+				{
+					motor(1, 4);
+				}
+				else if (US_Right < 40)
+				{
+					motor(5, 3);
+				}
+				else if (US_Right < 80)
+				{
+					motor(4, 2);
+				}
+				else
+				{
+					motor(5, 1);
+				}
+		}else{
+				if (US_Front < (14 + rand()%20)) //突当りで曲がるよ
+				{
+					motor(-3, 1);
+				}
+				else if (US_Left < 8)//なんでか左が反応してる、、、元に戻ろう
+				{
+					motor(-3, -1);
+				}
+				else if (US_Right < 8)//
+				{
+					motor(-3, -1);
+				}
+				else if (US_Right < 15)
+				{
+					motor(3, 4);
+				}
+				else if (US_Right < (80 - rand()%55))
+				{
+					motor(5, 3);
+				}
+				else if (US_Right < 80)
+				{
+					motor(4, 2);
+				}
+				else
+				{
+					motor(4, 2);
+				}
+		}
+	}else{
+			if (US_Front < 14)
 			{
 				motor(-3, 1);
 			}
-			else if (US_Left < 8) //なんでか左が反応してる、、、元に戻ろう
+			else if (US_Left < 8)
 			{
 				motor(-3, -1);
 			}
-			else if (US_Right < 8) //
+			else if (US_Right < 8)
 			{
 				motor(-3, -1);
 			}
-			else if (US_Right < 15)
+			else if (US_Right < 15 + rand() % 30)
 			{
-				motor(1, 4);
+				motor(4, 5);
 			}
-			else if (US_Right < 40)
+			else if (US_Right < 40 + rand() % 30)
 			{
-				motor(5, 3);
+				motor(4, 3);
 			}
 			else if (US_Right < 80)
 			{
-				motor(4, 2);
-			}
-			else
-			{
-				motor(5, 1);
-			}
-		}
-		else
-		{
-			if (US_Front < (14 + rand() % 20)) //突当りで曲がるよ
-			{
-				motor(-3, 1);
-			}
-			else if (US_Left < 8) //なんでか左が反応してる、、、元に戻ろう
-			{
-				motor(-3, -1);
-			}
-			else if (US_Right < 8) //
-			{
-				motor(-3, -1);
-			}
-			else if (US_Right < 15)
-			{
-				motor(3, 4);
-			}
-			else if (US_Right < (80 - rand() % 55))
-			{
-				motor(5, 3);
-			}
-			else if (US_Right < 80)
-			{
-				motor(4, 2);
+				motor(3, 1);
 			}
 			else
 			{
 				motor(4, 2);
 			}
-		}
-	}
-	else if (Time < 120)
-	{
-		if (US_Front < 14)
-		{
-			motor(-3, 1);
-		}
-		else if (US_Left < 8)
-		{
-			motor(-3, -1);
-		}
-		else if (US_Right < 8)
-		{
-			motor(-3, -1);
-		}
-		else if (US_Right < 15 + rand() % 30)
-		{
-			motor(4, 5);
-		}
-		else if (US_Right < 40 + rand() % 30)
-		{
-			motor(4, 3);
-		}
-		else if (US_Right < 80)
-		{
-			motor(3, 1);
-		}
-		else
-		{
-			motor(4, 2);
-		}
 		// motor(3, 3);
-	}
-	else
-	{
-		motor(3, 3);
 	}
 
 	/*if (Time > 180 && getAction() != FIND_OBJ && getAction() != DEPOSIT_OBJ && (!EitherColorJudge(object_box) && LoadedObjects < 3) || Time > 200)
 	{
 		logMessage("Teleport");
+		cout << "TELEPORT" << endl;
 		setAction(TELEPORT);
 	}*/
-	if (go_to_deposit)
-	{
+	if (go_to_deposit) {
 		std::cout << "depodepo~~~~" << '\n';
 	}
 	if (Time > 180)
@@ -363,82 +353,63 @@ void Game0_Masuda::loop(void)
 		setAction(TELEPORT);
 	}
 
-	if (getAction() != TO_DEPOSIT)
-	{
+	if(getAction() != TO_DEPOSIT) {
 		process_world1 = 0;
 	}
+
 
 	switch (getAction())
 	{
 	case DEFINED:
 		break;
 	case TO_DEPOSIT:
-		if (Duration >= 100)
-		{
+		if(Duration>= 100) {
 			motor_no_action_change(3, 3);
 		}
-		else if (process_world1 == 0)
-		{ // 左むく
-			if (Compass > 85 && Compass < 95)
-			{
-				if (US_Front < 30)
-				{
+		else if(process_world1 == 0) { // 左むく
+			if(Compass > 85 && Compass < 95) {
+				if(US_Front < 30) {
 					process_world1 = 1;
 				}
-				else
-				{
+				else {
 					process_world1 = 3;
 				}
 			}
-			else
-			{
-				if (Compass > 90 && Compass < 270)
-				{
+			else {
+				if(Compass >90 && Compass < 270) {
 					motor_no_action_change(1, -2);
 				}
-				else
-				{
+				else {
 					motor_no_action_change(-2, 1);
 				}
 			}
 		}
-		else if (process_world1 == 1)
-		{ //右むく
-			if (Compass > 260 && Compass < 280)
-			{
+		else if(process_world1 == 1) {//右むく
+			if(Compass > 260 && Compass < 280) {
 				process_world1 = 2;
 			}
-			else
-			{
-				if (Compass > 90 && Compass < 270)
-				{
+			else {
+				if(Compass >90 && Compass < 270) {
 					motor_no_action_change(-1, 1);
 				}
-				else
-				{
+				else {
 					motor_no_action_change(1, -1);
 				}
 			}
 		}
-		else if (process_world1 == 2)
-		{
-			if (Compass > 90 && Compass < 270)
-			{
+		else if(process_world1 == 2) {
+			if(Compass >90 && Compass < 270) {
 				motor_no_action_change(2, 4);
 			}
-			else
-			{
+			else {
 				motor_no_action_change(4, 2);
 			}
 		}
-		else if (process_world1 == 3)
-		{
-			if (Compass > 90 && Compass < 270)
-			{
+		else if(process_world1 == 3) {
+			if(Compass >90 && Compass < 270) {
 				motor_no_action_change(4, 2);
 			}
-			else
-			{
+			else {
 				motor_no_action_change(2, 4);
 			}
 		}
@@ -544,7 +515,7 @@ void GoToAngle2(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
@@ -621,70 +592,71 @@ void GoToAngle2(int angle, int distance)
 		}
 		else
 		{
-			// printf("angle = %d\n", angle);
-			if (abs(angle) < 20)
-			{
-				if (distance < 20)
+				// printf("angle = %d\n", angle);
+				if (abs(angle) < 20)
 				{
-					if (angle < 0)
+					if (distance < 20)
 					{
-						motor(3, 2);
+						if (angle < 0)
+						{
+							motor(3, 2);
+						}
+						else
+						{
+							motor(2, 3);
+						}
 					}
 					else
 					{
-						motor(2, 3);
+							motor(5, 5);
+
+					}
+				}
+				else if (abs(angle) < 60)
+				{
+					if (angle < 0)
+					{
+						motor(5, 3);
+					}
+					else
+					{
+						motor(3, 5);
+					}
+				}
+				else if (abs(angle) < 120)
+				{
+					if (angle < 0)
+					{
+						motor(5, 2);
+					}
+					else
+					{
+						motor(2, 5);
+					}
+				}
+				else if (distance < 20)
+				{
+					if (angle < 0)
+					{
+						motor(0, -3);
+					}
+					else
+					{
+						motor(-3, 0);
 					}
 				}
 				else
 				{
-					motor(5, 5);
+					if (angle < 0)
+					{
+						motor(4, -4);
+					}
+					else
+					{
+						motor(-4, 4);
+					}
+					// Duration = 3;
 				}
-			}
-			else if (abs(angle) < 60)
-			{
-				if (angle < 0)
-				{
-					motor(5, 3);
-				}
-				else
-				{
-					motor(3, 5);
-				}
-			}
-			else if (abs(angle) < 120)
-			{
-				if (angle < 0)
-				{
-					motor(5, 2);
-				}
-				else
-				{
-					motor(2, 5);
-				}
-			}
-			else if (distance < 20)
-			{
-				if (angle < 0)
-				{
-					motor(0, -3);
-				}
-				else
-				{
-					motor(-3, 0);
-				}
-			}
-			else
-			{
-				if (angle < 0)
-				{
-					motor(4, -4);
-				}
-				else
-				{
-					motor(-4, 4);
-				}
-				// Duration = 3;
-			}
 		}
 		break;
 	case 1: //left
@@ -710,7 +682,7 @@ void GoToAngle2(int angle, int distance)
 		motor(-3, -3);
 		break;
 	case 6: //front right
-		if (CurGame == 0)
+	if (CurGame == 0)
 		{
 			motor(3, 3);
 		}
