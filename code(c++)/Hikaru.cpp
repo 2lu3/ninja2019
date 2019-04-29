@@ -379,8 +379,8 @@ void Game1_Hikaru::setup(void)
 	{
 		int y = emergency_now_dot_id / DOT_WIDTH_NUMBER;
 		int x = emergency_now_dot_id - DOT_WIDTH_NUMBER * y;
-		log_y = y;
-		log_x = x;
+		log_y = y * SIZE;
+		log_x = x * SIZE;
 		now_dot_id = emergency_now_dot_id;
 	}
 	else
