@@ -10,9 +10,9 @@ using namespace std;
 int wall_num = 2;
 int equations[1000][4];
 int equation_num = 0;
-int map_width = 24, map_height = 18;
-int map_data[18][24];
 int magnification = 10;
+int map_width = 240 / magnification, map_height = 180 / magnification;
+int map_data[180][240];
 
 void addEquation(int x1, int y1, int x2, int y2)
 {
@@ -106,7 +106,7 @@ int main()
         {
             outputfile << "}," << endl;
         }
-        if (equations[i][0] % 10 != 0)
+        if (equations[i][0] % magnification != 0)
         {
             cout << i << "strange" << endl;
         }

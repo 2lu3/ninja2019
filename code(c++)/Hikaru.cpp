@@ -1621,7 +1621,8 @@ int GoToDot(int x, int y)
 	}
 	else
 	{
-		if (next_y < now_y)
+		if (next_y <
+		 now_y)
 		{
 			GoToAngle(225, distance);
 		}

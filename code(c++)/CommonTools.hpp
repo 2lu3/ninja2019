@@ -1,6 +1,10 @@
 #ifndef COMMON_TOOLS
 #define COMMON_TOOLS
 
+#define REP for
+#define rep(i, n) REP(int i = 0; i < n; i++)
+#define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
+
 // red cyan black super
 #define RED_LOADED_ID 0
 #define CYAN_LOADED_ID 1

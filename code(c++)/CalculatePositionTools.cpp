@@ -5,13 +5,9 @@
 
 using namespace std;
 
-#define REP for
-#define rep(i, n) REP(int i = 0; i < n; i++)
-#define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
-
 #define COSPACE_WIDTH 240
 #define COSPACE_HEIGHT 180
-#define SIZE 10
+#define SIZE 1
 
 #define MAP_WIDTH (COSPACE_WIDTH / SIZE)
 #define MAP_HEIGHT (COSPACE_HEIGHT / SIZE)
@@ -24,52 +20,7 @@ using namespace std;
 #define YELLOW 3
 #define DEPOSIT 4
 
-int map_data[24][18] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-float map_possibility[MAP_WIDTH][MAP_HEIGHT];
-int current_map_possibility[MAP_WIDTH][MAP_HEIGHT];
-
-int equation[11][4] = {
-    {0, 0, 0, 180},
-    {0, 0, 240, 0},
-    {0, 180, 240, 180},
-    {240, 0, 240, 180},
-    {90, 60, 120, 60},
-    {90, 90, 120, 90},
-    {60, 150, 90, 150},
-    {60, 150, 60, 180},
-    {90, 60, 90, 90},
-    {90, 150, 90, 180},
-    {120, 60, 120, 90}};
-int equation_num = 11;
-
-int calculated_x, calculated_y;
-
-void init(void)
+CalculatePosition::CalculatePosition(void)
 {
     rep(hi, MAP_HEIGHT)
     {
@@ -80,7 +31,7 @@ void init(void)
     }
 }
 
-void setEquation(int x1, int y1, int x2, int y2)
+void CalculatePosition::setEquation(int x1, int y1, int x2, int y2)
 {
     equation[equation_num][0] = x1;
     equation[equation_num][1] = y1;
@@ -90,7 +41,7 @@ void setEquation(int x1, int y1, int x2, int y2)
 }
 
 // 長方形で、壁を登録する
-void setEquations(int x1, int y1, int x2, int y2)
+void CalculatePosition::setEquations(int x1, int y1, int x2, int y2)
 {
     // 左の縦棒
     equation[equation_num][0] = x1;
@@ -122,7 +73,7 @@ void setEquations(int x1, int y1, int x2, int y2)
 }
 
 // (ax, ay), (bx, by)の線分上に(cx, cy)があるか
-int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
+int CalculatePosition::judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
 {
     double border = 0.00001;
     double l1 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay);
@@ -131,7 +82,7 @@ int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, d
     return c >= 0 && PLUSMINUS(c * c, l1 * l2, border) && l1 >= l2;
 }
 
-int isCross(int num, double x1, double y1, double x2, double y2)
+int CalculatePosition::isCross(int num, double x1, double y1, double x2, double y2)
 {
     // (x2 - x1)(y - y1) - (x - x1)(y2 - y1) = 0
     // (y2 - y1)x - (x2 - x1)y - (y2 - y1)x1 + (x2 - x1)y1 = 0
@@ -184,7 +135,7 @@ int isCross(int num, double x1, double y1, double x2, double y2)
            judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2);
 }
 
-void calculate2(int us_left, int us_front, int us_right, int compass)
+void calculate(int us_left, int us_front, int us_right, int compass)
 {
     float move_x, move_y;
     move_x = cos((double)(Compass + 90) / 180 * PI);
@@ -465,7 +416,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
     }
 }
 
-void showCurrentMapPossibility()
+void CalculatePosition::showCurrentMapPossibility()
 {
     for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
     {
@@ -485,7 +436,7 @@ void showCurrentMapPossibility()
     cout << endl;
 }
 
-void showMap2()
+void CalculatePosition::showMap2()
 {
     showCurrentMapPossibility();
     return;
