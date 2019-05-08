@@ -107,6 +107,11 @@ double ProcessingTime::end(void)
 	return elapsed;
 }
 
+std::string getFuncName(const char *name)
+{
+	return name;
+}
+
 void setAction(Action pushed_action)
 {
 	action = pushed_action;
@@ -130,6 +135,7 @@ void setDefaultRunMode(Mode pushed_mode)
 void setRunMode(Mode pushed_mode)
 {
 	mode = pushed_mode;
+	logMessage("Set Run Mode as " + to_string(pushed_mode), MODE_DEBUG);
 }
 
 Mode getRunMode(void)

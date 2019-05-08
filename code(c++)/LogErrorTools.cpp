@@ -32,10 +32,11 @@ bool writeErrorMessage(string message)
 	ofstream error_file("./" + error_file_name, ios::app);
 	if (!error_file)
 	{
-		cerr << "writeErrorMessage() : Failed to open log file" << endl;
+		cerr << "writeErrorMessage() : Failed to open log file"
+			 << "\n";
 		return false;
 	}
-	error_file << createMessage(message) << endl;
+	error_file << createMessage(message) << "\n";
 	return true;
 }
 
@@ -49,7 +50,7 @@ bool errorMessage(string message)
 		// log message will do it
 		// if (MODE_DEBUG <= getRunMode())
 		// {
-		// 	cout << createMessage(message) << endl;
+		// 	cout << createMessage(message) << "\n";
 		// }
 		return result;
 	}
@@ -66,7 +67,7 @@ bool errorMessage(string message, Mode option)
 		// logMessage will do it
 		// if (MODE_DEBUG <= getRunMode())
 		// {
-		// 	cout << createMessage(message) << endl;
+		// 	cout << createMessage(message) << "\n";
 		// }
 		return result;
 	}
@@ -78,10 +79,11 @@ bool writeLogMessage(string message)
 	ofstream log_file("./" + log_file_name, ios::app);
 	if (!log_file)
 	{
-		cerr << "LogMessage() : Failed to open log file" << endl;
+		cerr << "LogMessage() : Failed to open log file"
+			 << "\n";
 		return false;
 	}
-	log_file << createMessage(message) << endl;
+	log_file << createMessage(message) << "\n";
 	return true;
 }
 
@@ -93,7 +95,7 @@ bool logMessage(string message)
 		bool result = writeLogMessage(message);
 		if (MODE_DEBUG <= getRunMode())
 		{
-			cout << createMessage(message) << endl;
+			cout << createMessage(message) << "\n";
 		}
 		return result;
 	}
@@ -107,7 +109,7 @@ bool logMessage(string message, Mode option)
 		bool result = writeLogMessage(message);
 		if (MODE_DEBUG <= getRunMode())
 		{
-			cout << createMessage(message) << endl;
+			cout << createMessage(message) << "\n";
 		}
 		return result;
 	}
@@ -124,14 +126,14 @@ bool outputData(string file_name, string message)
 	if (!output_file)
 	{
 		cerr << "outputData() : Failed to output data file"
-			 << " " << file_name << " " << message << endl;
+			 << " " << file_name << " " << message << "\n";
 		return false;
 	}
 	if (getDefaultRunMode() >= MODE_DEBUG)
 	{
-		cout << message << endl;
+		cout << message << "\n";
 	}
-	output_file << message << endl;
+	output_file << message << "\n";
 	return true;
 }
 
@@ -144,7 +146,7 @@ bool outputData(string file_name, string message, Mode option)
 	bool result = outputData(file_name, message);
 	if (getDefaultRunMode() < MODE_DEBUG && option >= MODE_DEBUG)
 	{
-		cout << message << endl;
+		cout << message << "\n";
 	}
 	return result;
 }

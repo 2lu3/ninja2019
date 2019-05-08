@@ -89,6 +89,7 @@ int large_process = -1;
 
 const int border_same_obj_number = 3;
 
+CalculatePosition calculate_position;
 void Game0_Hikaru::setup(void)
 {
 	ProcessingTime pt;
@@ -100,6 +101,8 @@ void Game0_Hikaru::setup(void)
 	delLogFile();
 	InputColorInformation();
 
+	setRunMode(MODE_DEBUG);
+
 	double seconds = pt.end();
 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
 }
@@ -107,6 +110,11 @@ void Game0_Hikaru::setup(void)
 void Game0_Hikaru::loop(void)
 {
 	UserGame0::loop();
+	ProcessingTime pt;
+	pt.start();
+	calculate_position.calculate(US_Left, US_Front, US_Right, Compass);
+	cout << "calculate time " << pt.end() << endl;
+	pt.start();
 	logMessage("World1 loop start");
 	if (SuperDuration > 0)
 	{

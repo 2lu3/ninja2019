@@ -2,7 +2,7 @@
 #define COMMON_TOOLS
 
 #define REP for
-#define rep(i, n) REP(int i = 0; i < n; i++)
+#define rep(i, n) REP(int i = 0; i < n; ++i)
 #define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
 
 // red cyan black super
@@ -25,6 +25,9 @@ void motor(int left, int right);
 void motor_no_action_change(int left, int right);
 int obstacle(int left, int front, int right);
 void resetLoadedObjects(void);
+
+// __FUNCTION__(const char) -> strinのへの変換
+std::string getFuncName(const char *name);
 
 class UserGame0
 {
@@ -64,6 +67,5 @@ Mode getDefaultRunMode();
 void setDefaultRunMode(Mode pushed_mode);
 void setRunMode(Mode pushed_mode);
 Mode getRunMode(void);
-void resetLoadedObjects(void);
 
 #endif // !COMMON_TOOLS

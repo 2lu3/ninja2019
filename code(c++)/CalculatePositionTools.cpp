@@ -3,28 +3,28 @@
 #include "CommonTools.hpp"
 #include "CospaceSettings.hpp"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::setw;
+using std::string;
+using std::to_string;
 
 #define COSPACE_WIDTH 240
 #define COSPACE_HEIGHT 180
-#define SIZE 1
-
-#define MAP_WIDTH (COSPACE_WIDTH / SIZE)
-#define MAP_HEIGHT (COSPACE_HEIGHT / SIZE)
 
 #define POSSIBILITY_VALUE_MAX 10.0
 #define POSSIBILITY_VALUE_MIN 0.1
 
 #define NOTHING 0
 #define WALL 2
-#define YELLOW 3
-#define DEPOSIT 4
+#define YELLOW 1
+#define DEPOSIT 3
 
 CalculatePosition::CalculatePosition(void)
 {
-    rep(hi, MAP_HEIGHT)
+    rep(hi, kMapHeight)
     {
-        rep(wj, MAP_WIDTH)
+        rep(wj, kMapWidth)
         {
             map_possibility[wj][hi] = 0;
             current_map_possibility[wj][hi] = 0;
@@ -100,35 +100,6 @@ int CalculatePosition::isCross(int num, double x1, double y1, double x2, double 
     double result3 = a1 * equation[num][0] + b1 * equation[num][1] + c1;
     double result4 = a1 * equation[num][2] + b1 * equation[num][3] + c1;
 
-    // debug
-    if (getRunMode() >= MODE_DEBUG)
-    {
-        if (result1 * result2 < 0)
-        {
-            logMessage("reason 1\n", MODE_DEBUG);
-        }
-        if (result3 * result4 < 0)
-        {
-            logMessage("reason 2\n", MODE_DEBUG);
-        }
-        if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]))
-        {
-            logMessage("reason 3\n", MODE_DEBUG);
-        }
-        if (judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]))
-        {
-            logMessage("reason 4\n", MODE_DEBUG);
-        }
-        if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x1, y1))
-        {
-            logMessage("reason 5\n", MODE_DEBUG);
-        }
-        if (judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2))
-        {
-            logMessage("reason 6\n", MODE_DEBUG);
-        }
-    }
-
     return (result1 * result2 < 0 && result3 * result4 < 0) ||
            judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][0], equation[num][1]) ||
            judgeOnLineSegmenet(x1, x2, y1, y2, equation[num][1], equation[num][2]) ||
@@ -138,6 +109,11 @@ int CalculatePosition::isCross(int num, double x1, double y1, double x2, double 
 
 void CalculatePosition::calculate(int us_left, int us_front, int us_right, int compass)
 {
+    ProcessingTime pt;
+    pt.start();
+
+    logMessage(getFuncName(__FUNCTION__) + "(" + to_string(us_left) + "," + to_string(us_front) + "," + to_string(us_right) + "," + to_string(compass) + ") start", MODE_DEBUG);
+
     float move_x, move_y;
     move_x = cos((double)(Compass + 90) / 180 * PI);
     move_y = sin((double)(Compass + 90) / 180 * PI);
@@ -190,6 +166,7 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
         angle[i] = (int)(compass + angle[i]) % 360;
         coordinate[i][0] = cos(angle[i] / 180 * PI) * distance[i];
         coordinate[i][1] = sin(angle[i] / 180 * PI) * distance[i];
+        logMessage("calculated wall position " + to_string(coordinate[i][0]) + " " + to_string(coordinate[i][1]), MODE_DEBUG);
     }
 
     // 0:上 1:左 2:下 3:右
@@ -215,35 +192,36 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     }
 
     // +- 反転
-    margin[1] -= margin[1];
-    margin[2] -= margin[2];
+    margin[1] = -margin[1];
+    margin[2] = -margin[2];
 
+    string message = "calculated margin (top, left, down, right) = ";
     rep(i, 4)
     {
-        margin[i] /= SIZE;
+        message += to_string(margin[i]) + " ";
     }
+    logMessage(message, MODE_DEBUG);
 
     // 上
-    rep(wj, MAP_WIDTH)
+    rep(wj, kMapWidth)
     {
-        for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
+        for (int hi = kMapHeight - margin[0]; hi < kMapHeight; hi++)
         {
             current_map_possibility[wj][hi] = 0;
         }
     }
 
     // 左
-
     rep(wj, margin[1])
     {
-        rep(hi, MAP_HEIGHT)
+        rep(hi, kMapHeight)
         {
             current_map_possibility[wj][hi] = 0;
         }
     }
 
     // 下
-    rep(wj, MAP_WIDTH)
+    rep(wj, kMapWidth)
     {
         rep(hi, margin[2])
         {
@@ -252,87 +230,96 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     }
 
     // 右
-    for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
+    for (int wj = kMapWidth - margin[3]; wj < kMapWidth; wj++)
     {
-        rep(hi, MAP_HEIGHT)
+        rep(hi, kMapHeight)
         {
             current_map_possibility[wj][hi] = 0;
         }
     }
 
-    double difference = SIZE;
-    for (int wj = margin[1]; wj < MAP_WIDTH - margin[3]; wj++)
+    // double difference = SIZE;
+    // map_dataで、まず、壁の中にいる可能性を取りのぞく
+    for (int map_wi = 0; map_wi < map_data_width; ++map_wi)
     {
-        double x = (wj - 0.5) * SIZE;
-        for (int hi = margin[2]; hi < MAP_HEIGHT - margin[0]; hi++)
+        for (int map_hj = 0; map_hj < map_data_height; ++map_hj)
         {
-            double y = (hi - 0.5) * SIZE;
-            if (map_data[wj][hi] == WALL)
+            if (map_data[map_wi][map_hj] == Wall)
             {
-                current_map_possibility[wj][hi] = 0;
                 continue;
             }
-
-            int complete[3] = {0, 0, 0};
-            current_map_possibility[wj][hi] = 0;
-
-            rep(i, 3)
+            for (int wi = 0; wi < map_data_scale; ++wi)
             {
-                double difference1 = difference * fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1]));
-                double difference2 = difference * fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1]));
-                if (coordinate[i][0] < 0)
+                int x = map_wi * map_data_scale + wi;
+                for (int hj = 0; hj < map_data_scale; ++hj)
                 {
-                    difference1 = -difference1;
-                }
-                if (coordinate[i][1] < 0)
-                {
-                    difference2 = -difference2;
-                }
-                double x_min = x + coordinate[i][0] - difference1;
-                double y_min = y + coordinate[i][1] - difference2;
-                double x_big = x + coordinate[i][0] + difference1;
-                double y_big = y + coordinate[i][1] + difference2;
-                rep(j, equation_num)
-                {
-                    int result1 = isCross(j, x, y, x_min, y_min);
-                    int result2 = isCross(j, x, y, x_big, y_big);
-                    if (result1 == 0 && result2 == 1)
+                    int y = map_hj * map_data_scale + hj;
+                    // 上 左 下 右
+                    if (y > margin[0] || x < margin[1] || y < margin[2] || x > margin[3])
+                        continue;
+                    int complete[3] = {0, 0, 0};
+                    current_map_possibility[x][y] = 0;
+
+                    rep(i, 3)
                     {
-                        complete[i] = 1;
+                        // ロボットから伸びる超音波の線のうち、x方向とy方向の長さを調べ、それぞれの長さを比例定数として誤差を決める
+                        double difference_x = 10; //fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
+                        double difference_y = 10; //fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
+                        if (coordinate[i][0] < 0)
+                        {
+                            difference_x = -difference_x;
+                        }
+                        if (coordinate[i][1] < 0)
+                        {
+                            difference_y = -difference_y;
+                        }
+                        double x_min = x + coordinate[i][0] - difference_x;
+                        double y_min = y + coordinate[i][1] - difference_y;
+                        double x_big = x + coordinate[i][0] + difference_x;
+                        double y_big = y + coordinate[i][1] + difference_y;
+                        rep(j, equation_num)
+                        {
+                            int result1 = isCross(j, x, y, x_min, y_min);
+                            int result2 = isCross(j, x, y, x_big, y_big);
+                            if (result1 == 0 && result2 == 1)
+                            {
+                                complete[i] = 1;
+                            }
+                            else if (result1 == 1 && result2 == 1)
+                            {
+                                complete[i] = -1;
+                                break;
+                            }
+                        }
+                        if (complete[i] == -1)
+                        {
+                            break;
+                        }
                     }
-                    else if (result1 == 1 && result2 == 1)
+
+                    complete[0] += complete[1] + complete[2];
+
+                    if (complete[0] < 2)
                     {
-                        complete[i] = -1;
-                        break;
+                        current_map_possibility[x][y] = 0;
+                    }
+                    else if (complete[0] == 2)
+                    {
+                        current_map_possibility[x][y] = POSSIBILITY_VALUE_MAX / 2;
+                    }
+                    else
+                    {
+                        current_map_possibility[x][y] = POSSIBILITY_VALUE_MAX;
                     }
                 }
-                if (complete[i] == -1)
-                {
-                    break;
-                }
-            }
-
-            complete[0] += complete[1] + complete[2];
-
-            if (complete[0] < 2)
-            {
-                current_map_possibility[wj][hi] = 0;
-            }
-            else if (complete[0] == 2)
-            {
-                current_map_possibility[wj][hi] = POSSIBILITY_VALUE_MAX / 2;
-            }
-            else
-            {
-                current_map_possibility[wj][hi] = POSSIBILITY_VALUE_MAX;
             }
         }
     }
 
-    float k = 0.9;
-    rep(wj, MAP_WIDTH)
+    double k = 0.9;
+    rep(wj, kMapWidth)
     {
-        rep(hi, MAP_HEIGHT)
+        rep(hi, kMapHeight)
         {
             map_possibility[wj][hi] *= k;
             int num = 0;
@@ -357,7 +344,7 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
                 for (int hi_range = under; hi_range <= top; hi_range++)
                 {
 
-                    if (hi_range < 0 || hi_range >= MAP_HEIGHT || wj_range < 0 || wj_range >= MAP_WIDTH)
+                    if (hi_range < 0 || hi_range >= kMapHeight || wj_range < 0 || wj_range >= kMapWidth)
                     {
                         continue;
                     }
@@ -372,58 +359,75 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
             // printf("%f\n", add);
         }
 
-        float min = 1000000, max = 0;
-        int max_id = -1;
-        rep(wj, MAP_WIDTH)
-        {
-            rep(hi, MAP_HEIGHT)
-            {
-                if (map_data[wj][hi] == WALL)
-                {
-                    continue;
-                }
-                if (map_possibility[wj][hi] < min)
-                {
-                    min = map_possibility[wj][hi];
-                }
-                if (map_possibility[wj][hi] > max)
-                {
-                    max = map_possibility[wj][hi];
-                    max_id = hi * MAP_WIDTH + wj;
-                }
-            }
-        }
-
-        // magnificationで、値の広さを調整する
-        // correctionで、値の位置を調整する
-        float magnification = POSSIBILITY_VALUE_MAX / (max - min);
-        float correction = POSSIBILITY_VALUE_MIN - min * magnification;
-        rep(wj, MAP_WIDTH)
-        {
-            rep(hi, MAP_HEIGHT)
-            {
-                if (map_data[wj][hi] == WALL)
-                {
-                    map_possibility[wj][hi] = 0;
-                    continue;
-                }
-                map_possibility[wj][hi] = map_possibility[wj][hi] * magnification + correction;
-            }
-        }
-
-        calculated_y = max_id / MAP_WIDTH;
-        calculated_x = max_id - calculated_y * MAP_WIDTH;
         // printf("%d calculated %d %d\n", getRepeatedNum(), x * SIZE, y * SIZE);
+    }
+    float min = 1000000, max = 0;
+    int max_id = -1;
+    rep(wj, kMapWidth)
+    {
+        rep(hi, kMapHeight)
+        {
+            int map_x = wj / map_data_scale;
+            int map_y = hi / map_data_scale;
+            if (map_data[map_x][map_y] == WALL)
+            {
+                continue;
+            }
+            if (map_possibility[wj][hi] < min)
+            {
+                min = map_possibility[wj][hi];
+            }
+            if (map_possibility[wj][hi] > max)
+            {
+                max = map_possibility[wj][hi];
+                max_id = hi * kMapWidth + wj;
+            }
+        }
+    }
+
+    // magnificationで、値の広さを調整する
+    // correctionで、値の位置を調整する
+    float magnification = POSSIBILITY_VALUE_MAX / (max - min);
+    float correction = POSSIBILITY_VALUE_MIN - min * magnification;
+    rep(wj, kMapWidth)
+    {
+        rep(hi, kMapHeight)
+        {
+            int map_x = wj / map_data_scale;
+            int map_y = hi / map_data_scale;
+            if (map_data[map_x][map_y] == WALL)
+            {
+                map_possibility[wj][hi] = 0;
+                continue;
+            }
+            map_possibility[wj][hi] = map_possibility[wj][hi] * magnification + correction;
+        }
+    }
+
+    calculated_y = max_id / kMapWidth;
+    calculated_x = max_id - calculated_y * kMapWidth;
+
+    rep(wi, kMapWidth)
+    {
+        rep(hj, kMapHeight)
+        {
+            if (current_map_possibility[wi][hj] >= POSSIBILITY_VALUE_MAX / 2)
+            {
+                cout << "calculated " << wi << " " << hj << endl;
+            }
+        }
     }
 }
 
 void CalculatePosition::showCurrentMapPossibility()
 {
-    for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
+    for (int hi = kMapHeight - 1; hi >= 0; hi--)
     {
-        rep(wj, MAP_WIDTH)
+        rep(wj, kMapWidth)
         {
-            if (map_data[wj][hi] == WALL)
+            int map_x = wj / map_data_scale;
+            int map_y = hi / map_data_scale;
+            if (map_data[map_x][map_y] == WALL)
             {
                 cout << "□";
                 continue;
@@ -441,9 +445,9 @@ void CalculatePosition::showMap2()
 {
     showCurrentMapPossibility();
     return;
-    for (int hi = MAP_HEIGHT - 1; hi >= 0; hi--)
+    for (int hi = kMapHeight - 1; hi >= 0; hi--)
     {
-        rep(wj, MAP_WIDTH)
+        rep(wj, kMapWidth)
         {
             if (map_data[wj][hi] == WALL)
             {
