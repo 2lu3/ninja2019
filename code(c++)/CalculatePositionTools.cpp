@@ -27,6 +27,7 @@ CalculatePosition::CalculatePosition(void)
         rep(wj, MAP_WIDTH)
         {
             map_possibility[wj][hi] = 0;
+            current_map_possibility[wj][hi] = 0;
         }
     }
 }
@@ -135,7 +136,7 @@ int CalculatePosition::isCross(int num, double x1, double y1, double x2, double 
            judgeOnLineSegmenet(equation[num][0], equation[num][1], equation[num][2], equation[num][3], x2, y2);
 }
 
-void calculate(int us_left, int us_front, int us_right, int compass)
+void CalculatePosition::calculate(int us_left, int us_front, int us_right, int compass)
 {
     float move_x, move_y;
     move_x = cos((double)(Compass + 90) / 180 * PI);

@@ -2,9 +2,6 @@
 #include "MapData.hpp"
 #include <iostream>
 
-#define FOR for
-#define rep(i, n) FOR(long i = 0; i < n; i++)
-
 #define POINT_BLACK 20
 #define POINT_RED 10
 #define POINT_CYAN 15
@@ -29,7 +26,6 @@
 #define MAX_EDGE_NUMBER 25
 #define BORDER_SAME_OBJECT_NUMBER 2
 #define FIND_OBJECT_DURATION 46
-#define PLUSMINUS(a, b, c) ((a) <= (b) + (c) && (a) >= (b) - (c))
 
 #define FIND_OBJ_DURATION 46
 
@@ -44,24 +40,24 @@ int searching_object;
 
 struct Dot
 {
-	int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;	//一辺の長さ
+	int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
+	int wide;  //一辺の長さ
 	int point; //ドットの種類(-3:yellow -2:wall etc.)
-	int done;	//Dijkstra()
-	long id;	 //y * 36 + x
-	int from;	//Dijkstra()
-	int cost;	//Dijkstra()
+	int done;  //Dijkstra()
+	long id;   //y * 36 + x
+	int from;  //Dijkstra()
+	int cost;  //Dijkstra()
 	int is_opened;
 	int score;
-	int distance_from_start;				//Dijkstra()
-	int curved_times;								//Dijkstra()
-	int arrived_times;							//そこにいた回数
-	int edge_num;										//そのドットに行くことのできるドットの数
-	int edge_to[MAX_EDGE_NUMBER];		//
+	int distance_from_start;		//Dijkstra()
+	int curved_times;				//Dijkstra()
+	int arrived_times;				//そこにいた回数
+	int edge_num;					//そのドットに行くことのできるドットの数
+	int edge_to[MAX_EDGE_NUMBER];   //
 	int edge_cost[MAX_EDGE_NUMBER]; //
-	int red;												//もし、Redがとれるなら、1
-	int cyan;												//もし、Cyanがとれないなら0
-	int black;											//もし、Blackが...
+	int red;						//もし、Redがとれるなら、1
+	int cyan;						//もし、Cyanがとれないなら0
+	int black;						//もし、Blackが...
 	int color;
 };
 struct Dot dot[MAX_DOT_NUMBER];
@@ -1513,18 +1509,18 @@ int GoToDot(int x, int y)
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
 		return 1;
 	}
-	char map_data_to_show[MAX_DOT_NUMBER];
-	for (int i = 0; i < MAX_DOT_NUMBER; i++)
-	{
-		if (dot[i].point <= POINT_WALL)
-		{
-			map_data_to_show[i] = '*';
-		}
-		else
-		{
-			map_data_to_show[i] = ' ';
-		}
-	}
+	// char map_data_to_show[MAX_DOT_NUMBER];
+	// for (int i = 0; i < MAX_DOT_NUMBER; i++)
+	// {
+	// 	if (dot[i].point <= POINT_WALL)
+	// 	{
+	// 		map_data_to_show[i] = '*';
+	// 	}
+	// 	else
+	// 	{
+	// 		map_data_to_show[i] = ' ';
+	// 	}
+	// }
 
 	//If the node I want to go will be go out
 	if (x < 1 || x >= DOT_WIDTH_NUMBER - 1 || y < 1 || y >= DOT_HEIGHT_NUMBER - 1)
@@ -1553,7 +1549,7 @@ int GoToDot(int x, int y)
 	}
 
 	int temp = goal_dot;
-	map_data_to_show[goal_dot] = 'T';
+	// map_data_to_show[goal_dot] = 'T';
 	int i = 0;
 
 	while (dot[temp].from != now_dot_id && i < 200)
@@ -1562,7 +1558,7 @@ int GoToDot(int x, int y)
 		// go_y = temp / DOT_WIDTH_NUMBER;
 		// go_x = temp - (int)go_y * DOT_WIDTH_NUMBER;
 		temp = dot[temp].from;
-		map_data_to_show[temp] = '#';
+		// map_data_to_show[temp] = '#';
 		// printf("%d\n", dot[temp].point);
 		i++;
 		if (temp < 0 || temp >= MAX_DOT_NUMBER)
@@ -1578,7 +1574,7 @@ int GoToDot(int x, int y)
 		;
 	}
 
-	map_data_to_show[now_dot_id] = '@';
+	// map_data_to_show[now_dot_id] = '@';
 
 	int next_x, next_y;
 	next_y = temp / DOT_WIDTH_NUMBER;
@@ -1622,7 +1618,7 @@ int GoToDot(int x, int y)
 	else
 	{
 		if (next_y <
-		 now_y)
+			now_y)
 		{
 			GoToAngle(225, distance);
 		}
@@ -2124,7 +2120,7 @@ void GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
