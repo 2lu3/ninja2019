@@ -15,6 +15,8 @@ class CalculatePosition
 public:
     CalculatePosition();
     void calculate(int us_left, int us_front, int us_right, int compass);
+    void showCurrentMapPossibility();
+    void showMap();
 
 private:
     const static int kMapWidth = 240;
@@ -84,8 +86,6 @@ private:
     // (ax, ay), (bx, by)の線分上に(cx, cy)があるか
     int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy);
     int isCross(int num, double x1, double y1, double x2, double y2);
-    void showCurrentMapPossibility();
-    void showMap2();
 };
 
 #endif // CALCULATE_POSITION_TOOLS

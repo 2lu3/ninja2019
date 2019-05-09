@@ -101,7 +101,7 @@ void Game0_Hikaru::setup(void)
 	delLogFile();
 	InputColorInformation();
 
-	setRunMode(MODE_DEBUG);
+	// setRunMode(MODE_DEBUG);
 
 	double seconds = pt.end();
 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
@@ -113,6 +113,7 @@ void Game0_Hikaru::loop(void)
 	ProcessingTime pt;
 	pt.start();
 	calculate_position.calculate(US_Left, US_Front, US_Right, Compass);
+	// calculate_position.showMap();
 	cout << "calculate time " << pt.end() << endl;
 	pt.start();
 	logMessage("World1 loop start");
@@ -402,6 +403,17 @@ void Game1_Hikaru::loop()
 	pt.start();
 	// cout << process << endl;
 	UserGame1::loop();
+	int k = 1;
+	if (getRepeatedNum() == 1)
+	{
+		motor(3, 5);
+	}
+	else if (getRepeatedNum() % k == 0)
+	{
+		cout << PositionX << "\t" << PositionY << "\t" << Compass << endl;
+	}
+	return;
+
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
 	static int prev_repeated_num = 0;
@@ -2563,4 +2575,5 @@ void AutoStrategy(void)
 	/*
 	30 x 30のエリアを順番に行く
 	*/
+	return;
 }

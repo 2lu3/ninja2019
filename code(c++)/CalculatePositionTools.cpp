@@ -112,48 +112,54 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     ProcessingTime pt;
     pt.start();
 
+    // 数学での角度に変換
+    compass += 90;
+
     logMessage(getFuncName(__FUNCTION__) + "(" + to_string(us_left) + "," + to_string(us_front) + "," + to_string(us_right) + "," + to_string(compass) + ") start", MODE_DEBUG);
 
     float move_x, move_y;
-    move_x = cos((double)(Compass + 90) / 180 * PI);
-    move_y = sin((double)(Compass + 90) / 180 * PI);
-    float border = 0.7;
-    if (move_x < -border)
     {
-        move_x = -1;
-    }
-    else if (move_x < border)
-    {
-        move_x = 0;
-    }
-    else
-    {
-        move_x = 1;
-    }
-    if (move_y < -border)
-    {
-        move_y = -1;
-    }
-    else if (move_y < border)
-    {
-        move_y = 0;
-    }
-    else
-    {
-        move_y = 1;
-    }
-
-    // rotate
-    if (WheelLeft * WheelRight < 0)
-    {
-        move_x = 0;
-        move_y = 0;
-    }
-    // move backward
-    else if (WheelLeft + WheelRight < 0)
-    {
-        move_x = -move_x;
-        move_y = -move_y;
+        int motor_speed = abs(WheelLeft) + abs(WheelRight);
+        motor_speed /= 2;
+        move_x = cos((double)(Compass + 90) / 180 * PI) * motor_speed;
+        move_y = sin((double)(Compass + 90) / 180 * PI) * motor_speed;
+        // float border = 0.7;
+        // if (move_x < -border)
+        // {
+        //     move_x = -motor_speed;
+        // }
+        // else if (move_x < border)
+        // {
+        //     move_x = 0;
+        // }
+        // else
+        // {
+        //     move_x = 1;
+        // }
+        // if (move_y < -border)
+        // {
+        //     move_y = -1;
+        // }
+        // else if (move_y < border)
+        // {
+        //     move_y = 0;
+        // }
+        // else
+        // {
+        //     move_y = 1;
+        // }
+        // rotate or stop
+        if (WheelLeft * WheelRight <= 0)
+        {
+            move_x = 0;
+            move_y = 0;
+        }
+        // move backward
+        else if (WheelLeft + WheelRight < 0)
+        {
+            move_x = -move_x;
+            move_y = -move_y;
+        }
     }
 
     double angle[3] = {45, 0, -45};
@@ -195,6 +201,15 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     margin[1] = -margin[1];
     margin[2] = -margin[2];
 
+    rep(i, 4)
+    {
+        margin[i] -= 5;
+        if (margin[i] < 0)
+        {
+            margin[i] = 0;
+        }
+    }
+
     string message = "calculated margin (top, left, down, right) = ";
     rep(i, 4)
     {
@@ -205,7 +220,7 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     // 上
     rep(wj, kMapWidth)
     {
-        for (int hi = kMapHeight - margin[0]; hi < kMapHeight; hi++)
+        for (int hi = kMapHeight - margin[0]; hi < kMapHeight; ++hi)
         {
             current_map_possibility[wj][hi] = 0;
         }
@@ -239,84 +254,79 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     }
 
     // double difference = SIZE;
-    // map_dataで、まず、壁の中にいる可能性を取りのぞく
-    for (int map_wi = 0; map_wi < map_data_width; ++map_wi)
+    for (int wi = 0; wi < kMapWidth; ++wi)
     {
-        for (int map_hj = 0; map_hj < map_data_height; ++map_hj)
+        // int x = map_wi * map_data_scale + wi;
+        for (int hj = 0; hj < kMapHeight; ++hj)
         {
-            if (map_data[map_wi][map_hj] == Wall)
+            int map_x = wi / map_data_scale;
+            int map_y = hj / map_data_scale;
+            if (map_data[map_x][map_y] == WALL)
             {
+                current_map_possibility[wi][hj] = 0;
                 continue;
             }
-            for (int wi = 0; wi < map_data_scale; ++wi)
+            // 上 左 下 右
+            if (hj >= kMapHeight - margin[0] || wi < margin[1] || hj < margin[2] || wi > kMapWidth - margin[3])
+                continue;
+            int complete[3] = {0, 0, 0};
+            current_map_possibility[wi][hj] = 0;
+
+            rep(i, 3)
             {
-                int x = map_wi * map_data_scale + wi;
-                for (int hj = 0; hj < map_data_scale; ++hj)
+                // ロボットから伸びる超音波の線のうち、x方向とy方向の長さを調べ、それぞれの長さを比例定数として誤差を決める
+                double difference_x = 5; //fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
+                double difference_y = 5; //fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
+                if (coordinate[i][0] < 0)
                 {
-                    int y = map_hj * map_data_scale + hj;
-                    // 上 左 下 右
-                    if (y > margin[0] || x < margin[1] || y < margin[2] || x > margin[3])
-                        continue;
-                    int complete[3] = {0, 0, 0};
-                    current_map_possibility[x][y] = 0;
-
-                    rep(i, 3)
+                    difference_x = -difference_x;
+                }
+                if (coordinate[i][1] < 0)
+                {
+                    difference_y = -difference_y;
+                }
+                double x_min = wi + coordinate[i][0] - difference_x;
+                double y_min = hj + coordinate[i][1] - difference_y;
+                double x_big = wi + coordinate[i][0] + difference_x;
+                double y_big = hj + coordinate[i][1] + difference_y;
+                rep(j, equation_num)
+                {
+                    int result1 = isCross(j, wi, hj, x_min, y_min);
+                    int result2 = isCross(j, wi, hj, x_big, y_big);
+                    if (complete[i] == 0 && result1 == 0 && result2 == 1)
                     {
-                        // ロボットから伸びる超音波の線のうち、x方向とy方向の長さを調べ、それぞれの長さを比例定数として誤差を決める
-                        double difference_x = 10; //fabs(coordinate[i][0]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
-                        double difference_y = 10; //fabs(coordinate[i][1]) / (fabs(coordinate[i][0]) + fabs(coordinate[i][1])) * 5;
-                        if (coordinate[i][0] < 0)
-                        {
-                            difference_x = -difference_x;
-                        }
-                        if (coordinate[i][1] < 0)
-                        {
-                            difference_y = -difference_y;
-                        }
-                        double x_min = x + coordinate[i][0] - difference_x;
-                        double y_min = y + coordinate[i][1] - difference_y;
-                        double x_big = x + coordinate[i][0] + difference_x;
-                        double y_big = y + coordinate[i][1] + difference_y;
-                        rep(j, equation_num)
-                        {
-                            int result1 = isCross(j, x, y, x_min, y_min);
-                            int result2 = isCross(j, x, y, x_big, y_big);
-                            if (result1 == 0 && result2 == 1)
-                            {
-                                complete[i] = 1;
-                            }
-                            else if (result1 == 1 && result2 == 1)
-                            {
-                                complete[i] = -1;
-                                break;
-                            }
-                        }
-                        if (complete[i] == -1)
-                        {
-                            break;
-                        }
+                        complete[i] = 1;
                     }
-
-                    complete[0] += complete[1] + complete[2];
-
-                    if (complete[0] < 2)
+                    else if (result1 == 1 && result2 == 1)
                     {
-                        current_map_possibility[x][y] = 0;
-                    }
-                    else if (complete[0] == 2)
-                    {
-                        current_map_possibility[x][y] = POSSIBILITY_VALUE_MAX / 2;
-                    }
-                    else
-                    {
-                        current_map_possibility[x][y] = POSSIBILITY_VALUE_MAX;
+                        complete[i] = -1;
+                        break;
                     }
                 }
+                if (complete[i] == -1)
+                {
+                    break;
+                }
+            }
+
+            complete[0] += complete[1] + complete[2];
+
+            if (complete[0] < 2)
+            {
+                current_map_possibility[wi][hj] = 0;
+            }
+            else if (complete[0] == 2)
+            {
+                current_map_possibility[wi][hj] = POSSIBILITY_VALUE_MAX / 2;
+            }
+            else
+            {
+                current_map_possibility[wi][hj] = POSSIBILITY_VALUE_MAX;
             }
         }
     }
 
-    double k = 0.9;
+    double k = 0.7;
     rep(wj, kMapWidth)
     {
         rep(hi, kMapHeight)
@@ -407,33 +417,45 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     calculated_y = max_id / kMapWidth;
     calculated_x = max_id - calculated_y * kMapWidth;
 
-    rep(wi, kMapWidth)
-    {
-        rep(hj, kMapHeight)
-        {
-            if (current_map_possibility[wi][hj] >= POSSIBILITY_VALUE_MAX / 2)
-            {
-                cout << "calculated " << wi << " " << hj << endl;
-            }
-        }
-    }
+    cout << "calculated " << calculated_x << " " << calculated_y << endl;
+
+    // rep(wi, kMapWidth)
+    // {
+    //     rep(hj, kMapHeight)
+    //     {
+    //         if (current_map_possibility[wi][hj] >= POSSIBILITY_VALUE_MAX / 2)
+    //         {
+    //             cout << "calculated " << wi << " " << hj << endl;
+    //         }
+    //     }
+    // }
 }
 
 void CalculatePosition::showCurrentMapPossibility()
 {
-    for (int hi = kMapHeight - 1; hi >= 0; hi--)
+    int scale = 10;
+    for (int hi = kMapHeight / scale - 1; hi >= 0; hi--)
     {
-        rep(wj, kMapWidth)
+        rep(wj, kMapWidth / scale)
         {
-            int map_x = wj / map_data_scale;
-            int map_y = hi / map_data_scale;
+            int map_x = wj * scale / map_data_scale;
+            int map_y = hi * scale / map_data_scale;
             if (map_data[map_x][map_y] == WALL)
             {
-                cout << "□";
+                cout << "###";
                 continue;
             }
+            int sum = 0;
+            rep(y, scale)
+            {
+                rep(x, scale)
+                {
+                    sum += current_map_possibility[wj * scale + x][hi * scale + y];
+                }
+            }
+            sum /= scale;
 
-            cout << setw(2) << current_map_possibility[wj][hi];
+            cout << setw(3) << sum;
         }
         cout << endl;
     }
@@ -441,91 +463,34 @@ void CalculatePosition::showCurrentMapPossibility()
     cout << endl;
 }
 
-void CalculatePosition::showMap2()
+void CalculatePosition::showMap()
 {
-    showCurrentMapPossibility();
-    return;
-    for (int hi = kMapHeight - 1; hi >= 0; hi--)
+    int scale = 10;
+    for (int hi = kMapHeight / scale - 1; hi >= 0; hi--)
     {
-        rep(wj, kMapWidth)
+        rep(wj, kMapWidth / scale)
         {
-            if (map_data[wj][hi] == WALL)
+            int map_x = wj * scale / map_data_scale;
+            int map_y = hi * scale / map_data_scale;
+            if (map_data[map_x][map_y] == WALL)
             {
-                cout << "*";
+                cout << "###";
                 continue;
             }
+            double sum = 0;
+            rep(y, scale)
+            {
+                rep(x, scale)
+                {
+                    sum += map_possibility[wj * scale + x][hi * scale + y];
+                }
+            }
+            sum /= scale;
 
-            if (hi == calculated_y && wj == calculated_x)
-            {
-                cout << "#";
-            }
-            else if (map_possibility[wj][hi] > 0.8 * POSSIBILITY_VALUE_MAX)
-            {
-                cout << "+";
-            }
-            else if (map_possibility[wj][hi] > 0.6 * POSSIBILITY_VALUE_MAX)
-            {
-                cout << "-";
-            }
-            else
-            {
-                cout << " ";
-            }
-
-            // printf("%2.0f", map_possibility[hi][wj]);
-            // printf("%2d", current_map_possibility[hi][wj]);
-            // if (map_possibility[hi][wj] < 0.4)
-            // {
-            // 	printf("　");
-            // }
-            // else if (map_possibility[hi][wj] < 0.6)
-            // {
-            // 	printf("？");
-            // }
-            // else if (map_possibility[hi][wj] < 0.7)
-            // {
-            // 	printf("＋");
-            // }
-            // else
-            // {
-            // 	printf("☆");
-            // }
-            // if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 5 * 4 + POSSIBILITY_VALUE_MIN)
-            // {
-            // 	printf("　");
-            // }
-            // else if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 4 * 2 + POSSIBILITY_VALUE_MIN)
-            // {
-            // 	printf("？");
-            // }
-            // else if (map_possibility[hi][wj] < (POSSIBILITY_VALUE_MAX - POSSIBILITY_VALUE_MIN) / 4 * 3 + POSSIBILITY_VALUE_MIN)
-            // {
-            // 	printf("＋");
-            // }
-            // else
-            // {
-            // 	printf("☆");
-            // }
-            // switch (current_map_possibility[hi][wj])
-            // {
-            // case 0:
-            // 	printf("　");
-            // 	break;
-            // case -1:
-            // 	printf("□");
-            // 	break;
-            // case 1:
-            // 	printf("？");
-            // 	break;
-            // case 2:
-            // 	printf("＋");
-            // 	break;
-            // default:
-            // 	break;
-            // }
+            cout << setw(3) << static_cast<int>(sum);
         }
-        cout << "\n";
+        cout << endl;
     }
     cout << endl;
-    // showCurrentMapPossibility();
+    cout << endl;
 }
