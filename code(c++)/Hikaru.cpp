@@ -89,7 +89,7 @@ int large_process = -1;
 
 const int border_same_obj_number = 3;
 
-// CalculatePosition calculate_position;
+CalculatePosition calculate_position;
 void Game0_Hikaru::setup(void)
 {
 	ProcessingTime pt;
@@ -110,6 +110,7 @@ void Game0_Hikaru::setup(void)
 void Game0_Hikaru::loop(void)
 {
 	UserGame0::loop();
+	calculate_position.thread();
 	ProcessingTime pt;
 	pt.start();
 	// calculate_position.calculate(US_Left, US_Front, US_Right, Compass);

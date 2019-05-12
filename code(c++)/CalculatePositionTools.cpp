@@ -8,6 +8,7 @@
 
 using std::cout;
 using std::endl;
+using std::extent;
 using std::setw;
 using std::string;
 using std::to_string;
@@ -23,54 +24,94 @@ using std::to_string;
 #define YELLOW 1
 #define DEPOSIT 3
 
-CalculatePosition::CalculatePosition(void)
+void CalculatePosition::thread(void)
 {
     ProcessingTime pt;
     pt.start();
-    rep(hi, kMapHeight)
+    static int hi = 0;
+    if (hi >= kMapHeight)
     {
-        rep(wj, kMapWidth)
+        return;
+    }
+    rep(wj, kMapWidth)
+    {
+        map_possibility[wj][hi] = 0;
+        current_map_possibility[wj][hi] = 0;
+        if (hi % 2 == 0 && wj % 2 == 0)
         {
-            map_possibility[wj][hi] = 0;
-            current_map_possibility[wj][hi] = 0;
-            if (hi % 4 == 0 && wj % 4 == 0)
+            rep(angle, extent<decltype(distance_from_wall), 2>::value)
             {
-                rep(angle, 360 / 3)
+                int x[4], y[4], X, Y, min_distance = kUSMeasurementLimit, distance;
+                x[0] = wj + cos(angle * 3 / 180 * PI) * kDistanceFromUS;
+                y[0] = hi + sin(angle * 3 / 180 * PI) * kDistanceFromUS;
+                x[1] = x[0] + cos(angle * 3 / 180 * PI) * kUSMeasurementLimit;
+                y[1] = y[0] + sin(angle * 3 / 180 * PI) * kUSMeasurementLimit;
+                if (x[0] == x[1] && y[0] == y[1])
                 {
-                    int x1, y1, x2, y2, x, y, m1, m2, min_distance = kUSMeasurementLimit, distance;
-                    x1 = wj + cos(angle * 3 / 180 * PI) * kDistanceFromUS;
-                    y1 = hi + sin(angle * 3 / 180 * PI) * kDistanceFromUS;
-                    x2 = x1 + cos(angle * 3 / 180 * PI) * kUSMeasurementLimit;
-                    y2 = y1 + sin(angle * 3 / 180 * PI) * kUSMeasurementLimit;
-                    if (x2 == wj)
-                    {
-                        if (!(angle > 80 && angle < 90) && !(angle > 260 && angle < 280))
-                        {
-                            cout << "error " << endl;
-                        }
-                    }
-                    rep(k, equation_num)
-                    {
-                        // 交差する場合
-                        if (isCross(k, x1, y1, x2, y2))
-                        {
-                            m1 = (y2 - y1) / (x2 - x1);
-                            m2 = (equation[k][3] - equation[k][1]) / (equation[k][2] - equation[k][0]);
-                            x = (m1 * x1 - y1 - m2 * equation[k][0] + equation[k][1]) / (m1 - m2);
-                            y = (y2 - y1) / (x2 - x1) * (x - x1) + y1;
-                            distance = pow(x - wj, 2) + pow(y - hi, 2);
-                            if (min_distance > distance)
-                            {
-                                min_distance = distance;
-                            }
-                        }
-                    }
-                    distance_from_wall[wj / 2][hi / 2][angle] = min_distance;
+                    errorMessage(getFuncName(__FUNCTION__) + "() : error x[0] == x[1] and y[0] == y[1]", MODE_NORMAL);
+                    distance_from_wall[wj / 2][hi / 2][angle];
+                    return;
                 }
+                if (x[1] == x[0])
+                {
+                    if (!(angle > 80 && angle < 90) && !(angle > 260 && angle < 280))
+                    {
+                        cout << "error " << endl;
+                    }
+                }
+                rep(k, equation_num)
+                {
+                    // 交差する場合
+                    if (isCross(k, x[0], y[0], x[1], y[1]))
+                    {
+                        x[2] = equation[k][0];
+                        x[3] = equation[k][2];
+                        y[2] = equation[k][1];
+                        y[3] = equation[k][3];
+                        // 交点 (X, Y) 線分の座標(x1, y1) (x2, y2)...
+                        // X = x1 + s(x2 - x1) = x3 + t(x4 - x3)
+                        // Y = y1 + s(y2 - y1) = y3 + s(y4 - y3)
+                        //  <=>
+                        // t(x4 - x3) = s(x2 - x1) + (x1 - x3)
+                        // t(y4 - y3) = s(y2 - y1) + (y1 - y3)
+                        // <=>
+                        // s(y2 - y1) * (x4 - x3) + (y1 - y3) * (x4 - x3)
+                        // = s(x2 - x1) * (y4 - y3) + (x1 - x3) * (y4 - y3)
+                        // <=>
+                        // s((y2 - y1) * (x4 - x3) - (x2 - x1) * (y4 - y3))
+                        // = (x1 - x3) * (y4 - y3) - (y1 - y3) * (x4 - x3)
+                        // <=>
+                        // (y2 - y1) * (x4 - x3) - (x2 - x1) * (y4 - y3) != 0のとき
+                        // s = ((x1 - x3) * (y4 - y3) - (y1 - y3) * (x4 - x3))
+                        // / ((y2 - y1) * (x4 - x3) - (x2 - x1) * (y4 - y3))
+                        // (y2 - y1) * (x4 - x3) - (x2 - x1) * (y4 - y3) == 0のとき
+                        // 両者は平行 or
+
+                        // ksi = (y4 - y3)(x4 - x1) - (x4 - x3)(y4 - y1)
+                        // float ksi = (equation[k][3] - equation[k][1]) * (equation[k][3] - x1) - (equation[k][3] - equation[k][1]) * (equation[k][3] - y1);
+                        // // delta = (y4 - y3)(x2 - x1) - (x4- x3)(y2 - y1)
+                        // float delta = (equation[k][3] - equation[k][1]) * (x2 - x1) - (equation[k][3] - equation[k][1]) * (y2 - y1);
+                        // // ramda = ksi / delta
+                        // float ramda = ksi / delta;
+                        // x = x1 + ramda * (x2 - x1);
+                        // y = y1 + ramda * (y2 - y1);
+                        // m1 = (y2 - y1) / (x2 - x1);
+                        // m2 = (equation[k][3] - equation[k][1]) / (equation[k][2] - equation[k][0]);
+                        // x = (m1 * x1 - y1 - m2 * equation[k][0] + equation[k][1]) / (m1 - m2);
+                        // y = (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+                        // distance = pow(x - wj, 2) + pow(y - hi, 2);
+                        // if (min_distance > distance)
+                        // {
+                        //     min_distance = distance;
+                        // }
+                    }
+                }
+                distance_from_wall[wj / 2][hi / 2][angle] = min_distance;
             }
         }
     }
-    cout << "calculate init" << pt.end() << " ms" << endl;
+    hi++;
+    cout << "calculate thread" << pt.end() << " ms" << endl;
 }
 
 void CalculatePosition::setEquation(int x1, int y1, int x2, int y2)

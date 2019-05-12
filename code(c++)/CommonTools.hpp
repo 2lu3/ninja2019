@@ -2,7 +2,7 @@
 #define COMMON_TOOLS
 
 #define REP for
-#define rep(i, n) REP(int i = 0; i < n; ++i)
+#define rep(i, n) REP(int i = 0; i < (n); ++i)
 #define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
 
 // red cyan black super
@@ -48,7 +48,6 @@ public:
 
 private:
 };
-
 
 extern std::random_device rnd;
 

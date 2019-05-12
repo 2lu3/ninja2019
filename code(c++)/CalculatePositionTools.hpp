@@ -13,7 +13,7 @@ enum MapObjectNumber
 class CalculatePosition
 {
 public:
-    CalculatePosition();
+    void thread(void);
     void calculate(int us_left, int us_front, int us_right, int compass);
     void showCurrentMapPossibility();
     void showMap();
@@ -81,7 +81,6 @@ private:
     int min_distance_from_wall[kMapWidth][kMapHeight];
     // width / 2    height / 2  compass / 3
     unsigned char distance_from_wall[kMapWidth / 2][kMapHeight / 2][360 / 3];
-    // unsigned char distance_from_wall[10][10][10];
 
     int calculated_x, calculated_y;
 
