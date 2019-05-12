@@ -70,7 +70,8 @@ def main():
         command = command + " " + file_path
     command = command + " -o " +  '\"' + out_path + "Ninja.dll\""
 
-    command = command + " & REM 2> errors.txt strip --strip-unneeded Ninja.dll pause"
+    # command = command + " & REM 2> errors.txt strip --strip-unneeded \"" + out_path + "Ninja.dll\" pause"
+    command = command + " &  strip --strip-unneeded \"" + out_path + "Ninja.dll\" & pause"
     printforDebug("command : " + command)
 
     # dll作成コマンドを実行する

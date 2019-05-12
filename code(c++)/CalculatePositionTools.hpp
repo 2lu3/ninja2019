@@ -21,6 +21,8 @@ public:
 private:
     const static int kMapWidth = 240;
     const static int kMapHeight = 180;
+    const static int kDistanceFromUS = 5;
+    const static int kUSMeasurementLimit = 185;
 
     enum MapInfo
     {
@@ -76,6 +78,10 @@ private:
 
     float map_possibility[kMapWidth][kMapHeight];
     int current_map_possibility[kMapWidth][kMapHeight];
+    int min_distance_from_wall[kMapWidth][kMapHeight];
+    // width / 2    height / 2  compass / 3
+    unsigned char distance_from_wall[kMapWidth / 2][kMapHeight / 2][360 / 3];
+    // unsigned char distance_from_wall[10][10][10];
 
     int calculated_x, calculated_y;
 
@@ -84,8 +90,8 @@ private:
     // 長方形の壁を登録する
     void setEquations(int x1, int y1, int x2, int y2);
     // (ax, ay), (bx, by)の線分上に(cx, cy)があるか
-    int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy);
-    int isCross(int num, double x1, double y1, double x2, double y2);
+    int judgeOnLineSegmenet(float ax, float ay, float bx, float by, float cx, float cy);
+    int isCross(int num, float x1, float y1, float x2, float y2);
 };
 
 #endif // CALCULATE_POSITION_TOOLS
