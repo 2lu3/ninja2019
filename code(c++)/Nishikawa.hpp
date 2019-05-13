@@ -22,7 +22,7 @@ private:
     const static int kMaxDotNum = kCospaceWidth * kCospaceHeight / kSize / kSize;
     const static int kMaxEdgeNum = 25;
     const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = Game0_Hikaru::kFindObjDuration;
+    const static int kFindObjDuration = 46;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     int absolute_x = -1, absolute_y = -1;
     int now_dot_id;
