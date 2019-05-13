@@ -39,9 +39,11 @@ void CalculatePosition::thread(void)
         current_map_possibility[wj][hi] = 0;
         if (hi % 2 == 0 && wj % 2 == 0)
         {
-            rep(angle, extent<decltype(distance_from_wall), 2>::value)
+            rep(angle, 120)
             {
-                int x[4], y[4], X, Y, min_distance = kUSMeasurementLimit, distance;
+                int x[4], y[4];
+                //, X, Y, min_distance = kUSMeasurementLimit;
+                //, distance;
                 x[0] = wj + cos(angle * 3 / 180 * PI) * kDistanceFromUS;
                 y[0] = hi + sin(angle * 3 / 180 * PI) * kDistanceFromUS;
                 x[1] = x[0] + cos(angle * 3 / 180 * PI) * kUSMeasurementLimit;
@@ -49,7 +51,7 @@ void CalculatePosition::thread(void)
                 if (x[0] == x[1] && y[0] == y[1])
                 {
                     errorMessage(getFuncName(__FUNCTION__) + "() : error x[0] == x[1] and y[0] == y[1]", MODE_NORMAL);
-                    distance_from_wall[wj / 2][hi / 2][angle];
+                    // distance_from_wall[wj / 2][hi / 2][angle];
                     return;
                 }
                 if (x[1] == x[0])
@@ -106,7 +108,7 @@ void CalculatePosition::thread(void)
                         // }
                     }
                 }
-                distance_from_wall[wj / 2][hi / 2][angle] = min_distance;
+                // distance_from_wall[wj / 2][hi / 2][angle] = min_distance;
             }
         }
     }

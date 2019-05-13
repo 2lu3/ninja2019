@@ -80,7 +80,7 @@ private:
     int current_map_possibility[kMapWidth][kMapHeight];
     int min_distance_from_wall[kMapWidth][kMapHeight];
     // width / 2    height / 2  compass / 3
-    unsigned char distance_from_wall[kMapWidth / 2][kMapHeight / 2][360 / 3];
+    // unsigned char distance_from_wall[kMapWidth / 2][kMapHeight / 2][360 / 3];
 
     int calculated_x, calculated_y;
 

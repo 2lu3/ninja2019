@@ -17,82 +17,10 @@
 #define BLACK_LOADED_ID 2
 #define SUPER_LOADED_ID 3
 
-#define COSPACE_WIDTH 360
-#define COSPACE_HEIGHT 270
-#define SIZE 10
-#define DOT_WIDTH_NUMBER (COSPACE_WIDTH / SIZE)
-#define DOT_HEIGHT_NUMBER (COSPACE_HEIGHT / SIZE)
-#define MAX_DOT_NUMBER (COSPACE_WIDTH * COSPACE_HEIGHT / SIZE / SIZE)
-#define MAX_EDGE_NUMBER 25
-#define BORDER_SAME_OBJECT_NUMBER 2
-#define FIND_OBJECT_DURATION 46
-
-#define FIND_OBJ_DURATION 46
-
 using namespace std;
 
-int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
-int absolute_x = -1, absolute_y = -1;
-int now_dot_id;
-int emergency_now_dot_id = 80;
-int super_sameoperate = 0;
-int searching_object;
-
-struct Dot
-{
-	int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
-	int wide;  //一辺の長さ
-	int point; //ドットの種類(-3:yellow -2:wall etc.)
-	int done;  //Dijkstra()
-	long id;   //y * 36 + x
-	int from;  //Dijkstra()
-	int cost;  //Dijkstra()
-	int is_opened;
-	int score;
-	int distance_from_start;		//Dijkstra()
-	int curved_times;				//Dijkstra()
-	int arrived_times;				//そこにいた回数
-	int edge_num;					//そのドットに行くことのできるドットの数
-	int edge_to[MAX_EDGE_NUMBER];   //
-	int edge_cost[MAX_EDGE_NUMBER]; //
-	int red;						//もし、Redがとれるなら、1
-	int cyan;						//もし、Cyanがとれないなら0
-	int black;						//もし、Blackが...
-	int color;
-};
-struct Dot dot[MAX_DOT_NUMBER];
-
-void GoToAngle(int angle, int distance);
-int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
-void Dijkstra(void);
-int GoToDot(int x, int y);
-int CheckNowDot(void);
-long WhereIsMotor(void);
-long WhereIsColorSensor(void);
-void InputDotInformation(void);
-int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
-int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
-int HowManyCurved(int id);
-void AutoStrategy(void);
-
-// int GoToColor(int color);
-// int GoToColorArea(int num);
-
-int IsNearYellow(int num, int x, int y);
-
-int log_compass;
-int same_target_num = 5;
-int same_target = 0;
-int log_x = -1, log_y = -1;
-
-int large_process = -1;
-
-const int border_same_obj_number = 3;
-
-CalculatePosition calculate_position;
 void Game0_Hikaru::setup(void)
 {
-	ProcessingTime pt;
 	pt.start();
 
 	UserGame0::setup();
@@ -110,12 +38,6 @@ void Game0_Hikaru::setup(void)
 void Game0_Hikaru::loop(void)
 {
 	UserGame0::loop();
-	calculate_position.thread();
-	ProcessingTime pt;
-	pt.start();
-	// calculate_position.calculate(US_Left, US_Front, US_Right, Compass);
-	cout << "calculate time " << pt.end() << endl;
-	// calculate_position.showMap();
 	pt.start();
 	logMessage("World1 loop start");
 	if (SuperDuration > 0)
@@ -144,26 +66,26 @@ void Game0_Hikaru::loop(void)
 			break;
 		}
 	}
-	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < border_same_obj_number && LoadedObjects < 6)
+	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		logMessage("find black obj");
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
-		SuperDuration = FIND_OBJ_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < border_same_obj_number && LoadedObjects < 6)
+	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		logMessage("find cyan obj");
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
-		SuperDuration = FIND_OBJ_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < border_same_obj_number && LoadedObjects < 6)
+	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		logMessage("find red obj");
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
-		SuperDuration = FIND_OBJ_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
 	else if (Duration > 0)
 	{
@@ -302,7 +224,7 @@ void Game0_Hikaru::loop(void)
 	case YELLOW_AVOIDANCE:
 		break;
 	case FIND_OBJ:
-		if (Duration == FIND_OBJ_DURATION || SuperDuration == FIND_OBJ_DURATION)
+		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
 		{
 			logMessage("Add 1 to LoadedObjects", MODE_VERBOSE);
 			LoadedObjects++;
@@ -368,8 +290,6 @@ void Game0_Hikaru::taskOnTeleport(void)
 	Teleport = 3;
 }
 
-FILE *object_file;
-
 void Game1_Hikaru::setup(void)
 {
 	system("cls");
@@ -383,10 +303,10 @@ void Game1_Hikaru::setup(void)
 	log_compass = Compass;
 	if (PositionX == 0 && PositionY == 0)
 	{
-		int y = emergency_now_dot_id / DOT_WIDTH_NUMBER;
-		int x = emergency_now_dot_id - DOT_WIDTH_NUMBER * y;
-		log_y = y * SIZE;
-		log_x = x * SIZE;
+		int y = emergency_now_dot_id / kDotWidthNum;
+		int x = emergency_now_dot_id - kDotWidthNum * y;
+		log_y = y * kSize;
+		log_x = x * kSize;
 		now_dot_id = emergency_now_dot_id;
 	}
 	else
@@ -395,8 +315,6 @@ void Game1_Hikaru::setup(void)
 		log_y = PositionY;
 	}
 }
-
-int process = 0;
 
 void Game1_Hikaru::loop()
 {
@@ -429,21 +347,21 @@ void Game1_Hikaru::loop()
 		{
 			log_x = 0;
 		}
-		if (log_x >= COSPACE_WIDTH)
+		if (log_x >= kCospaceWidth)
 		{
-			log_x = COSPACE_WIDTH - 1;
+			log_x = kCospaceWidth - 1;
 		}
 		if (log_y < 0)
 		{
 			log_y = 0;
 		}
-		if (log_y >= COSPACE_HEIGHT)
+		if (log_y >= kCospaceHeight)
 		{
-			log_y = COSPACE_HEIGHT - 1;
+			log_y = kCospaceHeight - 1;
 		}
 		now_dot_id = CheckNowDot();
-		int now_y = now_dot_id / DOT_WIDTH_NUMBER;
-		int now_x = now_dot_id - now_y * DOT_WIDTH_NUMBER;
+		int now_y = now_dot_id / kDotWidthNum;
+		int now_x = now_dot_id - now_y * kDotWidthNum;
 		int range = 3;
 		rep(hi, range * 2 + 1)
 		{
@@ -451,11 +369,11 @@ void Game1_Hikaru::loop()
 			{
 				int y = hi + now_y - range;
 				int x = wj + now_x - range;
-				if (x < 0 || x >= DOT_WIDTH_NUMBER || y < 0 || y >= DOT_HEIGHT_NUMBER)
+				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
 				}
-				dot[y * DOT_WIDTH_NUMBER + x].arrived_times++;
+				dot[y * kDotWidthNum + x].arrived_times++;
 			}
 		}
 	}
@@ -466,13 +384,13 @@ void Game1_Hikaru::loop()
 		{
 			for (int hj = 0; hj < 20; hj++)
 			{
-				int x = log_x / SIZE + wi - 10;
-				int y = log_y / SIZE + hj - 10;
-				if (x < 0 || x >= DOT_WIDTH_NUMBER || y < 0 || y >= DOT_HEIGHT_NUMBER)
+				int x = log_x / kSize + wi - 10;
+				int y = log_y / kSize + hj - 10;
+				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
 				}
-				dot[y * DOT_WIDTH_NUMBER + x].arrived_times += 3;
+				dot[y * kDotWidthNum + x].arrived_times += 3;
 			}
 		}
 		cout << "log x y" << log_x << " " << log_y << endl;
@@ -506,29 +424,29 @@ void Game1_Hikaru::loop()
 	{
 		SuperDuration--;
 	}
-	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[0]++;
-		SuperDuration = FIND_OBJECT_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[1]++;
-		SuperDuration = FIND_OBJECT_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < BORDER_SAME_OBJECT_NUMBER && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[2]++;
-		SuperDuration = FIND_OBJECT_DURATION;
+		SuperDuration = kFindObjDuration;
 	}
 	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0)
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
-		SuperDuration = FIND_OBJECT_DURATION;
+		SuperDuration = kFindObjDuration;
 		int min = 10000;
 		int num = 0;
 		for (int i = 0; i < log_superobj_num; i++)
@@ -571,7 +489,7 @@ void Game1_Hikaru::loop()
 		if (IsOnDepositArea() == 3)
 		{
 			setAction(DEPOSIT_OBJ);
-			Duration = FIND_OBJECT_DURATION;
+			Duration = kFindObjDuration;
 		}
 		else if (IsOnDepositArea() == 1)
 		{
@@ -755,7 +673,7 @@ void Game1_Hikaru::loop()
 		//defined motor power by motor(int left, int right)
 		break;
 	case FIND_OBJ:
-		if (Duration == FIND_OBJECT_DURATION || SuperDuration == FIND_OBJECT_DURATION)
+		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
 		{
 			LoadedObjects++;
 		}
@@ -817,32 +735,32 @@ void Game1_Hikaru::loop()
 	cout << "loop time :" + to_string(seconds) + " milliseconds" << endl;
 }
 
-long WhereIsMotor(void)
+long Game1_Hikaru::WhereIsMotor(void)
 {
 	//fprintf(logfile, "%4d Start WhereIsMotor()\n", getRepeatedNum());
 	long x, y;
-	if (log_x < 0 || log_x >= COSPACE_WIDTH || log_y < 0 || log_y >= COSPACE_HEIGHT)
+	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
 	{
 		//fprintf(errfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
 		//fprintf(logfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-		log_x = COSPACE_WIDTH / 2;
-		log_y = COSPACE_HEIGHT / 2;
+		log_x = kCospaceWidth / 2;
+		log_y = kCospaceHeight / 2;
 	}
 	x = log_x - (long)cos((double)(Compass + 90) * 3.14 / 180) * 5;
 	y = log_y - (long)sin((double)(Compass + 90) * 3.14 / 180) * 5;
 	//fprintf(logfile, "%4d End WhereIsMotor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
 	return y * 1000 + x;
 }
-long WhereIsColorSensor(void)
+long Game1_Hikaru::WhereIsColorSensor(void)
 {
 	//fprintf(logfile, "%4d Start WhereIsColorSensor()\n", getRepeatedNum());
 	long x, y;
-	if (log_x < 0 || log_x >= COSPACE_WIDTH || log_y < 0 || log_y >= COSPACE_HEIGHT)
+	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
 	{
 		//fprintf(errfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
 		//fprintf(logfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-		log_x = COSPACE_WIDTH / 2;
-		log_y = COSPACE_HEIGHT / 2;
+		log_x = kCospaceWidth / 2;
+		log_y = kCospaceHeight / 2;
 	}
 	x = log_x + (int)(cos((double)(Compass + 90) * 3.14 / 180) * 5);
 	y = log_y + (int)(sin((double)(Compass + 90) * 3.14 / 180) * 5);
@@ -857,28 +775,28 @@ long WhereIsColorSensor(void)
 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 		y = 0;
 	}
-	if (x >= COSPACE_WIDTH)
+	if (x >= kCospaceWidth)
 	{
 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-		x = COSPACE_WIDTH - 1;
+		x = kCospaceWidth - 1;
 	}
-	if (y >= COSPACE_HEIGHT)
+	if (y >= kCospaceHeight)
 	{
 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-		y = COSPACE_HEIGHT - 1;
+		y = kCospaceHeight - 1;
 	}
 	//fprintf(logfile, "%4d End WhereIsColorSensor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
 	return y * 1000 + x;
 }
 
-int CheckNowDot(void)
+int Game1_Hikaru::CheckNowDot(void)
 {
 	//fprintf(logfile, "%4d Start CheckNowDot()\n", getRepeatedNum());
 	int x = WhereIsColorSensor();
 	int y = x / 1000;
 	x = x - y * 1000;
 	//fprintf(logfile, "%4d CheckNowDot(): color sensor is (%d, %d)\n", getRepeatedNum(), x, y);
-	if (x < 0 || x >= COSPACE_WIDTH || y < 0 || y >= COSPACE_HEIGHT)
+	if (x < 0 || x >= kCospaceWidth || y < 0 || y >= kCospaceHeight)
 	{
 		//fprintf(logfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
 		//fprintf(errfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
@@ -888,7 +806,7 @@ int CheckNowDot(void)
 		}
 		else
 		{
-			x = COSPACE_WIDTH - 11;
+			x = kCospaceWidth - 11;
 		}
 		if (y < 0)
 		{
@@ -896,19 +814,19 @@ int CheckNowDot(void)
 		}
 		else
 		{
-			y = COSPACE_HEIGHT - 11;
+			y = kCospaceHeight - 11;
 		}
 	}
 
-	x = x / SIZE;
-	y = y / SIZE;
+	x = x / kSize;
+	y = y / kSize;
 
 	//もし、今壁の中の場合
-	if (dot[y * DOT_WIDTH_NUMBER + x].point <= POINT_WALL)
+	if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
 	{
 		// printf("%d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
 		//fprintf(logfile, " %d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
-		for (int i = 3; i <= 5 && dot[y * DOT_WIDTH_NUMBER + x].point <= POINT_WALL; i = i + 2)
+		for (int i = 3; i <= 5 && dot[y * kDotWidthNum + x].point <= POINT_WALL; i = i + 2)
 		{
 			for (int j = 0; j < pow(i, 2); j++)
 			{
@@ -917,15 +835,15 @@ int CheckNowDot(void)
 				temp_x = j - temp_y * i;
 				temp_x += x - i / 2;
 				temp_y += y - i / 2;
-				if (temp_x < 0 || temp_x >= DOT_WIDTH_NUMBER)
+				if (temp_x < 0 || temp_x >= kDotWidthNum)
 				{
 					continue;
 				}
-				if (temp_y < 0 || temp_y >= DOT_HEIGHT_NUMBER)
+				if (temp_y < 0 || temp_y >= kDotHeightNum)
 				{
 					continue;
 				}
-				if (dot[temp_y * DOT_WIDTH_NUMBER + temp_x].point >= POINT_DEPOSIT)
+				if (dot[temp_y * kDotWidthNum + temp_x].point >= POINT_DEPOSIT)
 				{
 					x = temp_x;
 					y = temp_y;
@@ -933,7 +851,7 @@ int CheckNowDot(void)
 				}
 			}
 		}
-		if (dot[y * DOT_WIDTH_NUMBER + x].point <= POINT_WALL)
+		if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
 		{
 			//fprintf(errfile, "%d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
 			//fprintf(logfile, " %d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
@@ -942,11 +860,11 @@ int CheckNowDot(void)
 			return emergency_now_dot_id;
 		}
 	}
-	//fprintf(logfile, "%4d End CheckNowDot() with returning (%d, %d) = %d\n", getRepeatedNum(), x, y, y * DOT_WIDTH_NUMBER + x);
-	return y * DOT_WIDTH_NUMBER + x;
+	//fprintf(logfile, "%4d End CheckNowDot() with returning (%d, %d) = %d\n", getRepeatedNum(), x, y, y * kDotWidthNum + x);
+	return y * kDotWidthNum + x;
 }
 
-int IsNearYellow(int num, int x, int y)
+int Game1_Hikaru::IsNearYellow(int num, int x, int y)
 {
 	//fprintf(logfile, "%4d Start IsNearYellow(%d, %d, %d)\n", getRepeatedNum(), num, x, y);
 	if (num % 2 == 0)
@@ -955,14 +873,14 @@ int IsNearYellow(int num, int x, int y)
 	}
 	if (x < 0)
 	{
-		y = now_dot_id / DOT_WIDTH_NUMBER;
-		x = now_dot_id - y * DOT_WIDTH_NUMBER;
-		if (now_dot_id < 0 || now_dot_id >= MAX_DOT_NUMBER)
+		y = now_dot_id / kDotWidthNum;
+		x = now_dot_id - y * kDotWidthNum;
+		if (now_dot_id < 0 || now_dot_id >= kMaxDotNum)
 		{
 			//fprintf(errfile, "%4d IsNearYellow(): now_dot_id is %d (%d, %d)\n", getRepeatedNum(), now_dot_id, x, y);
 			//fprintf(logfile, "%4d IsNearYellow(): now_dot_id is %d (%d, %d)\n", getRepeatedNum(), now_dot_id, x, y);
-			x = DOT_WIDTH_NUMBER / 2;
-			y = DOT_HEIGHT_NUMBER / 2;
+			x = kDotWidthNum / 2;
+			y = kDotHeightNum / 2;
 		}
 	}
 
@@ -982,12 +900,12 @@ int IsNearYellow(int num, int x, int y)
 		temp_y -= num / 2;
 		temp_y += y;
 
-		if (temp_x < 0 || temp_x >= DOT_WIDTH_NUMBER || temp_y < 0 || temp_y >= DOT_HEIGHT_NUMBER)
+		if (temp_x < 0 || temp_x >= kDotWidthNum || temp_y < 0 || temp_y >= kDotHeightNum)
 		{
 			continue;
 		}
 
-		int id = temp_y * DOT_WIDTH_NUMBER + temp_x;
+		int id = temp_y * kDotWidthNum + temp_x;
 		if (dot[id].point == POINT_YELLOW)
 		{
 			//fprintf(logfile, "%4d End IsNearYellow() with returning 1\n", getRepeatedNum());
@@ -998,7 +916,7 @@ int IsNearYellow(int num, int x, int y)
 	return 0;
 }
 
-int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
+int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
 {
 	//fprintf(logfile, " %d Start GoToPosition(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
 
@@ -1016,7 +934,7 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 	}
 
 	//引数の値がおかしい場合
-	if (x < 0 || y < 0 || x > COSPACE_WIDTH || y > COSPACE_HEIGHT || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
+	if (x < 0 || y < 0 || x > kCospaceWidth || y > kCospaceHeight || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
 	{
 		printf("GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
 		//fprintf(errfile, "%d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
@@ -1041,7 +959,7 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 			absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
 			absolute_y = y - wide_decide_y + (rand() + 1) % (wide_decide_y * 2 + 1);
 			i++;
-		} while (absolute_x < 10 || absolute_x > COSPACE_WIDTH - 10 || absolute_y < 10 || absolute_y > COSPACE_HEIGHT - 10);
+		} while (absolute_x < 10 || absolute_x > kCospaceWidth - 10 || absolute_y < 10 || absolute_y > kCospaceHeight - 10);
 		//same_operate = 0;
 	}
 
@@ -1109,23 +1027,23 @@ int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_ju
 	return 0;
 }
 
-void InputDotInformation(void)
+void Game1_Hikaru::InputDotInformation(void)
 {
-	// rep(hi, DOT_HEIGHT_NUMBER)
+	// rep(hi, kDotHeightNum)
 	// {
-	// 	rep(wj, DOT_WIDTH_NUMBER)
+	// 	rep(wj, kDotWidthNum)
 	// 	{
 	// 		cout << map_output_data[hi][wj];
 	// 	}
 	// 	cout << endl;
 	// }
 	// cout << endl;
-	int map_position_color_data[DOT_WIDTH_NUMBER][DOT_HEIGHT_NUMBER];
-	for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
+	int map_position_color_data[kDotWidthNum][kDotHeightNum];
+	for (int i = 0; i < kDotWidthNum; i++)
 	{
-		for (int j = 0; j < DOT_HEIGHT_NUMBER; j++)
+		for (int j = 0; j < kDotHeightNum; j++)
 		{
-			switch (map_output_data[DOT_HEIGHT_NUMBER - j - 1][i])
+			switch (map_output_data[kDotHeightNum - j - 1][i])
 			{
 			case 0: //white
 				map_position_color_data[i][j] = POINT_WHITE;
@@ -1152,24 +1070,24 @@ void InputDotInformation(void)
 		}
 	}
 
-	for (long i = 0; i < MAX_DOT_NUMBER; i++)
+	for (long i = 0; i < kMaxDotNum; i++)
 	{
 		//I use id of dot
-		//id = y * 36(= 360 / SIZE) + x;
-		//x and y are 360 / SIZE and 270 / SIZE
-		//SIZE may be 10
+		//id = y * 36(= 360 / kSize) + x;
+		//x and y are 360 / kSize and 270 / kSize
+		//kSize may be 10
 
 		int x, y;
-		//DOT_WIDTH_NUMBER = 360 / SIZE
-		y = i / DOT_WIDTH_NUMBER;
-		x = i - y * DOT_WIDTH_NUMBER;
+		//kDotWidthNum = 360 / kSize
+		y = i / kDotWidthNum;
+		x = i - y * kDotWidthNum;
 
 		dot[i].id = i;
-		//x position. if x = 0, center of dot is 0 * 10(=SIZE) + 5(=SIZE / 2)
-		dot[i].x = x * SIZE + SIZE / 2;
-		dot[i].y = y * SIZE + SIZE / 2;
+		//x position. if x = 0, center of dot is 0 * 10(=kSize) + 5(=kSize / 2)
+		dot[i].x = x * kSize + kSize / 2;
+		dot[i].y = y * kSize + kSize / 2;
 		//the wide of dot
-		dot[i].wide = SIZE;
+		dot[i].wide = kSize;
 		//printf("(%d, %d, %d, %d)\n", x, y, dot[i].x, dot[i].y);
 
 		//point means what's this dot belongs?
@@ -1178,14 +1096,14 @@ void InputDotInformation(void)
 		dot[i].point = map_position_color_data[x][y];
 		// dot[i].point = 1;
 		dot[i].color = map_position_color_data[x][y];
-		dot[i].red = red_data[DOT_HEIGHT_NUMBER - y - 1][x];
+		dot[i].red = red_data[kDotHeightNum - y - 1][x];
 		// if (dot[i].red == 0 && dot[i].color == POINT_WHITE)
 		// {
 		// 	dot[i].cyan = 1;
 		// 	dot[i].black = 1;
 		// }
-		dot[i].cyan = cyan_data[DOT_HEIGHT_NUMBER - y - 1][x];
-		dot[i].black = black_data[DOT_HEIGHT_NUMBER - y - 1][x];
+		dot[i].cyan = cyan_data[kDotHeightNum - y - 1][x];
+		dot[i].black = black_data[kDotHeightNum - y - 1][x];
 
 		//these are for dijkstra
 		// dot[i].done = -1;
@@ -1194,10 +1112,10 @@ void InputDotInformation(void)
 	}
 
 	//set values of cost
-	for (long i = 0; i < MAX_DOT_NUMBER; i++)
+	for (long i = 0; i < kMaxDotNum; i++)
 	{
-		int y = i / DOT_WIDTH_NUMBER;
-		int x = i - y * DOT_WIDTH_NUMBER;
+		int y = i / kDotWidthNum;
+		int x = i - y * kDotWidthNum;
 		dot[i].edge_num = 0;
 		for (int j = 0; j < 9; j++)
 		{
@@ -1213,8 +1131,8 @@ void InputDotInformation(void)
 			temp_x = j - temp_y * 3;
 			temp_x += x - 1;
 			temp_y += y - 1;
-			int target_id = temp_y * DOT_WIDTH_NUMBER + temp_x;
-			if (temp_x < 0 || temp_x >= DOT_WIDTH_NUMBER || temp_y < 0 || temp_y >= DOT_HEIGHT_NUMBER)
+			int target_id = temp_y * kDotWidthNum + temp_x;
+			if (temp_x < 0 || temp_x >= kDotWidthNum || temp_y < 0 || temp_y >= kDotHeightNum)
 			{
 				continue;
 			}
@@ -1231,7 +1149,7 @@ void InputDotInformation(void)
 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
 			}
 			//マップの端
-			else if (x == 0 || y == 0 || x == DOT_WIDTH_NUMBER - 1 || y == DOT_HEIGHT_NUMBER - 1 || temp_x == 0 || temp_y == 0 || temp_x == DOT_WIDTH_NUMBER - 1 || temp_y == DOT_HEIGHT_NUMBER - 1)
+			else if (x == 0 || y == 0 || x == kDotWidthNum - 1 || y == kDotHeightNum - 1 || temp_x == 0 || temp_y == 0 || temp_x == kDotWidthNum - 1 || temp_y == kDotHeightNum - 1)
 			{
 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
 			}
@@ -1247,11 +1165,11 @@ void InputDotInformation(void)
 			dot[i].edge_num++;
 		}
 	}
-	// for (int hi = DOT_HEIGHT_NUMBER - 1; hi >= 0; hi--)
+	// for (int hi = kDotHeightNum - 1; hi >= 0; hi--)
 	// {
-	// 	rep(wj, DOT_WIDTH_NUMBER)
+	// 	rep(wj, kDotWidthNum)
 	// 	{
-	// 		switch (dot[hi * DOT_WIDTH_NUMBER + wj].point)
+	// 		switch (dot[hi * kDotWidthNum + wj].point)
 	// 		{
 	// 		case POINT_YELLOW:
 	// 			cout << "$";
@@ -1269,15 +1187,15 @@ void InputDotInformation(void)
 	// 			cout << "|";
 	// 			break;
 	// 		default:
-	// 			if (dot[hi * DOT_WIDTH_NUMBER + wj].black == 1)
+	// 			if (dot[hi * kDotWidthNum + wj].black == 1)
 	// 			{
 	// 				cout << "B";
 	// 			}
-	// 			else if (dot[hi * DOT_WIDTH_NUMBER + wj].cyan == 1)
+	// 			else if (dot[hi * kDotWidthNum + wj].cyan == 1)
 	// 			{
 	// 				cout << "C";
 	// 			}
-	// 			else if (dot[hi * DOT_WIDTH_NUMBER + wj].red == 1)
+	// 			else if (dot[hi * kDotWidthNum + wj].red == 1)
 	// 			{
 	// 				cout << "R";
 	// 			}
@@ -1293,10 +1211,10 @@ void InputDotInformation(void)
 	// cout << endl;
 }
 
-void Dijkstra()
+void Game1_Hikaru::Dijkstra()
 {
 	//fprintf(logfile, " %d Start Dijkstra()\n", getRepeatedNum());
-	for (int i = 0; i < MAX_DOT_NUMBER; i++)
+	for (int i = 0; i < kMaxDotNum; i++)
 	{
 		dot[i].cost = -1;
 		// dot[i].distance_from_start = -1;
@@ -1306,7 +1224,7 @@ void Dijkstra()
 
 	int now_node_id = now_dot_id;
 
-	if (now_node_id < 0 || now_node_id >= MAX_DOT_NUMBER)
+	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
 	{
 		printf("\n\n\nDijkstra2(): now_dot_id's value is %d\n\n\n", now_node_id);
 		return;
@@ -1324,7 +1242,7 @@ void Dijkstra()
 		// number++;
 		//investigating_nodeを初期化
 		investigating_node.done = 0;
-		for (int i = 0; i < MAX_DOT_NUMBER; i++)
+		for (int i = 0; i < kMaxDotNum; i++)
 		{
 			//if done is 0, it means already
 			if (dot[i].done == 0 || dot[i].cost < 0)
@@ -1368,7 +1286,7 @@ void Dijkstra()
 		for (int i = 0; i < investigating_node.edge_num; i++)
 		{
 			int target_id = investigating_node.edge_to[i];
-			if (target_id < 0 || target_id >= MAX_DOT_NUMBER)
+			if (target_id < 0 || target_id >= kMaxDotNum)
 			{
 				//fprintf(errfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
 				//fprintf(logfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
@@ -1438,13 +1356,13 @@ void Dijkstra()
 	}
 
 	/*
-	for (int j = DOT_HEIGHT_NUMBER - 1; j >= 0; j--)
+	for (int j = kDotHeightNum - 1; j >= 0; j--)
 	{
-		for (int i = 0; i < DOT_WIDTH_NUMBER; i++)
+		for (int i = 0; i < kDotWidthNum; i++)
 		{
-			int id = j * DOT_WIDTH_NUMBER + i;
-			int prev_y = dot[id].from / DOT_WIDTH_NUMBER;
-			int prev_x = dot[id].from - prev_y * DOT_WIDTH_NUMBER;
+			int id = j * kDotWidthNum + i;
+			int prev_y = dot[id].from / kDotWidthNum;
+			int prev_x = dot[id].from - prev_y * kDotWidthNum;
 			if (dot[id].point < POINT_SWAMPLAND)
 			{
 				printf("＃");
@@ -1519,19 +1437,19 @@ void Dijkstra()
 	}*/
 }
 
-int GoToDot(int x, int y)
+int Game1_Hikaru::GoToDot(int x, int y)
 {
-	// printf("%d %d\n", x * SIZE, y * SIZE);
+	// printf("%d %d\n", x * kSize, y * kSize);
 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
 	//fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-	if (PositionX == -1 || (PLUSMINUS(log_x, x * SIZE, SIZE) && PLUSMINUS(log_y, y * SIZE, SIZE)))
+	if (PositionX == -1 || (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
 	{
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
 		return 1;
 	}
-	// char map_data_to_show[MAX_DOT_NUMBER];
-	// for (int i = 0; i < MAX_DOT_NUMBER; i++)
+	// char map_data_to_show[kMaxDotNum];
+	// for (int i = 0; i < kMaxDotNum; i++)
 	// {
 	// 	if (dot[i].point <= POINT_WALL)
 	// 	{
@@ -1544,7 +1462,7 @@ int GoToDot(int x, int y)
 	// }
 
 	//If the node I want to go will be go out
-	if (x < 1 || x >= DOT_WIDTH_NUMBER - 1 || y < 1 || y >= DOT_HEIGHT_NUMBER - 1)
+	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
 	{
 		printf("GoToDot(): (x, y) is (%d, %d) and strange\n", x, y);
 		//fprintf(errfile, "%d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
@@ -1559,11 +1477,11 @@ int GoToDot(int x, int y)
 	prev_x = x;
 	prev_y = y;
 
-	// printf("from %d %d to %d %d\n", now_dot_id - (int)(now_dot_id / DOT_WIDTH_NUMBER) * DOT_WIDTH_NUMBER, now_dot_id / DOT_WIDTH_NUMBER, x, y);
+	// printf("from %d %d to %d %d\n", now_dot_id - (int)(now_dot_id / kDotWidthNum) * kDotWidthNum, now_dot_id / kDotWidthNum, x, y);
 
-	int goal_dot = y * DOT_WIDTH_NUMBER + x;
+	int goal_dot = y * kDotWidthNum + x;
 
-	if (goal_dot < 0 || goal_dot >= MAX_DOT_NUMBER)
+	if (goal_dot < 0 || goal_dot >= kMaxDotNum)
 	{
 		printf("strange (x,y)\n");
 		return 0;
@@ -1576,16 +1494,16 @@ int GoToDot(int x, int y)
 	while (dot[temp].from != now_dot_id && i < 200)
 	{
 		// int go_x, go_y;
-		// go_y = temp / DOT_WIDTH_NUMBER;
-		// go_x = temp - (int)go_y * DOT_WIDTH_NUMBER;
+		// go_y = temp / kDotWidthNum;
+		// go_x = temp - (int)go_y * kDotWidthNum;
 		temp = dot[temp].from;
 		// map_data_to_show[temp] = '#';
 		// printf("%d\n", dot[temp].point);
 		i++;
-		if (temp < 0 || temp >= MAX_DOT_NUMBER)
+		if (temp < 0 || temp >= kMaxDotNum)
 		{
 			printf("temp = %d is strange. I will continue\n", temp);
-			GoToPosition(x * SIZE, y * SIZE, 5, 5, 5);
+			GoToPosition(x * kSize, y * kSize, 5, 5, 5);
 			return 0;
 		}
 	}
@@ -1598,11 +1516,11 @@ int GoToDot(int x, int y)
 	// map_data_to_show[now_dot_id] = '@';
 
 	int next_x, next_y;
-	next_y = temp / DOT_WIDTH_NUMBER;
-	next_x = temp - next_y * DOT_WIDTH_NUMBER;
+	next_y = temp / kDotWidthNum;
+	next_x = temp - next_y * kDotWidthNum;
 
-	int now_y = now_dot_id / DOT_WIDTH_NUMBER;
-	int now_x = now_dot_id - now_y * DOT_WIDTH_NUMBER;
+	int now_y = now_dot_id / kDotWidthNum;
+	int now_x = now_dot_id - now_y * kDotWidthNum;
 
 	int distance = 20;
 	if (next_x < now_x)
@@ -1654,23 +1572,23 @@ int GoToDot(int x, int y)
 	}
 	// system("cls");
 
-	// for (int i = 0; i < DOT_WIDTH_NUMBER + 2; i++)
+	// for (int i = 0; i < kDotWidthNum + 2; i++)
 	// {
 	// 	printf("|");
 	// }
 	// printf("\n");
-	// for (int i = DOT_HEIGHT_NUMBER - 1; i >= 0; i--)
+	// for (int i = kDotHeightNum - 1; i >= 0; i--)
 	// {
 	// 	printf("|");
-	// 	for (int j = 0; j < DOT_WIDTH_NUMBER; j++)
+	// 	for (int j = 0; j < kDotWidthNum; j++)
 	// 	{
-	// 		int id = i * DOT_WIDTH_NUMBER + j;
+	// 		int id = i * kDotWidthNum + j;
 	// 		printf("%c", map_data_to_show[id]);
 	// 	}
 	// 	printf("|");
 	// 	printf("\n");
 	// }
-	// for (int i = 0; i < DOT_WIDTH_NUMBER + 2; i++)
+	// for (int i = 0; i < kDotWidthNum + 2; i++)
 	// {
 	// 	printf("|");
 	// }
@@ -1679,7 +1597,7 @@ int GoToDot(int x, int y)
 	return 0;
 }
 
-int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
@@ -1697,10 +1615,10 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		prev_y = y;
 		//0:left bottom corner 1:right bottom corner 2:right bottom corner
 		int corner_x[2], corner_y[2];
-		corner_x[0] = (x - wide_decide_x) / SIZE;
-		corner_y[0] = (y - wide_decide_y) / SIZE;
-		corner_x[1] = (x + wide_decide_x) / SIZE;
-		corner_y[1] = (y + wide_decide_y) / SIZE;
+		corner_x[0] = (x - wide_decide_x) / kSize;
+		corner_y[0] = (y - wide_decide_y) / kSize;
+		corner_x[1] = (x + wide_decide_x) / kSize;
+		corner_y[1] = (y + wide_decide_y) / kSize;
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -1710,11 +1628,11 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
 				corner_x[i] = 0;
 			}
-			if (corner_x[i] >= DOT_WIDTH_NUMBER)
+			if (corner_x[i] >= kDotWidthNum)
 			{
-				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], DOT_WIDTH_NUMBER);
-				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], DOT_WIDTH_NUMBER);
-				corner_x[i] = DOT_WIDTH_NUMBER - 1;
+				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+				corner_x[i] = kDotWidthNum - 1;
 			}
 			if (corner_y[i] < 0)
 			{
@@ -1722,11 +1640,11 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
 				corner_y[i] = 0;
 			}
-			if (corner_y[i] >= DOT_HEIGHT_NUMBER)
+			if (corner_y[i] >= kDotHeightNum)
 			{
-				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], DOT_HEIGHT_NUMBER);
-				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], DOT_HEIGHT_NUMBER);
-				corner_y[i] = DOT_HEIGHT_NUMBER - 1;
+				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+				corner_y[i] = kDotHeightNum - 1;
 			}
 		}
 
@@ -1735,8 +1653,8 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
 			{
-				int investigating_dot_id = j * DOT_WIDTH_NUMBER + i;
-				if (i <= 0 || i >= DOT_WIDTH_NUMBER - 1 || j <= 0 || j >= DOT_HEIGHT_NUMBER - 1)
+				int investigating_dot_id = j * kDotWidthNum + i;
+				if (i <= 0 || i >= kDotWidthNum - 1 || j <= 0 || j >= kDotHeightNum - 1)
 				{
 					continue;
 				}
@@ -1747,7 +1665,7 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 					continue;
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100;
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
 				// for (int i = 0; i < 100000; i++) {
 				// 	// for (int j = 0; j < 1000000; j++) {
 				// 		// for (int k = 0; k < 100000; k++) {
@@ -1766,17 +1684,17 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 			//fprintf(stdout, "%d GoToDots(): There is no dot that can go target(%d %d) log(%d %d) eme %d\n", getRepeatedNum(), target_x, target_y, log_x, log_y, now_dot_id);
 			// //fprintf(logfile, " %d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
 			// //fprintf(stdout, "%d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
-			target_x = x / SIZE;
-			target_y = y / SIZE;
+			target_x = x / kSize;
+			target_y = y / kSize;
 		}
 		else
 		{
-			target_y = id / DOT_WIDTH_NUMBER;
-			target_x = id - target_y * DOT_WIDTH_NUMBER;
+			target_y = id / kDotWidthNum;
+			target_x = id - target_y * kDotWidthNum;
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
-		same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
+		same_target_border = sqrt(pow(log_x - target_x * kSize, 2) + pow(log_y - target_y * kSize, 2));
 		same_target_border *= 2;
 		same_target_border += 30;
 
@@ -1789,27 +1707,27 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		// 		//fprintf(logfile, " %d GoToDots(): Can not decide target\n", getRepeatedNum());
 		// 		target_x = x;
 		// 		target_y = y;
-		// 		target_x /= SIZE;
-		// 		target_y /= SIZE;
+		// 		target_x /= kSize;
+		// 		target_y /= kSize;
 		// 		break;
 		// 	}
 		// 	target_x = x - wide_decide_x + rand() % (wide_decide_x * 2 + 1);
 		// 	target_y = y - wide_decide_y + rand() % (wide_decide_y * 2 + 1);
-		// 	target_x /= SIZE;
-		// 	target_y /= SIZE;
+		// 	target_x /= kSize;
+		// 	target_y /= kSize;
 		// 	if(target_x <= 0) {
 		// 		target_x = 1;
 		// 	}
-		// 	if(target_x >= DOT_WIDTH_NUMBER - 1) {
-		// 		target_x = DOT_WIDTH_NUMBER - 2;
+		// 	if(target_x >= kDotWidthNum - 1) {
+		// 		target_x = kDotWidthNum - 2;
 		// 	}
 		// 	if(target_y <= 0) {
 		// 		target_y = 1;
 		// 	}
-		// 	if(target_y >= DOT_HEIGHT_NUMBER - 1) {
-		// 		target_y = DOT_HEIGHT_NUMBER - 2;
+		// 	if(target_y >= kDotHeightNum - 1) {
+		// 		target_y = kDotHeightNum - 2;
 		// 	}
-		// } while(dot[target_y * DOT_WIDTH_NUMBER + target_x].point <= POINT_WALL);
+		// } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
 	}
 	same_target++;
 	// printf("%d %d\n", same_target, same_target_border);
@@ -1827,7 +1745,7 @@ int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 	}
 }
 
-int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
+int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 {
 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
@@ -1846,10 +1764,10 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 		prev_y = y;
 		//0:left bottom corner 1:right bottom corner 2:right bottom corner
 		int corner_x[2], corner_y[2];
-		corner_x[0] = (x - wide_decide_x) / SIZE;
-		corner_y[0] = (y - wide_decide_y) / SIZE;
-		corner_x[1] = (x + wide_decide_x) / SIZE;
-		corner_y[1] = (y + wide_decide_y) / SIZE;
+		corner_x[0] = (x - wide_decide_x) / kSize;
+		corner_y[0] = (y - wide_decide_y) / kSize;
+		corner_x[1] = (x + wide_decide_x) / kSize;
+		corner_y[1] = (y + wide_decide_y) / kSize;
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -1859,11 +1777,11 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
 				corner_x[i] = 0;
 			}
-			if (corner_x[i] >= DOT_WIDTH_NUMBER)
+			if (corner_x[i] >= kDotWidthNum)
 			{
-				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], DOT_WIDTH_NUMBER);
-				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], DOT_WIDTH_NUMBER);
-				corner_x[i] = DOT_WIDTH_NUMBER - 1;
+				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+				corner_x[i] = kDotWidthNum - 1;
 			}
 			if (corner_y[i] < 0)
 			{
@@ -1871,11 +1789,11 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
 				corner_y[i] = 0;
 			}
-			if (corner_y[i] >= DOT_HEIGHT_NUMBER)
+			if (corner_y[i] >= kDotHeightNum)
 			{
-				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], DOT_HEIGHT_NUMBER);
-				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], DOT_HEIGHT_NUMBER);
-				corner_y[i] = DOT_HEIGHT_NUMBER - 1;
+				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+				corner_y[i] = kDotHeightNum - 1;
 			}
 		}
 
@@ -1884,8 +1802,8 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
 			{
-				int investigating_dot_id = j * DOT_WIDTH_NUMBER + i;
-				if (i <= 0 || i >= DOT_WIDTH_NUMBER - 1 || j <= 0 || j >= DOT_HEIGHT_NUMBER - 1)
+				int investigating_dot_id = j * kDotWidthNum + i;
+				if (i <= 0 || i >= kDotWidthNum - 1 || j <= 0 || j >= kDotHeightNum - 1)
 				{
 					continue;
 				}
@@ -1925,12 +1843,12 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 					}
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * SIZE - log_x, 2) / 100 - pow(j * SIZE - log_y, 2) / 100; // + abs(rnd() % 100);
+				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100; // + abs(rnd() % 100);
 				if (color == POINT_DEPOSIT)
 				{
-					costs = 1000 - -pow(i * SIZE - log_x, 2) - pow(j * SIZE - log_y, 2);
+					costs = 1000 - -pow(i * kSize - log_x, 2) - pow(j * kSize - log_y, 2);
 				}
-				// cout << "position cost " << pow(i * SIZE - log_x, 2) / 100 + pow(j * SIZE - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
+				// cout << "position cost " << pow(i * kSize - log_x, 2) / 100 + pow(j * kSize - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
 				// for (int i = 0; i < 100000; i++) {
 				// 	// for (int j = 0; j < 1000000; j++) {
 				// 		// for (int k = 0; k < 100000; k++) {
@@ -1950,17 +1868,17 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 			//fprintf(errfile, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
 			//fprintf(logfile, " %d GoToDots(): There is no dot that can go\n", getRepeatedNum());
 			//fprintf(stdout, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
-			target_x = x / SIZE;
-			target_y = y / SIZE;
+			target_x = x / kSize;
+			target_y = y / kSize;
 		}
 		else
 		{
-			target_y = id / DOT_WIDTH_NUMBER;
-			target_x = id - target_y * DOT_WIDTH_NUMBER;
+			target_y = id / kDotWidthNum;
+			target_x = id - target_y * kDotWidthNum;
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
-		same_target_border = sqrt(pow(log_x - target_x * SIZE, 2) + pow(log_y - target_y * SIZE, 2));
+		same_target_border = sqrt(pow(log_x - target_x * kSize, 2) + pow(log_y - target_y * kSize, 2));
 		same_target_border *= 2;
 		same_target_border += 30;
 
@@ -1973,27 +1891,27 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 		// 		//fprintf(logfile, " %d GoToDots(): Can not decide target\n", getRepeatedNum());
 		// 		target_x = x;
 		// 		target_y = y;
-		// 		target_x /= SIZE;
-		// 		target_y /= SIZE;
+		// 		target_x /= kSize;
+		// 		target_y /= kSize;
 		// 		break;
 		// 	}
 		// 	target_x = x - wide_decide_x + rand() % (wide_decide_x * 2 + 1);
 		// 	target_y = y - wide_decide_y + rand() % (wide_decide_y * 2 + 1);
-		// 	target_x /= SIZE;
-		// 	target_y /= SIZE;
+		// 	target_x /= kSize;
+		// 	target_y /= kSize;
 		// 	if(target_x <= 0) {
 		// 		target_x = 1;
 		// 	}
-		// 	if(target_x >= DOT_WIDTH_NUMBER - 1) {
-		// 		target_x = DOT_WIDTH_NUMBER - 2;
+		// 	if(target_x >= kDotWidthNum - 1) {
+		// 		target_x = kDotWidthNum - 2;
 		// 	}
 		// 	if(target_y <= 0) {
 		// 		target_y = 1;
 		// 	}
-		// 	if(target_y >= DOT_HEIGHT_NUMBER - 1) {
-		// 		target_y = DOT_HEIGHT_NUMBER - 2;
+		// 	if(target_y >= kDotHeightNum - 1) {
+		// 		target_y = kDotHeightNum - 2;
 		// 	}
-		// } while(dot[target_y * DOT_WIDTH_NUMBER + target_x].point <= POINT_WALL);
+		// } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
 	}
 
 	prev_x = x;
@@ -2003,7 +1921,7 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 	same_target++;
 	// printf("%d\n", same_target);
 	// printf("%d %d\n", same_target, same_target_border);
-	cout << "target_x, y " << target_x * SIZE << " " << target_y * SIZE << endl;
+	cout << "target_x, y " << target_x * kSize << " " << target_y * kSize << endl;
 	if (GoToDot(target_x, target_y) || same_target > same_target_border)
 	{
 		prev_x = -1;
@@ -2018,21 +1936,21 @@ int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
 	}
 }
 
-int HowManyCurved(int id)
+int Game1_Hikaru::HowManyCurved(int id)
 {
 	/*
     道の長さ * 10 + 曲がった回数 * 20 + (Object < 6 のとき) Objectのとれる試算
     */
-	int route[MAX_DOT_NUMBER];
+	int route[kMaxDotNum];
 	//曲がった回数
 	int curved_times = 0;
 	//道の長さ
 	int distance_way = -1;
 	route[0] = id;
 	// printf("id is %d now is %d \n", id, now_dot_id);
-	for (int i = 1; i < MAX_DOT_NUMBER; i++)
+	for (int i = 1; i < kMaxDotNum; i++)
 	{
-		if (route[i - 1] < 0 || route[i - 1] > MAX_DOT_NUMBER)
+		if (route[i - 1] < 0 || route[i - 1] > kMaxDotNum)
 		{
 			//fprintf(errfile, " %d HowManyCurved() route[%d - 1] = %d is strange\n", getRepeatedNum(), i, route[i - 1]);
 			distance_way = i + 1;
@@ -2048,7 +1966,7 @@ int HowManyCurved(int id)
 		}
 
 		//dotの数を超えた場合
-		if (route[i] >= MAX_DOT_NUMBER || route[i] < 0)
+		if (route[i] >= kMaxDotNum || route[i] < 0)
 		{
 			//fprintf(errfile, "%d HowManyCurved(): route[%d]の値が%dでおかしい\n", getRepeatedNum(), i, route[i]);
 			//fprintf(logfile, "%d HowManyCurved(): route[%d]の値が%dでおかしい\n", getRepeatedNum(), i, route[i]);
@@ -2057,21 +1975,21 @@ int HowManyCurved(int id)
 		}
 	}
 	// printf("distance_way = %d\n", distance_way);
-	int x[MAX_DOT_NUMBER], y[MAX_DOT_NUMBER], direction[MAX_DOT_NUMBER];
+	int x[kMaxDotNum], y[kMaxDotNum], direction[kMaxDotNum];
 	//directionは、左上=0で、右に行くごとに+1、下に行くごとに+3される
-	if (distance_way >= MAX_DOT_NUMBER)
+	if (distance_way >= kMaxDotNum)
 	{
-		//fprintf(logfile, " %d Warming HowManyCurved(): routeの要素数が%dで MAX_DOT_NUMBER を超えている\n", getRepeatedNum(), distance_way);
-		//fprintf(errfile, "%d Warming HowManyCurved(): routeの要素数が%dで MAX_DOT_NUMBER を超えている\n", getRepeatedNum(), distance_way);
-		distance_way = MAX_DOT_NUMBER - 2;
+		//fprintf(logfile, " %d Warming HowManyCurved(): routeの要素数が%dで kMaxDotNum を超えている\n", getRepeatedNum(), distance_way);
+		//fprintf(errfile, "%d Warming HowManyCurved(): routeの要素数が%dで kMaxDotNum を超えている\n", getRepeatedNum(), distance_way);
+		distance_way = kMaxDotNum - 2;
 	}
-	y[0] = route[0] / DOT_WIDTH_NUMBER;
-	x[0] = route[0] - y[0] * DOT_WIDTH_NUMBER;
+	y[0] = route[0] / kDotWidthNum;
+	x[0] = route[0] - y[0] * kDotWidthNum;
 	direction[0] = -1;
 	for (int i = 1; i < distance_way; i++)
 	{
-		y[i] = route[i] / DOT_WIDTH_NUMBER;
-		x[i] = route[i] - y[i] * DOT_WIDTH_NUMBER;
+		y[i] = route[i] / kDotWidthNum;
+		x[i] = route[i] - y[i] * kDotWidthNum;
 		switch (x[i] - x[i - 1])
 		{
 		case -1:
@@ -2109,27 +2027,19 @@ int HowManyCurved(int id)
 	return curved_times;
 }
 
-void GoToAngle(int angle, int distance)
+void Game1_Hikaru::GoToAngle(int angle, int distance)
 {
 
 	angle = angle - Compass;
 
-	//180より大きい場合
-	for (int i = 0; i < 10 && angle > 180; i++)
+	angle %= 360;
+
+	if (angle > 180)
 	{
-		if (i == 9)
-		{
-			printf("GoToAngle(): angle's value:%d is abnormality\n", angle);
-		}
 		angle -= 360;
 	}
-	//-180より小さい場合
-	for (int i = 0; i < 10 && angle < -180; i++)
+	if (angle < -180)
 	{
-		if (i == 9)
-		{
-			printf("GoToAngle(): angle's value:%d is abnormality\n", angle);
-		}
 		angle += 360;
 	}
 
@@ -2571,7 +2481,7 @@ void GoToAngle(int angle, int distance)
 	// }
 }
 
-void AutoStrategy(void)
+void Game1_Hikaru::AutoStrategy(void)
 {
 	/*
 	30 x 30のエリアを順番に行く
