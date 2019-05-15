@@ -2,12 +2,6 @@
 #include "MapData.hpp"
 #include <iostream>
 
-using namespace std;
-
-#include "Hikaru.hpp"
-#include "MapData.hpp"
-#include <iostream>
-
 #define POINT_BLACK 20
 #define POINT_RED 10
 #define POINT_CYAN 15
@@ -56,9 +50,9 @@ void Game1_Nishikawa::setup(void)
 void Game1_Nishikawa::loop()
 {
     // 時間計測用
-    pt.start();
-    // 処理
-    cout << "hello world " << pt.end() << endl;
+    // pt.start();
+    // // 処理
+    // cout << "hello world " << pt.end() << endl;
 
     UserGame1::loop();
 

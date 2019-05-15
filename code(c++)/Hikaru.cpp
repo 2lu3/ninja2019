@@ -29,8 +29,6 @@ void Game0_Hikaru::setup(void)
 	delLogFile();
 	InputColorInformation();
 
-	// setRunMode(MODE_DEBUG);
-
 	double seconds = pt.end();
 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
 }
@@ -1557,7 +1555,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	else
 	{
 		if (next_y <
-			now_y)
+				now_y)
 		{
 			GoToAngle(225, distance);
 		}
@@ -2051,7 +2049,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
