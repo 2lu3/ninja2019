@@ -33,8 +33,6 @@ void Game1_Nishikawa::setup(void)
     UserGame1::setup();
     // ドットの情報を代入します
     InputDotInformation();
-    // 色情報を入力します
-    InputColorInformation();
     // 文字コードをUTF-8にします
     system("chcp 65001");
     srand((unsigned int)time(NULL));
@@ -58,8 +56,9 @@ void Game1_Nishikawa::setup(void)
 void Game1_Nishikawa::loop()
 {
     // 時間計測用
-    ProcessingTime pt;
     pt.start();
+    // 処理
+    cout << "hello world " << pt.end() << endl;
 
     UserGame1::loop();
 
