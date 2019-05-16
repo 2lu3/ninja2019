@@ -312,6 +312,8 @@ void Game1_Hikaru::setup(void)
 		log_x = PositionX;
 		log_y = PositionY;
 	}
+
+	setRunMode(MODE_MATCH);
 }
 
 void Game1_Hikaru::loop()
@@ -320,16 +322,6 @@ void Game1_Hikaru::loop()
 	pt.start();
 	// cout << process << endl;
 	UserGame1::loop();
-	int k = 1;
-	if (getRepeatedNum() == 1)
-	{
-		motor(3, 5);
-	}
-	else if (getRepeatedNum() % k == 0)
-	{
-		cout << PositionX << "\t" << PositionY << "\t" << Compass << endl;
-	}
-	return;
 
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
@@ -527,89 +519,19 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < 1 || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0))
+		if (loaded_objects[BLACK_LOADED_ID] < 2 /* || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0)*/)
 		{
-			// if (process == 0)
-			// {
-			// 	if (GoInDots(115, 110, 110, 35, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 5 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else if (process == 1)
-			// {
-			// 	if (GoInDots(180, 135, 180, 135, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 10 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else if (process == 2)
-			// {
-			// 	if (GoInDots(330, 35, 30, 35, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 5 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else
-			// {
-			// 	process = 0;
-			// }
 			GoInDots(180, 135, 180, 135, POINT_BLACK);
 			searching_object = BLACK_LOADED_ID;
 		}
-		else if (loaded_objects[CYAN_LOADED_ID] < 2)
+		else if (loaded_objects[CYAN_LOADED_ID] < 1 || (loaded_objects[CYAN_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0))
 		{
-
 			GoInDots(180, 135, 180, 135, POINT_CYAN);
-			/*
-			if (process == 0)
-			{
-				if (GoInDots(115, 110, 110, 35, POINT_CYAN))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 1)
-			{
-				if (GoInDots(180, 135, 180, 135, POINT_CYAN))
-				{
-					if (rand() % 10 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 2)
-			{
-				if (GoInDots(330, 155, 30, 35, POINT_CYAN))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
-			}*/
-
 			searching_object = CYAN_LOADED_ID;
 		}
 		else
 		{
+			/*
 			if (process == 0)
 			{
 				if (GoInDots(180, 170, 112, 50, POINT_RED))
@@ -633,34 +555,8 @@ void Game1_Hikaru::loop()
 			else
 			{
 				process = 0;
-			}
-
-			/*
-			if (process == 0)
-			{
-				if (GoInDots(135, 170, 135, 70, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 1)
-			{
-				if (GoInDots(205, 35, 75, 35, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
 			}*/
-			// searching_object = BLACK_LOADED_ID;
+			GoInDots(180, 135, 180, 135, POINT_RED);
 			searching_object = RED_LOADED_ID;
 		}
 	}
@@ -1441,9 +1337,11 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
 	//fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-	if (PositionX == -1 || (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
+	if (PositionX == -1 && (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
 	{
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
+		logMessage(getFuncName(__FUNCTION__) + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")");
+		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
 	// char map_data_to_show[kMaxDotNum];
@@ -1598,7 +1496,8 @@ int Game1_Hikaru::GoToDot(int x, int y)
 int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
-	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
+	printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
+
 	static int prev_x = -1;
 	static int prev_y = -1;
 	static int target_x = -1;
@@ -1647,6 +1546,20 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		}
 
 		int min = 100000, id = -1;
+		// n回に1回移動する
+		int option = rand() % 5;
+		if (option)
+		{
+			// 移動しないとき
+			cout << "not go far place\n\n\n"
+					 << endl;
+		}
+		else
+		{
+			// 移動するとき
+			cout << "go far place\n\n\n"
+					 << endl;
+		}
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1663,7 +1576,18 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 					continue;
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10;
+				if (option)
+				{
+					// 移動しないとき
+					int k = 20;
+					costs += pow(abs(i * kSize - log_x) - k, 2) * 100 - pow(abs(j * kSize - log_y) - k, 2) * 100;
+				}
+				else
+				{
+					// 移動するとき
+					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				}
 				// for (int i = 0; i < 100000; i++) {
 				// 	// for (int j = 0; j < 1000000; j++) {
 				// 		// for (int k = 0; k < 100000; k++) {
@@ -1796,6 +1720,20 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		}
 
 		int min = 100000, id = -1;
+		// n回に1回移動する
+		int option = rand() % 5;
+		if (option)
+		{
+			// 移動しないとき
+			cout << "not go far place\n\n\n"
+					 << endl;
+		}
+		else
+		{
+			// 移動するとき
+			cout << "go far place\n\n\n"
+					 << endl;
+		}
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1841,10 +1779,21 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 					}
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100; // + abs(rnd() % 100);
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10;
+				if (option)
+				{
+					// 移動しないとき
+					int k = 20;
+					costs += pow(abs(i * kSize - log_x) - k, 2) / 10 + pow(abs(j * kSize - log_y) - k, 2) / 10;
+				}
+				else
+				{
+					// 移動するとき
+					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				}
 				if (color == POINT_DEPOSIT)
 				{
-					costs = 1000 - -pow(i * kSize - log_x, 2) - pow(j * kSize - log_y, 2);
+					costs = pow(i * kSize - log_x, 2) + pow(j * kSize - log_y, 2);
 				}
 				// cout << "position cost " << pow(i * kSize - log_x, 2) / 100 + pow(j * kSize - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
 				// for (int i = 0; i < 100000; i++) {
@@ -1873,6 +1822,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		{
 			target_y = id / kDotWidthNum;
 			target_x = id - target_y * kDotWidthNum;
+			cout << "target(" << to_string(target_x) << ", " << to_string(target_y) << endl;
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
@@ -2200,10 +2150,14 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					if (angle < 0)
 					{
 						motor(5, -5);
+						cout << "gotoangle ";
+						cout << angle << endl;
 					}
 					else
 					{
 						motor(-5, 5);
+						cout << "gotoangle ";
+						cout << angle << endl;
 					}
 				}
 				Duration = 5;
@@ -2242,10 +2196,14 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					if (angle < 0)
 					{
 						motor(2, -2);
+						cout << "gotoangle ";
+						cout << angle << endl;
 					}
 					else
 					{
 						motor(-2, 2);
+						cout << "gotoangle ";
+						cout << angle << endl;
 					}
 				}
 				else
@@ -2260,35 +2218,6 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					}
 				}
 			}
-			// else if (LoadedObjects == 6) {
-			// 	if (abs(angle) < 10) {
-			// 		motor(5, 5);
-			// 	}
-			// 	else if (abs(angle) < 90) {
-			// 		if (angle < 0) {
-			// 			motor(5, 3);
-			// 		}
-			// 		else {
-			// 			motor(3, 5);
-			// 		}
-			// 	}
-			// 	else if (abs(angle) < 120) {
-			// 		if (angle < 0) {
-			// 			motor(2, -2);
-			// 		}
-			// 		else {
-			// 			motor(-2, 2);
-			// 		}
-			// 	}
-			// 	else {
-			// 		if (angle < 0) {
-			// 			motor(3, -3);
-			// 		}
-			// 		else {
-			// 			motor(-3, 3);
-			// 		}
-			// 	}
-			// }
 			else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
 			{
 				if (abs(angle) < 10)
