@@ -145,7 +145,7 @@ void Game0_Hikaru::loop(void)
 	}
 	else if (LoadedObjects >= 5)
 	{
-		cout << "deposit" << endl;
+		logMessage("deposit", MODE_NORMAL);
 		if (US_Front < 14)
 		{
 			motor(-3, 1);
@@ -213,12 +213,6 @@ void Game0_Hikaru::loop(void)
 		logMessage("Teleport");
 		setAction(TELEPORT);
 	}*/
-
-	if (Time > 180)
-	{
-		cout << "TELEPOR" << endl;
-		setAction(TELEPORT);
-	}
 
 	switch (getAction())
 	{
@@ -318,14 +312,14 @@ void Game1_Hikaru::setup(void)
 		log_y = PositionY;
 	}
 
-	setRunMode(MODE_MATCH);
+	// setRunMode(MODE_NORMAL);
 }
 
 void Game1_Hikaru::loop()
 {
 	ProcessingTime pt;
 	pt.start();
-	// cout << process << endl;
+
 	UserGame1::loop();
 
 	// printf("serach %d\n", searching_object);
@@ -388,7 +382,6 @@ void Game1_Hikaru::loop()
 				dot[y * kDotWidthNum + x].arrived_times += 3;
 			}
 		}
-		cout << "log x y" << log_x << " " << log_y << endl;
 	}
 
 	if (SuperObj_Num != 0)
@@ -437,7 +430,7 @@ void Game1_Hikaru::loop()
 		loaded_objects[2]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0)
+	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -627,7 +620,7 @@ void Game1_Hikaru::loop()
 		super_sameoperate = 0;
 	}
 	double seconds = pt.end();
-	cout << "loop time :" + to_string(seconds) + " milliseconds" << endl;
+	logMessage("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
 long Game1_Hikaru::WhereIsMotor(void)
@@ -1549,18 +1542,6 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		int min = 100000, id = -1;
 		// n回に1回移動する
 		int option = rnd() % 5;
-		if (option)
-		{
-			// 移動しないとき
-			cout << "not go far place\n\n\n"
-					 << endl;
-		}
-		else
-		{
-			// 移動するとき
-			cout << "go far place\n\n\n"
-					 << endl;
-		}
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1723,18 +1704,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		int min = 100000, id = -1;
 		// n回に1回移動する
 		int option = rnd() % 3;
-		if (option)
-		{
-			// 移動しないとき
-			cout << "not go far place\n\n\n"
-					 << endl;
-		}
-		else
-		{
-			// 移動するとき
-			cout << "go far place\n\n\n"
-					 << endl;
-		}
+		int total_cost = 0, arrived_times = 0, random = 0, distance = 0;
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1744,13 +1714,11 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 				{
 					continue;
 				}
-
 				//yellow or wall or deposit
 				if (dot[investigating_dot_id].point < POINT_DEPOSIT)
 				{
 					continue;
 				}
-
 				if (color == POINT_RED)
 				{
 					if (dot[investigating_dot_id].red != 1)
@@ -1780,7 +1748,8 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 					}
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10;
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rnd() % 10;
+
 				if (option)
 				{
 					// 移動しないとき
@@ -1810,7 +1779,6 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 				}
 			}
 		}
-		cout << "cost " << min << endl;
 		if (id == -1)
 		{
 			//fprintf(errfile, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
@@ -1823,7 +1791,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		{
 			target_y = id / kDotWidthNum;
 			target_x = id - target_y * kDotWidthNum;
-			cout << "target(" << to_string(target_x) << ", " << to_string(target_y) << endl;
+			logMessage("target(" + to_string(target_x) + ", " + to_string(target_y))
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
@@ -1870,7 +1838,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 	same_target++;
 	// printf("%d\n", same_target);
 	// printf("%d %d\n", same_target, same_target_border);
-	cout << "target_x, y " << target_x * kSize << " " << target_y * kSize << endl;
+	logMessage("target_x, y " + to_string(target_x * kSize) + " " + to_string(target_y * kSize), MODE_NORMAL);
 	if (GoToDot(target_x, target_y) || same_target > same_target_border)
 	{
 		prev_x = -1;
@@ -2151,14 +2119,10 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					if (angle < 0)
 					{
 						motor(5, -5);
-						cout << "gotoangle ";
-						cout << angle << endl;
 					}
 					else
 					{
 						motor(-5, 5);
-						cout << "gotoangle ";
-						cout << angle << endl;
 					}
 				}
 				Duration = 5;
@@ -2197,14 +2161,10 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					if (angle < 0)
 					{
 						motor(2, -3);
-						cout << "gotoangle ";
-						cout << angle << endl;
 					}
 					else
 					{
 						motor(-3, 2);
-						cout << "gotoangle ";
-						cout << angle << endl;
 					}
 				}
 				else
