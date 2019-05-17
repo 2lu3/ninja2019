@@ -71,12 +71,16 @@ def main():
     command = command + " -o " +  '\"' + out_path + "Ninja.dll\""
 
     # command = command + " & REM 2> errors.txt strip --strip-unneeded \"" + out_path + "Ninja.dll\" pause"
-    command = command + " &  strip --strip-unneeded \"" + out_path + "Ninja.dll\" & pause"
+    command = command + " &  strip --strip-unneeded \"" + out_path + "Ninja.dll\""
     printforDebug("command : " + command)
 
     # dll作成コマンドを実行する
-    popen = subprocess.Popen(command, shell=True)
-    popen.wait()
+    subprocess.run(command, shell=True)
+    print("finished")
+    if sys.argv[0].find('.exe') != -1:
+        subprocess.run("pause", shell=True)
+
+
 
 command_options = ['help', 'debug', 'outhere', 'outcospace']
 
@@ -103,7 +107,5 @@ if __name__ == '__main__':
             is_lite_warming = False
         else:
             print(arg + ' is not correct option')
-    main()
 
-    print("finished")
-    # input()
+    main()
