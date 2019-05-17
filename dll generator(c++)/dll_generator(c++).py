@@ -77,6 +77,7 @@ def main():
     # dll作成コマンドを実行する
     subprocess.run(command, shell=True)
     print("finished")
+    sys.stdout.flush()
     if sys.argv[0].find('.exe') != -1:
         subprocess.run("pause", shell=True)
 
