@@ -1,11 +1,11 @@
 #include "JudgeColorTools.hpp"
 
 int red_obj[3][2] = {{232, 255}, {29, 39}, {29, 39}};
-int cyan_obj[3][2] = {{29, 39}, {249, 255}, {29, 39}};
+int cyan_obj[3][2] = {{29, 39}, {249, 255}, {249, 255}};
 int black_obj[3][2] = {{29, 39}, {29, 39}, {29, 39}};
 int trap_line[3][2] = {{200, 235}, {215, 250}, {0, 0}};
 int blue_zone[3][2] = {{0, 0}, {150, 175}, {255, 255}};
-int object_box[3][2] = {{204, 235}, {163, 186}, {0, 0}};
+int object_box[3][2] = {{204, 235}, {130, 148}, {0, 0}};
 int gray_zone[3][2] = {{130, 160}, {140, 165}, {185, 210}};
 int sp_obj[3][2] = {{200, 255}, {0, 60}, {200, 255}};
 int purple_line[3][2] = {{150, 180}, {80, 100}, {180, 220}};
@@ -51,7 +51,7 @@ int ColorInformationInputer(int num, int col[3][2])
 		{
 			if (col[i][j] < 0 || col[i][j] > 255)
 			{
-				errorMessage("ColorInformationInputer() : F‚Ì’l‚ªˆÙí‚Å‚·", MODE_NORMAL);
+				errorMessage("ColorInformationInputer() : ï¿½Fï¿½Ì’lï¿½ï¿½ï¿½Ùï¿½ï¿½Å‚ï¿½", MODE_NORMAL);
 			}
 			color_world2[num][j * 3 + i] = col[i][j];
 		}

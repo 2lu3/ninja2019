@@ -1,3 +1,8 @@
+/*
+todo : 回転するときに、カラーセンサが沼地に入ってしまう問題を解決
+オドメトリを用いて、PLAでTrapに入る問題を解決
+360 x 270にすること
+*/
 #include "Hikaru.hpp"
 #include "MapData.hpp"
 #include <iostream>
@@ -104,7 +109,7 @@ void Game0_Hikaru::loop(void)
 	}
 	else if (obstacle(8, 10, 8))
 	{
-		motor(-2, 2);
+		motor(-3, 2);
 		// int speed = 3;
 		// switch(obstacle(10, 10, 10)) {
 		// 	case 1:// 左のみ
@@ -473,7 +478,7 @@ void Game1_Hikaru::loop()
 		motor(-5, -3);
 		Duration = 3;
 	}
-	else if (IsOnDepositArea() && LoadedObjects >= 6)
+	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
 		process = 0;
 		if (IsOnDepositArea() == 3)
@@ -490,14 +495,10 @@ void Game1_Hikaru::loop()
 			motor(5, 0);
 		}
 	}
-	else if (LoadedObjects >= 6)
+	else if (LoadedObjects >= 6 || (Time > 270 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
 		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
-	}
-	else if (Time > 450 && LoadedObjects > 2)
-	{
-		LoadedObjects = 6;
 	}
 	else if (log_superobj_num > 0)
 	{
@@ -1547,7 +1548,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 
 		int min = 100000, id = -1;
 		// n回に1回移動する
-		int option = rand() % 5;
+		int option = rnd() % 5;
 		if (option)
 		{
 			// 移動しないとき
@@ -1721,7 +1722,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 
 		int min = 100000, id = -1;
 		// n回に1回移動する
-		int option = rand() % 5;
+		int option = rnd() % 3;
 		if (option)
 		{
 			// 移動しないとき
@@ -2054,11 +2055,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			{
 				if (angle < 0)
 				{
-					motor(3, -3);
+					motor(3, -4);
 				}
 				else
 				{
-					motor(-3, 3);
+					motor(-4, 3);
 				}
 				// Duration = 5;
 			}
@@ -2195,13 +2196,13 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -2);
+						motor(2, -3);
 						cout << "gotoangle ";
 						cout << angle << endl;
 					}
 					else
 					{
-						motor(-2, 2);
+						motor(-3, 2);
 						cout << "gotoangle ";
 						cout << angle << endl;
 					}
@@ -2210,11 +2211,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(3, -3);
+						motor(3, -4);
 					}
 					else
 					{
-						motor(-3, 3);
+						motor(-4, 3);
 					}
 				}
 			}
@@ -2257,11 +2258,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -2);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-2, 2);
+						motor(-3, 2);
 					}
 				}
 			}
@@ -2337,11 +2338,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(4, -4);
+						motor(4, -5);
 					}
 					else
 					{
-						motor(-4, 4);
+						motor(-5, 4);
 					}
 					// Duration = 3;
 				}
