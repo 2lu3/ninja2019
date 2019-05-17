@@ -312,7 +312,7 @@ void Game1_Hikaru::setup(void)
 		log_y = PositionY;
 	}
 
-	// setRunMode(MODE_NORMAL);
+	setRunMode(MODE_MATCH);
 }
 
 void Game1_Hikaru::loop()
@@ -505,7 +505,7 @@ void Game1_Hikaru::loop()
 			if (same_time > 10)
 			{
 				log_superobj_num = 0;
-				printf("%d There is no superobj\n", getRepeatedNum());
+				logMessage("There is no superobj", MODE_NORMAL);
 			}
 			GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
 			same_time++;
@@ -741,9 +741,7 @@ int Game1_Hikaru::CheckNowDot(void)
 		}
 		if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
 		{
-			//fprintf(errfile, "%d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
-			//fprintf(logfile, " %d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
-			printf("%d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
+			logMessage("CheckNowDot(): I(" + to_string(x) + "," + to_string(y) + ") and around me are in wall or yellow", MODE_NORMAL);
 			//fprintf(logfile, "%4d End CheckNowDot() with returning %d\n", getRepeatedNum(), emergency_now_dot_id);
 			return emergency_now_dot_id;
 		}
@@ -1490,7 +1488,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
-	printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
+	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
 
 	static int prev_x = -1;
 	static int prev_y = -1;
@@ -1500,7 +1498,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 	static int same_target_border = 0;
 	if (x != prev_x || y != prev_y)
 	{
-		printf("changed dots\n");
+		logMessage("changed dots", MODE_NORMAL);
 		same_target = 0;
 		prev_x = x;
 		prev_y = y;
@@ -1662,7 +1660,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 	static int same_target_border = 0;
 	if (x != prev_x || y != prev_y || color != prev_color)
 	{
-		printf("changed dots\n");
+		logMessage("changed dots", MODE_NORMAL);
 		same_target = 0;
 		prev_x = x;
 		prev_y = y;
@@ -1704,7 +1702,6 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		int min = 100000, id = -1;
 		// n回に1回移動する
 		int option = rnd() % 3;
-		int total_cost = 0, arrived_times = 0, random = 0, distance = 0;
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1791,7 +1788,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		{
 			target_y = id / kDotWidthNum;
 			target_x = id - target_y * kDotWidthNum;
-			logMessage("target(" + to_string(target_x) + ", " + to_string(target_y))
+			logMessage("target(" + to_string(target_x) + ", " + to_string(target_y), MODE_NORMAL);
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
