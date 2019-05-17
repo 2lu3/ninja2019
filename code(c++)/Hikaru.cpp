@@ -22,6 +22,8 @@ todo : 回転するときに、カラーセンサが沼地に入ってしまう�
 #define BLACK_LOADED_ID 2
 #define SUPER_LOADED_ID 3
 
+#define FUNC_NAME getFuncName(__FUNCTION__)
+
 using namespace std;
 
 void Game0_Hikaru::setup(void)
@@ -875,6 +877,7 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 	if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
 	{
 		printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
+		logMessage("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
 		absolute_x = -1;
 		absolute_y = -1;
 		same_operate = -1;
@@ -882,22 +885,21 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 		return 1;
 	}
 
-	printf("ab(%d, %d)\n", absolute_x, absolute_y);
+	logMessage("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
 	x = absolute_x;
 	y = absolute_y;
 	x = x - temp_x;
 	y = y - temp_y;
-	printf("x, y = (%d , %d)\n", x, y);
+	logMessage("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
 	double angle = atan2(y, x);
 	angle = angle * 180 / 3.14;
-	printf("%3.3lf ", angle);
 	int angle_int = (int)angle;
 	angle_int -= 90;
 	if (angle_int < 0)
 	{
 		angle_int += 360;
 	}
-	printf("angle = %d\n", angle_int);
+	logMessage("angle " + to_string(angle_int), MODE_NORMAL);
 	GoToAngle(angle_int, sqrt(x * x + y * y));
 
 	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
@@ -1112,13 +1114,11 @@ void Game1_Hikaru::Dijkstra()
 
 	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
 	{
-		printf("\n\n\nDijkstra2(): now_dot_id's value is %d\n\n\n", now_node_id);
+		errorMessage(FUNC_NAME + "(); now dot id value is " + to_string(now_dot_id), MODE_NORMAL);
 		return;
 	}
-	//printf("Dijsktra(): now_node_id = %d\n", now_node_id);
 	dot[now_node_id].cost = 0;
 	dot[now_node_id].from = now_node_id;
-	//printf("nownode by dijkstra is %d and point is %d\n", temp, dot[temp].point);
 
 	struct Dot investigating_node;
 
@@ -1167,15 +1167,12 @@ void Game1_Hikaru::Dijkstra()
 		}
 
 		dot[investigating_node.id].done = 0;
-		// printf("%dからやるよ\n", investigating_node.id);
 
 		for (int i = 0; i < investigating_node.edge_num; i++)
 		{
 			int target_id = investigating_node.edge_to[i];
 			if (target_id < 0 || target_id >= kMaxDotNum)
 			{
-				//fprintf(errfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
-				//fprintf(logfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
 				continue;
 			}
 
@@ -1224,7 +1221,6 @@ void Game1_Hikaru::Dijkstra()
 
 			if (target_cost <= 0)
 			{
-				printf("fixed\n");
 				target_cost = 1;
 			}
 
@@ -1332,7 +1328,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	if (PositionX == -1 && (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
 	{
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
-		logMessage(getFuncName(__FUNCTION__) + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")");
+		logMessage(FUNC_NAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")");
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
@@ -1352,7 +1348,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	//If the node I want to go will be go out
 	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
 	{
-		printf("GoToDot(): (x, y) is (%d, %d) and strange\n", x, y);
+		logMessage(FUNC_NAME + "(): (x, y) is (" + to_string(x) + ", " + to_string(y) + "and strange", MODE_NORMAL);
 		//fprintf(errfile, "%d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
 		//fprintf(logfile, " %d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
 	}
@@ -1371,7 +1367,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (goal_dot < 0 || goal_dot >= kMaxDotNum)
 	{
-		printf("strange (x,y)\n");
+		logMessage("strainge(x, y)", MODE_NORMAL);
 		return 0;
 	}
 
@@ -1390,7 +1386,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		i++;
 		if (temp < 0 || temp >= kMaxDotNum)
 		{
-			printf("temp = %d is strange. I will continue\n", temp);
+			logMessage("temp = " + to_string(temp) + "is strange. I will continue", MODE_NORMAL);
 			GoToPosition(x * kSize, y * kSize, 5, 5, 5);
 			return 0;
 		}
@@ -1398,7 +1394,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	if (i == 200)
 	{
 		printf("\n\n\niの値が200ですByGoToNode()\n\n\n\n");
-		;
+		logMessage(FUNC_NAME + "(): iの値が200です", MODE_NORMAL);
 	}
 
 	// map_data_to_show[now_dot_id] = '@';
