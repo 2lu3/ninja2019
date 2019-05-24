@@ -2481,10 +2481,20 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	// }
 }
 
+
 void Game1_Hikaru::AutoStrategy(void)
 {
 	/*
 	30 x 30のエリアを順番に行く
 	*/
+	if (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+	{
+	}
+	else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+	{
+	}
+	else if (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+	{
+	}
 	return;
 }

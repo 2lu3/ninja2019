@@ -75,6 +75,9 @@ private:
 	};
 	struct Dot dot[kMaxDotNum];
 
+	;:\@p@p
+	unsigned char arrived_times_map[kCospaceHeight / 30][kCospaceWidth / 30];
+
 	void GoToAngle(int angle, int distance);
 	int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
 	void Dijkstra(void);
