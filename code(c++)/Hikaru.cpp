@@ -353,7 +353,7 @@ void Game1_Hikaru::loop()
 		now_dot_id = CheckNowDot();
 		int now_y = now_dot_id / kDotWidthNum;
 		int now_x = now_dot_id - now_y * kDotWidthNum;
-		int range = 3;
+		int range = 0;
 		rep(hi, range * 2 + 1)
 		{
 			rep(wj, range * 2 + 1)
@@ -371,17 +371,18 @@ void Game1_Hikaru::loop()
 	else
 	{
 		PositionX = -1;
-		for (int wi = 0; wi < 20; wi++)
+		int range = 2;
+		for (int wi = 0; wi < range * 2; wi++)
 		{
-			for (int hj = 0; hj < 20; hj++)
+			for (int hj = 0; hj < range * 2; hj++)
 			{
-				int x = log_x / kSize + wi - 10;
-				int y = log_y / kSize + hj - 10;
+				int x = log_x / kSize + wi - range;
+				int y = log_y / kSize + hj - range;
 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
 				}
-				dot[y * kDotWidthNum + x].arrived_times += 3;
+				dot[y * kDotWidthNum + x].arrived_times += 2;
 			}
 		}
 	}
@@ -490,7 +491,7 @@ void Game1_Hikaru::loop()
 			motor(5, 0);
 		}
 	}
-	else if (LoadedObjects >= 6 || (Time > 270 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
+	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
 		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
@@ -515,43 +516,18 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < 2 /* || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0)*/)
+		if (loaded_objects[BLACK_LOADED_ID] < 2)
 		{
 			GoInDots(180, 135, 180, 135, POINT_BLACK);
 			searching_object = BLACK_LOADED_ID;
 		}
-		else if (loaded_objects[CYAN_LOADED_ID] < 1 || (loaded_objects[CYAN_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0))
+		else if (loaded_objects[CYAN_LOADED_ID] < 2)
 		{
 			GoInDots(180, 135, 180, 135, POINT_CYAN);
 			searching_object = CYAN_LOADED_ID;
 		}
 		else
 		{
-			/*
-			if (process == 0)
-			{
-				if (GoInDots(180, 170, 112, 50, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 0)
-			{
-				if (GoInDots(180, 135, 180, 135, POINT_RED))
-				{
-					if (rand() % 5)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
-			}*/
 			GoInDots(180, 135, 180, 135, POINT_RED);
 			searching_object = RED_LOADED_ID;
 		}
@@ -587,7 +563,7 @@ void Game1_Hikaru::loop()
 		{
 			loaded_objects[i] = 0;
 		}
-		if (Duration == 0)
+		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
 		}
@@ -597,6 +573,7 @@ void Game1_Hikaru::loop()
 			{
 				LoadedObjects = 6;
 				Duration = 0;
+				SuperDuration = 0;
 				for (int i = 0; i < 3; i++)
 				{
 					loaded_objects[i] = 2;
@@ -1205,7 +1182,7 @@ void Game1_Hikaru::Dijkstra()
 			// 		continue;
 			// 	// }
 			// }
-			double k = 0.3;
+			double k = 0.5;
 			if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
 			{
 				target_cost *= k;
@@ -1317,6 +1294,18 @@ void Game1_Hikaru::Dijkstra()
 		}
 		printf("\n");
 	}*/
+}
+
+void Game1_Hikaru::Astar(void)
+{
+	// initializing
+	rep(i, kMaxDotNum)
+	{
+		dot_from[i] = -1;
+		dot_cost[i] = 0;
+		dot_estimated_cost[i] = 0;
+		dot_status[i] = 0;
+	}
 }
 
 int Game1_Hikaru::GoToDot(int x, int y)
@@ -1953,11 +1942,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(5, 7, 5);
-	// if (LoadedObjects >= 6)
-	// {
-	//     classification = 0;
-	// }
+	int classification = obstacle(10, 12, 10);
+	if (log_superobj_num > 0)
+	{
+		classification = obstacle(5, 7, 5);
+	}
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
@@ -2010,7 +1999,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		{ //left & right
 			if (abs(angle) < 150)
 			{
-				motor(4, 4);
+				motor(5, 5);
 			}
 			else
 			{
