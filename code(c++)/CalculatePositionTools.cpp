@@ -58,7 +58,7 @@ void CalculatePosition::thread(void)
                 {
                     if (!(angle > 80 && angle < 90) && !(angle > 260 && angle < 280))
                     {
-                        cout << "error " << endl;
+                        errorMessage(getFuncName(__FUNCTION__) + "() : error angle " + to_string(angle));
                     }
                 }
                 rep(k, equation_num)
@@ -385,7 +385,6 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
             }
         }
     }
-    cout << "temp " << pt.end() << endl;
 
     double k = 0.9;
     rep(wj, kMapWidth)
@@ -478,6 +477,7 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
     calculated_x = max_id - calculated_y * kMapWidth;
 
     cout << "calculated " << calculated_x << " " << calculated_y << endl;
+    logMessage("calculated");
 
     // rep(wi, kMapWidth)
     // {

@@ -1,3 +1,8 @@
+/*
+todo : 回転するときに、カラーセンサが沼地に入ってしまう問題を解決
+オドメトリを用いて、PLAでTrapに入る問題を解決
+360 x 270にすること
+*/
 #include "Hikaru.hpp"
 #include "MapData.hpp"
 #include <iostream>
@@ -17,6 +22,8 @@
 #define BLACK_LOADED_ID 2
 #define SUPER_LOADED_ID 3
 
+#define FUNC_NAME getFuncName(__FUNCTION__)
+
 using namespace std;
 
 void Game0_Hikaru::setup(void)
@@ -28,8 +35,6 @@ void Game0_Hikaru::setup(void)
 	delErrorFile();
 	delLogFile();
 	InputColorInformation();
-
-	// setRunMode(MODE_DEBUG);
 
 	double seconds = pt.end();
 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
@@ -106,7 +111,7 @@ void Game0_Hikaru::loop(void)
 	}
 	else if (obstacle(8, 10, 8))
 	{
-		motor(-2, 2);
+		motor(-3, 2);
 		// int speed = 3;
 		// switch(obstacle(10, 10, 10)) {
 		// 	case 1:// 左のみ
@@ -142,7 +147,7 @@ void Game0_Hikaru::loop(void)
 	}
 	else if (LoadedObjects >= 5)
 	{
-		cout << "deposit" << endl;
+		logMessage("deposit", MODE_NORMAL);
 		if (US_Front < 14)
 		{
 			motor(-3, 1);
@@ -210,12 +215,6 @@ void Game0_Hikaru::loop(void)
 		logMessage("Teleport");
 		setAction(TELEPORT);
 	}*/
-
-	if (Time > 180)
-	{
-		cout << "TELEPOR" << endl;
-		setAction(TELEPORT);
-	}
 
 	switch (getAction())
 	{
@@ -314,24 +313,16 @@ void Game1_Hikaru::setup(void)
 		log_x = PositionX;
 		log_y = PositionY;
 	}
+
+	setRunMode(MODE_MATCH);
 }
 
 void Game1_Hikaru::loop()
 {
 	ProcessingTime pt;
 	pt.start();
-	// cout << process << endl;
+
 	UserGame1::loop();
-	int k = 1;
-	if (getRepeatedNum() == 1)
-	{
-		motor(3, 5);
-	}
-	else if (getRepeatedNum() % k == 0)
-	{
-		cout << PositionX << "\t" << PositionY << "\t" << Compass << endl;
-	}
-	return;
 
 	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
@@ -362,7 +353,7 @@ void Game1_Hikaru::loop()
 		now_dot_id = CheckNowDot();
 		int now_y = now_dot_id / kDotWidthNum;
 		int now_x = now_dot_id - now_y * kDotWidthNum;
-		int range = 3;
+		int range = 0;
 		rep(hi, range * 2 + 1)
 		{
 			rep(wj, range * 2 + 1)
@@ -380,20 +371,20 @@ void Game1_Hikaru::loop()
 	else
 	{
 		PositionX = -1;
-		for (int wi = 0; wi < 20; wi++)
+		int range = 2;
+		for (int wi = 0; wi < range * 2; wi++)
 		{
-			for (int hj = 0; hj < 20; hj++)
+			for (int hj = 0; hj < range * 2; hj++)
 			{
-				int x = log_x / kSize + wi - 10;
-				int y = log_y / kSize + hj - 10;
+				int x = log_x / kSize + wi - range;
+				int y = log_y / kSize + hj - range;
 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
 				}
-				dot[y * kDotWidthNum + x].arrived_times += 3;
+				dot[y * kDotWidthNum + x].arrived_times += 2;
 			}
 		}
-		cout << "log x y" << log_x << " " << log_y << endl;
 	}
 
 	if (SuperObj_Num != 0)
@@ -442,7 +433,7 @@ void Game1_Hikaru::loop()
 		loaded_objects[2]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0)
+	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -483,7 +474,7 @@ void Game1_Hikaru::loop()
 		motor(-5, -3);
 		Duration = 3;
 	}
-	else if (IsOnDepositArea() && LoadedObjects >= 6)
+	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
 		process = 0;
 		if (IsOnDepositArea() == 3)
@@ -500,14 +491,10 @@ void Game1_Hikaru::loop()
 			motor(5, 0);
 		}
 	}
-	else if (LoadedObjects >= 6)
+	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
 		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
-	}
-	else if (Time > 450 && LoadedObjects > 2)
-	{
-		LoadedObjects = 6;
 	}
 	else if (log_superobj_num > 0)
 	{
@@ -521,7 +508,7 @@ void Game1_Hikaru::loop()
 			if (same_time > 10)
 			{
 				log_superobj_num = 0;
-				printf("%d There is no superobj\n", getRepeatedNum());
+				logMessage("There is no superobj", MODE_NORMAL);
 			}
 			GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
 			same_time++;
@@ -529,140 +516,19 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < 1 || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0))
+		if (loaded_objects[BLACK_LOADED_ID] < 2 /* || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0)*/)
 		{
-			// if (process == 0)
-			// {
-			// 	if (GoInDots(115, 110, 110, 35, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 5 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else if (process == 1)
-			// {
-			// 	if (GoInDots(180, 135, 180, 135, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 10 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else if (process == 2)
-			// {
-			// 	if (GoInDots(330, 35, 30, 35, POINT_BLACK))
-			// 	{
-			// 		if (rand() % 5 == 0)
-			// 		{
-			// 			process++;
-			// 		}
-			// 	}
-			// }
-			// else
-			// {
-			// 	process = 0;
-			// }
 			GoInDots(180, 135, 180, 135, POINT_BLACK);
 			searching_object = BLACK_LOADED_ID;
 		}
 		else if (loaded_objects[CYAN_LOADED_ID] < 2)
 		{
-
 			GoInDots(180, 135, 180, 135, POINT_CYAN);
-			/*
-			if (process == 0)
-			{
-				if (GoInDots(115, 110, 110, 35, POINT_CYAN))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 1)
-			{
-				if (GoInDots(180, 135, 180, 135, POINT_CYAN))
-				{
-					if (rand() % 10 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 2)
-			{
-				if (GoInDots(330, 155, 30, 35, POINT_CYAN))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
-			}*/
-
 			searching_object = CYAN_LOADED_ID;
 		}
 		else
 		{
-			if (process == 0)
-			{
-				if (GoInDots(180, 170, 112, 50, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 0)
-			{
-				if (GoInDots(180, 135, 180, 135, POINT_RED))
-				{
-					if (rand() % 5)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
-			}
-
-			/*
-			if (process == 0)
-			{
-				if (GoInDots(135, 170, 135, 70, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else if (process == 1)
-			{
-				if (GoInDots(205, 35, 75, 35, POINT_RED))
-				{
-					if (rand() % 5 == 0)
-					{
-						process++;
-					}
-				}
-			}
-			else
-			{
-				process = 0;
-			}*/
-			// searching_object = BLACK_LOADED_ID;
+			GoInDots(180, 135, 180, 135, POINT_RED);
 			searching_object = RED_LOADED_ID;
 		}
 	}
@@ -697,7 +563,7 @@ void Game1_Hikaru::loop()
 		{
 			loaded_objects[i] = 0;
 		}
-		if (Duration == 0)
+		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
 		}
@@ -707,6 +573,7 @@ void Game1_Hikaru::loop()
 			{
 				LoadedObjects = 6;
 				Duration = 0;
+				SuperDuration = 0;
 				for (int i = 0; i < 3; i++)
 				{
 					loaded_objects[i] = 2;
@@ -732,7 +599,7 @@ void Game1_Hikaru::loop()
 		super_sameoperate = 0;
 	}
 	double seconds = pt.end();
-	cout << "loop time :" + to_string(seconds) + " milliseconds" << endl;
+	logMessage("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
 long Game1_Hikaru::WhereIsMotor(void)
@@ -853,9 +720,7 @@ int Game1_Hikaru::CheckNowDot(void)
 		}
 		if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
 		{
-			//fprintf(errfile, "%d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
-			//fprintf(logfile, " %d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
-			printf("%d CheckNowDot(): I(%d, %d) and around me are in wall or yellow\n", getRepeatedNum(), x, y);
+			logMessage("CheckNowDot(): I(" + to_string(x) + "," + to_string(y) + ") and around me are in wall or yellow", MODE_NORMAL);
 			//fprintf(logfile, "%4d End CheckNowDot() with returning %d\n", getRepeatedNum(), emergency_now_dot_id);
 			return emergency_now_dot_id;
 		}
@@ -989,6 +854,7 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 	if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
 	{
 		printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
+		logMessage("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
 		absolute_x = -1;
 		absolute_y = -1;
 		same_operate = -1;
@@ -996,22 +862,21 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 		return 1;
 	}
 
-	printf("ab(%d, %d)\n", absolute_x, absolute_y);
+	logMessage("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
 	x = absolute_x;
 	y = absolute_y;
 	x = x - temp_x;
 	y = y - temp_y;
-	printf("x, y = (%d , %d)\n", x, y);
+	logMessage("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
 	double angle = atan2(y, x);
 	angle = angle * 180 / 3.14;
-	printf("%3.3lf ", angle);
 	int angle_int = (int)angle;
 	angle_int -= 90;
 	if (angle_int < 0)
 	{
 		angle_int += 360;
 	}
-	printf("angle = %d\n", angle_int);
+	logMessage("angle " + to_string(angle_int), MODE_NORMAL);
 	GoToAngle(angle_int, sqrt(x * x + y * y));
 
 	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
@@ -1226,13 +1091,11 @@ void Game1_Hikaru::Dijkstra()
 
 	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
 	{
-		printf("\n\n\nDijkstra2(): now_dot_id's value is %d\n\n\n", now_node_id);
+		errorMessage(FUNC_NAME + "(); now dot id value is " + to_string(now_dot_id), MODE_NORMAL);
 		return;
 	}
-	//printf("Dijsktra(): now_node_id = %d\n", now_node_id);
 	dot[now_node_id].cost = 0;
 	dot[now_node_id].from = now_node_id;
-	//printf("nownode by dijkstra is %d and point is %d\n", temp, dot[temp].point);
 
 	struct Dot investigating_node;
 
@@ -1281,15 +1144,12 @@ void Game1_Hikaru::Dijkstra()
 		}
 
 		dot[investigating_node.id].done = 0;
-		// printf("%dからやるよ\n", investigating_node.id);
 
 		for (int i = 0; i < investigating_node.edge_num; i++)
 		{
 			int target_id = investigating_node.edge_to[i];
 			if (target_id < 0 || target_id >= kMaxDotNum)
 			{
-				//fprintf(errfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
-				//fprintf(logfile, " %d DIjkstra() a edge have error dot[%d].edge_to[%d] = %d\n", getRepeatedNum(), investigating_node.id, i, target_id);
 				continue;
 			}
 
@@ -1322,7 +1182,7 @@ void Game1_Hikaru::Dijkstra()
 			// 		continue;
 			// 	// }
 			// }
-			double k = 0.3;
+			double k = 0.5;
 			if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
 			{
 				target_cost *= k;
@@ -1338,7 +1198,6 @@ void Game1_Hikaru::Dijkstra()
 
 			if (target_cost <= 0)
 			{
-				printf("fixed\n");
 				target_cost = 1;
 			}
 
@@ -1443,9 +1302,11 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
 	//fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-	if (PositionX == -1 || (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
+	if (PositionX == -1 && (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
 	{
 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
+		logMessage(FUNC_NAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")");
+		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
 	// char map_data_to_show[kMaxDotNum];
@@ -1464,7 +1325,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	//If the node I want to go will be go out
 	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
 	{
-		printf("GoToDot(): (x, y) is (%d, %d) and strange\n", x, y);
+		logMessage(FUNC_NAME + "(): (x, y) is (" + to_string(x) + ", " + to_string(y) + "and strange", MODE_NORMAL);
 		//fprintf(errfile, "%d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
 		//fprintf(logfile, " %d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
 	}
@@ -1483,7 +1344,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (goal_dot < 0 || goal_dot >= kMaxDotNum)
 	{
-		printf("strange (x,y)\n");
+		logMessage("strainge(x, y)", MODE_NORMAL);
 		return 0;
 	}
 
@@ -1502,7 +1363,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		i++;
 		if (temp < 0 || temp >= kMaxDotNum)
 		{
-			printf("temp = %d is strange. I will continue\n", temp);
+			logMessage("temp = " + to_string(temp) + "is strange. I will continue", MODE_NORMAL);
 			GoToPosition(x * kSize, y * kSize, 5, 5, 5);
 			return 0;
 		}
@@ -1510,7 +1371,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	if (i == 200)
 	{
 		printf("\n\n\niの値が200ですByGoToNode()\n\n\n\n");
-		;
+		logMessage(FUNC_NAME + "(): iの値が200です", MODE_NORMAL);
 	}
 
 	// map_data_to_show[now_dot_id] = '@';
@@ -1557,7 +1418,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	else
 	{
 		if (next_y <
-			now_y)
+				now_y)
 		{
 			GoToAngle(225, distance);
 		}
@@ -1601,6 +1462,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
+
 	static int prev_x = -1;
 	static int prev_y = -1;
 	static int target_x = -1;
@@ -1609,7 +1471,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 	static int same_target_border = 0;
 	if (x != prev_x || y != prev_y)
 	{
-		printf("changed dots\n");
+		logMessage("changed dots", MODE_NORMAL);
 		same_target = 0;
 		prev_x = x;
 		prev_y = y;
@@ -1649,6 +1511,8 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		}
 
 		int min = 100000, id = -1;
+		// n回に1回移動する
+		int option = rnd() % 5;
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1665,7 +1529,18 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 					continue;
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10;
+				if (option)
+				{
+					// 移動しないとき
+					int k = 20;
+					costs += pow(abs(i * kSize - log_x) - k, 2) * 100 - pow(abs(j * kSize - log_y) - k, 2) * 100;
+				}
+				else
+				{
+					// 移動するとき
+					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				}
 				// for (int i = 0; i < 100000; i++) {
 				// 	// for (int j = 0; j < 1000000; j++) {
 				// 		// for (int k = 0; k < 100000; k++) {
@@ -1758,7 +1633,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 	static int same_target_border = 0;
 	if (x != prev_x || y != prev_y || color != prev_color)
 	{
-		printf("changed dots\n");
+		logMessage("changed dots", MODE_NORMAL);
 		same_target = 0;
 		prev_x = x;
 		prev_y = y;
@@ -1798,6 +1673,8 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		}
 
 		int min = 100000, id = -1;
+		// n回に1回移動する
+		int option = rnd() % 3;
 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
 		{
 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1807,13 +1684,11 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 				{
 					continue;
 				}
-
 				//yellow or wall or deposit
 				if (dot[investigating_dot_id].point < POINT_DEPOSIT)
 				{
 					continue;
 				}
-
 				if (color == POINT_RED)
 				{
 					if (dot[investigating_dot_id].red != 1)
@@ -1843,10 +1718,22 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 					}
 				}
 
-				int costs = dot[investigating_dot_id].arrived_times * 100 - pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100; // + abs(rnd() % 100);
+				int costs = dot[investigating_dot_id].arrived_times * 100 + rnd() % 10;
+
+				if (option)
+				{
+					// 移動しないとき
+					int k = 20;
+					costs += pow(abs(i * kSize - log_x) - k, 2) / 10 + pow(abs(j * kSize - log_y) - k, 2) / 10;
+				}
+				else
+				{
+					// 移動するとき
+					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
+				}
 				if (color == POINT_DEPOSIT)
 				{
-					costs = 1000 - -pow(i * kSize - log_x, 2) - pow(j * kSize - log_y, 2);
+					costs = pow(i * kSize - log_x, 2) + pow(j * kSize - log_y, 2);
 				}
 				// cout << "position cost " << pow(i * kSize - log_x, 2) / 100 + pow(j * kSize - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
 				// for (int i = 0; i < 100000; i++) {
@@ -1862,7 +1749,6 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 				}
 			}
 		}
-		cout << "cost " << min << endl;
 		if (id == -1)
 		{
 			//fprintf(errfile, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
@@ -1875,6 +1761,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 		{
 			target_y = id / kDotWidthNum;
 			target_x = id - target_y * kDotWidthNum;
+			logMessage("target(" + to_string(target_x) + ", " + to_string(target_y), MODE_NORMAL);
 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
 		}
 
@@ -1921,7 +1808,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 	same_target++;
 	// printf("%d\n", same_target);
 	// printf("%d %d\n", same_target, same_target_border);
-	cout << "target_x, y " << target_x * kSize << " " << target_y * kSize << endl;
+	logMessage("target_x, y " + to_string(target_x * kSize) + " " + to_string(target_y * kSize), MODE_NORMAL);
 	if (GoToDot(target_x, target_y) || same_target > same_target_border)
 	{
 		prev_x = -1;
@@ -2043,15 +1930,15 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(5, 7, 5);
-	// if (LoadedObjects >= 6)
-	// {
-	//     classification = 0;
-	// }
+	int classification = obstacle(10, 12, 10);
+	if (log_superobj_num > 0)
+	{
+		classification = obstacle(5, 7, 5);
+	}
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
@@ -2100,17 +1987,17 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		{ //left & right
 			if (abs(angle) < 150)
 			{
-				motor(4, 4);
+				motor(5, 5);
 			}
 			else
 			{
 				if (angle < 0)
 				{
-					motor(3, -3);
+					motor(3, -4);
 				}
 				else
 				{
-					motor(-3, 3);
+					motor(-4, 3);
 				}
 				// Duration = 5;
 			}
@@ -2243,54 +2130,25 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -2);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-2, 2);
+						motor(-3, 2);
 					}
 				}
 				else
 				{
 					if (angle < 0)
 					{
-						motor(3, -3);
+						motor(3, -4);
 					}
 					else
 					{
-						motor(-3, 3);
+						motor(-4, 3);
 					}
 				}
 			}
-			// else if (LoadedObjects == 6) {
-			// 	if (abs(angle) < 10) {
-			// 		motor(5, 5);
-			// 	}
-			// 	else if (abs(angle) < 90) {
-			// 		if (angle < 0) {
-			// 			motor(5, 3);
-			// 		}
-			// 		else {
-			// 			motor(3, 5);
-			// 		}
-			// 	}
-			// 	else if (abs(angle) < 120) {
-			// 		if (angle < 0) {
-			// 			motor(2, -2);
-			// 		}
-			// 		else {
-			// 			motor(-2, 2);
-			// 		}
-			// 	}
-			// 	else {
-			// 		if (angle < 0) {
-			// 			motor(3, -3);
-			// 		}
-			// 		else {
-			// 			motor(-3, 3);
-			// 		}
-			// 	}
-			// }
 			else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
 			{
 				if (abs(angle) < 10)
@@ -2330,11 +2188,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -2);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-2, 2);
+						motor(-3, 2);
 					}
 				}
 			}
@@ -2410,11 +2268,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(4, -4);
+						motor(4, -5);
 					}
 					else
 					{
-						motor(-4, 4);
+						motor(-5, 4);
 					}
 					// Duration = 3;
 				}

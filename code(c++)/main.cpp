@@ -31,6 +31,7 @@ using namespace std;
 
 Game0_Hikaru game0;
 // Game0_Masuda game0;
+// Game1_Nishikawa game1;
 Game1_Hikaru game1;
 
 int triger = 0;

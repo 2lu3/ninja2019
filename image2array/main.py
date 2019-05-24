@@ -273,7 +273,8 @@ def formatImage():
             for i in range(len(button_labels)):
                 if (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2 <= min_val:
                     min_color_num = i
-                    break
+                    min_val = (registered_color[i][0] - image_rgb[hi][wj][0]) ** 2 + (registered_color[i][1] - image_rgb[hi][wj][1]) ** 2 + (registered_color[i][2] - image_rgb[hi][wj][2]) ** 2
+                    # break
             map_data[hi][wj][min_color_num] = 1
             if min_color_num > border_area_object:
                 map_data[hi][wj][button_labels.index("White")] = 1
