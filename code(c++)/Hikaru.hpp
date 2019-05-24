@@ -53,34 +53,42 @@ private:
 
 	struct Dot
 	{
-		int x, y;	//dotのx(0<=x<36), y(0<=y<27)座標
-		int wide;	//一辺の長さ
+		int x, y;  //dotのx(0<=x<36), y(0<=y<27)座標
+		int wide;  //一辺の長さ
 		int point; //ドットの種類(-3:yellow -2:wall etc.)
-		int done;	//Dijkstra()
-		long id;	 //y * 36 + x
-		int from;	//Dijkstra()
-		int cost;	//Dijkstra()
+		int done;  //Dijkstra()
+		long id;   //y * 36 + x
+		int from;  //Dijkstra()
+		int cost;  //Dijkstra()
 		int is_opened;
 		int score;
-		int distance_from_start;							//Dijkstra()
-		int curved_times;											//Dijkstra()
+		int distance_from_start;			  //Dijkstra()
+		int curved_times;					  //Dijkstra()
 		unsigned long long int arrived_times; //そこにいた回数
-		int edge_num;													//そのドットに行くことのできるドットの数
-		int edge_to[kMaxEdgeNum];							//
-		int edge_cost[kMaxEdgeNum];						//
-		int red;															//もし、Redがとれるなら、1
-		int cyan;															//もし、Cyanがとれないなら0
-		int black;														//もし、Blackが...
+		int edge_num;						  //そのドットに行くことのできるドットの数
+		int edge_to[kMaxEdgeNum];			  //
+		int edge_cost[kMaxEdgeNum];			  //
+		int red;							  //もし、Redがとれるなら、1
+		int cyan;							  //もし、Cyanがとれないなら0
+		int black;							  //もし、Blackが...
 		int color;
 	};
 	struct Dot dot[kMaxDotNum];
 
-	;:\@p@p
-	unsigned char arrived_times_map[kCospaceHeight / 30][kCospaceWidth / 30];
+	char dot_status[kMaxDotNum];
+	int dot_from[kMaxDotNum];
+	int dot_cost[kMaxDotNum];
+	int dot_estimated_cost[kMaxDotNum];
+	int dot_edge_to[kMaxEdgeNum];
+	int dot_edge_cost[kMaxEdgeNum];
+	char dot_is_red[kMaxDotNum];
+	char dot_is_cyan[kMaxDotNum];
+	char dot_is_black[kMaxDotNum];
 
 	void GoToAngle(int angle, int distance);
 	int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
 	void Dijkstra(void);
+	void Astar(void);
 	int GoToDot(int x, int y);
 	int CheckNowDot(void);
 	long WhereIsMotor(void);

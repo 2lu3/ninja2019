@@ -516,7 +516,7 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < 2 /* || (loaded_objects[BLACK_LOADED_ID] < 2 && loaded_objects[SUPER_LOADED_ID] == 0)*/)
+		if (loaded_objects[BLACK_LOADED_ID] < 2)
 		{
 			GoInDots(180, 135, 180, 135, POINT_BLACK);
 			searching_object = BLACK_LOADED_ID;
@@ -1294,6 +1294,18 @@ void Game1_Hikaru::Dijkstra()
 		}
 		printf("\n");
 	}*/
+}
+
+void Game1_Hikaru::Astar(void)
+{
+	// initializing
+	rep(i, kMaxDotNum)
+	{
+		dot_from[i] = -1;
+		dot_cost[i] = 0;
+		dot_estimated_cost[i] = 0;
+		dot_status[i] = 0;
+	}
 }
 
 int Game1_Hikaru::GoToDot(int x, int y)
