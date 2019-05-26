@@ -45,16 +45,14 @@ void AutoStrategy::loop()
             log_y = 0;
         if (log_y >= kCospaceHeight)
             log_y = kCospaceHeight - 1;
-        CheckNowDot(&left_color_dot_id, &now_dot_id, &right_color_dot_id);
-        int now_y = now_dot_id / kDotWidth;
-        int now_x = now_dot_id - now_y * kDotWidth;
+        CheckNowDot();
         int range = 0;
         rep(hi, range * 2 + 1)
         {
             rep(wj, range * 2 + 1)
             {
-                int y = hi + now_y - range;
-                int x = wj + now_x - range;
+                int y = hi + robot_positions[1][1] - range;
+                int x = wj + robot_positions[0][0] - range;
                 if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
                 {
                     continue;
@@ -78,6 +76,130 @@ void AutoStrategy::loop()
                     continue;
                 }
                 // dot[y * kDotWidth + x].arrived_times += 2;
+            }
+        }
+    }
+
+    // 色のデータを保存
+    if (IsOnDepositArea())
+    {
+        if (ColorJudgeLeft(object_box))
+        {
+            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_DEPOSIT;
+        }
+        if (ColorJudgeRight(object_box))
+        {
+            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_DEPOSIT;
+        }
+    }
+    if (IsOnYellowLine())
+    {
+        if (ColorJudgeLeft(trap_line))
+        {
+            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_YELLOW;
+        }
+        if (ColorJudgeRight(trap_line))
+        {
+            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_YELLOW;
+        }
+    }
+    if (IsOnSwampland())
+    {
+        if (ColorJudgeLeft(gray_zone))
+        {
+            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SWAMPLAND;
+        }
+        if (ColorJudgeRight(gray_zone))
+        {
+            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_SWAMPLAND;
+        }
+    }
+    if (IsOnBlueFloor())
+    {
+        if (ColorJudgeLeft(blue_zone))
+        {
+            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SUPER_AREA;
+        }
+        if (ColorJudgeRight(blue_zone))
+        {
+            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_SUPER_AREA;
+        }
+    }
+
+    // 壁の距離を計算
+
+    {
+        int us_sensors[3] = {US_Left, US_Front, US_Right};
+        int angles[3] = {-45, 0, 45};
+        int calculated_position[3][2];
+        rep(i, 3)
+        {
+            angles[3] += Compass + 90;
+            if (us_sensors[i] > 180)
+            {
+                calculated_position[i][0] = -1;
+                calculated_position[i][1] = -1;
+                continue;
+            }
+            // 壁の位置とロボットの相対座標
+            calculated_position[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i]);
+            calculated_position[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i]);
+
+            // 壁の位置とロボットそれぞれの絶対座標
+            int x[2] = {log_x, calculated_position[i][0] + log_x};
+            int y[2] = {log_y, calculated_position[i][1] + log_y};
+
+            // 0 < 1にする
+            if (x[0] > x[1])
+            {
+                // x[0]とx[1]を入れ替え
+                int temp = x[0];
+                x[0] = x[1];
+                x[1] = temp;
+            }
+            if (y[0] > y[1])
+            {
+                // y[0]とy[1]を入れ替え
+                int temp = y[0];
+                y[0] = y[1];
+                y[1] = temp;
+            }
+
+            // 傾き
+            float tilt = abs(calculated_position[i][1] / calculated_position[i][0]);
+
+            // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
+            // ただし、x[0]とx[1]はMAP_WHITEを代入しない
+            // x[0]かx[1]のうちどちらかは壁である
+            // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
+            for (int xi = x[0] + 1; xi < x[1]; xi++)
+            {
+                if (xi < 0 || xi >= kDotWidth)
+                {
+                    continue;
+                }
+                for (int yj = static_cast<int>((xi - x[0]) * tilt) + y[0]; yj <= (xi - x[0] + 1) * tilt + y[0]; yj++)
+                {
+                    if (yj < 0 || yj >= kDotHeight)
+                    {
+                        continue;
+                    }
+                    if (map[0][yj][xi] == MAP_UNKNOWN || map[0][yj][xi] == MAP_WALL)
+                    {
+                        map[0][yj][xi] = MAP_WHITE;
+                    }
+                }
+            }
+            calculated_position[i][0] += log_x;
+            calculated_position[i][1] += log_y;
+
+            if (calculated_position[i][0] < 0 || calculated_position[i][0] >= kDotWidth || calculated_position[i][1] < 0 || calculated_position[i][1] >= kDotHeight)
+            {
+                continue;
+            }
+            if (map[0][calculated_position[i][1]][calculated_position[i][0]] == MAP_UNKNOWN)
+            {
+                map[0][calculated_position[i][1]][calculated_position[i][0]] = MAP_WALL;
             }
         }
     }
@@ -297,7 +419,7 @@ void AutoStrategy::loop()
     logMessage("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
-void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *right_dot_id)
+void AutoStrategy::CheckNowDot()
 {
     // 左のカラーセンサ、右のカラーセンサ、座標の中心点をそれぞれA,B,Cとすると、
     // 三角形ABCは、一辺5-6の正三角形
@@ -311,7 +433,6 @@ void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *rig
         static_cast<int>(log_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
         log_y,
         static_cast<int>(log_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
-    long *pointer[3] = {left_dot_id, middle_dot_id, right_dot_id};
 
     rep(i, 3)
     {
@@ -328,10 +449,10 @@ void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *rig
         x[i] /= kCM2DotScale;
         y[i] /= kCM2DotScale;
         // そのドットが壁の場合
-        if (map[0][y[i]][x[i]] == WALL)
+        if (map[0][y[i]][x[i]] == MAP_WALL)
         {
             // 近くのドットの中で、壁の中ではないドットにする
-            int range = 10 / kCM2DotScale;
+            int range = (10 + kCM2DotScale - 1) / kCM2DotScale;
             int min_position[2] = {-1, -1};
             int min_value = 1000000;
             for (int hi = -range; hi <= range; hi++)
@@ -357,11 +478,12 @@ void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *rig
             if (min_position[0] < 0)
             {
                 // y * kDotWidth + x -> -1
-                errorMessage(FUNCNAME + "(): there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]));
-                y[i] = 0;
+                errorMessage(FUNCNAME + "(): there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]), MODE_NORMAL);
+                y[i] = -1;
                 x[i] = -1;
             }
         }
-        *pointer[i] = y[i] * kDotWidth + x[i];
+        robot_positions[i][0] = x[i];
+        robot_positions[i][1] = y[i];
     }
 }

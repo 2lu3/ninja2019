@@ -21,22 +21,22 @@ private:
 
     enum MapInfo
     {
-        YELLOW = -3,
-        WALL = -2,
-        SWAMPLAND = -1,
-        UNKNOWN = 0,
-        WHITE = 1,
-        DEPOSIT = 2,
-        SUPER_AREA = 3
+        MAP_YELLOW = -3,
+        MAP_WALL = -2,
+        MAP_SWAMPLAND = -1,
+        MAP_UNKNOWN = 0,
+        MAP_WHITE = 1,
+        MAP_DEPOSIT = 2,
+        MAP_SUPER_AREA = 3
     };
 
     // 0:床情報 1:red 2:cyan 3:black
     char map[4][kDotHeight][kDotWidth];
 
     int log_x, log_y, log_compass;
-    long now_dot_id, left_color_dot_id, right_color_dot_id;
+    long robot_positions[3][2];
 
-    void CheckNowDot(long *left_dot_id, long *middle_dot_id, long *right_dot_id);
+    void CheckNowDot();
 };
 
 #endif //!AUTO_STRATEGY_HPP

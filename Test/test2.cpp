@@ -3,7 +3,7 @@
 #include <random>
 #include <cstdlib>
 
-#define N 2000000
+#define N 200000
 #define ABS(i) ((i ^ (i >> 31)) - (i >> 31))
 
 using namespace std;
@@ -36,59 +36,42 @@ void test(int *a, int *b)
 }
 int main()
 {
-  printf(CS(d), 4);
-  return 1;
-  cout << ABS(-15) << endl;
-  return 0;
-
   double end;
-  int temp = 0;
-  Processing_time.start();
-  for (int ni = 0; ni < N; ni++)
-  {
-    for (int j = 0; j < 1000; j++)
-    {
-      if (temp < ABS(j) + ABS(j + 1))
-      {
-        temp = ABS(j) + ABS(j + 1);
-      }
-      else
-      {
-        temp = ABS(j) + ABS(j + 1);
-      }
-    }
-    temp = 0;
-  }
-  end = Processing_time.end();
-  cout << end << endl;
-
-  Processing_time.start();
-  register double temp2;
-  for (int ni = 0; ni < N; ni++)
-  {
-    for (int j = 0; j < 1000; j++)
-    {
-      temp2 = ABS(j) + ABS(j + 1);
-      if (temp < temp2)
-      {
-        temp = temp2;
-      }
-      else
-      {
-        temp = temp2;
-      }
-    }
-    temp = 0;
-  }
-  end = Processing_time.end();
-  cout << end << endl;
+  // Processing_time.start();
+  int x[2], y[2];
+  // for (int ni = 0; ni < N; ni++)
+  // {
+  //   for (int j = 0; j < 1000; j++)
+  //   {
+  //     x[0] *= x[1];
+  //     x[1] = x[0] / x[1];
+  //     x[0] = x[0] / x[1];
+  //   }
+  // }
+  // end = Processing_time.end();
+  // cout << end << endl;
 
   Processing_time.start();
   for (int ni = 0; ni < N; ni++)
   {
     for (int j = 0; j < 1000; j++)
     {
-      temp = max(temp, ABS(j) + ABS(j + 1));
+      int temp = x[0];
+      x[0] = x[1];
+      x[1] = temp;
+    }
+  }
+  end = Processing_time.end();
+  cout << end << endl;
+  Processing_time.start();
+  int temp;
+  for (int ni = 0; ni < N; ni++)
+  {
+    for (int j = 0; j < 1000; j++)
+    {
+      temp = x[0];
+      x[0] = x[1];
+      x[1] = temp;
     }
   }
   end = Processing_time.end();
