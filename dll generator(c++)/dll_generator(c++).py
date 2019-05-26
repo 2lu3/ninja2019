@@ -62,7 +62,7 @@ def main():
     # -static : ライブラリをすべて含める
     # -Wall : 基本的な警告オプションをすべて有効にする
     # -Wextra 追加の警告オプションをonにする
-    command = "\"" + "g++" + "\"" + " -shared -static "
+    command = "\"" + "g++" + "\"" + " -shared -static -O3 "
     if is_lite_warming:
         command = command + '-Wall -Wextra'
 
