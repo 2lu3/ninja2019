@@ -424,7 +424,7 @@ void CalculatePosition::calculate(int us_left, int us_front, int us_right, int c
                 }
             }
             add = add / num;
-            current_map_possibility[wj][hi] = current_map_possibility[hi][wj] * (1.0 - k) + add * k;
+            current_map_possibility[wj][hi] = static_cast<int>(current_map_possibility[wj][hi] * (1.0 - k) + add * k);
             // printf("%f\n", add);
         }
 

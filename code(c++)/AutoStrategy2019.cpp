@@ -8,6 +8,10 @@ AutoStrategy::AutoStrategy()
     delErrorFile();
     delLogFile();
     InputColorInformation();
+    setRunMode(MODE_DEBUG);
+    setDefaultRunMode(MODE_NORMAL);
+    setIsOutputLogMessage2Console(false);
+    setIsOutputErrorMessage2Console(true);
     pt.print("AutoStrategy::AutoStrategy() :");
 }
 
@@ -15,10 +19,6 @@ void AutoStrategy::setup()
 {
     pt.start();
     UserGame1::setup();
-    setRunMode(MODE_DEBUG);
-    setDefaultRunMode(MODE_NORMAL);
-    setIsOutputLogMessage2Console(false);
-    setIsOutputErrorMessage2Console(true);
     pt.print("AutoStrategy::setup() :");
 }
 
@@ -28,8 +28,8 @@ void AutoStrategy::loop()
     UserGame1::loop();
     logMessage("loop start", MODE_DEBUG);
 
-    static int same_time = 0;
-    static int prev_repeated_num = 0;
+    // static int same_time = 0;
+    // static int prev_repeated_num = 0;
     if (PositionX != 0 || PositionY != 0)
     {
         log_x = PositionX;
@@ -102,7 +102,6 @@ void AutoStrategy::loop()
         }
         else
         {
-            //*1
             //This avoid record same data many times
             // if the new SuperObject is undefined
             // hint : if log_superobj_num == 0, this doesn't work. so I separate this case
@@ -366,6 +365,7 @@ void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *rig
             if (min_position[0] < 0)
             {
                 // y * kDotWidth + x -> -1
+                errorMessage(FUNCNAME + "(): there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]));
                 y[i] = 0;
                 x[i] = -1;
             }

@@ -18,6 +18,8 @@ code_path_expectations = ["./../code(c++)/", "./../code/", "./code(c++)/", "./co
 out_path = 'outcospace'
 out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 
+optimisation_level = 0
+
 
 def main():
     global code_path
@@ -62,7 +64,9 @@ def main():
     # -static : ライブラリをすべて含める
     # -Wall : 基本的な警告オプションをすべて有効にする
     # -Wextra 追加の警告オプションをonにする
-    command = "\"" + "g++" + "\"" + " -shared -static -O3 "
+    command = "\"" + "g++" + "\"" + " -shared -static "
+    if optimisation_level != 0:
+        command += '-O' + str(optimisation_level) + ' '
     if is_lite_warming:
         command = command + '-Wall -Wextra'
 
@@ -83,7 +87,7 @@ def main():
 
 
 
-command_options = ['help', 'debug', 'outhere', 'outcospace']
+command_options = ['--help', '--debug', '--outhere', '--outcospace', '-O1', '-O2', '-O3']
 
 
 if __name__ == '__main__':
@@ -106,6 +110,15 @@ if __name__ == '__main__':
         elif arg == '--no-lite-warming':
             print('mode : no lite warming')
             is_lite_warming = False
+        elif arg == '-O1':
+            print('mode : optimisation-level-1')
+            optimisation_level = 1
+        elif arg == '-O2':
+            print('mode : optimisation-level-2')
+            optimisation_level = 2
+        elif arg == '-O3':
+            print('mode : optimisation-level-3')
+            optimisation_level = 3
         else:
             print(arg + ' is not correct option')
 

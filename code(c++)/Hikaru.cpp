@@ -1081,6 +1081,7 @@ void Game1_Hikaru::Dijkstra()
 	//fprintf(logfile, " %d Start Dijkstra()\n", getRepeatedNum());
 	for (int i = 0; i < kMaxDotNum; i++)
 	{
+		dot[i].id = i;
 		dot[i].cost = -1;
 		// dot[i].distance_from_start = -1;
 		dot[i].done = -1;
@@ -1430,7 +1431,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	else
 	{
 		if (next_y <
-				now_y)
+			now_y)
 		{
 			GoToAngle(225, distance);
 		}
@@ -1950,7 +1951,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 	// double magnification = 0.3;
 	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;	//(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
 	if (short_front < 0)
 		short_front = 0;
@@ -2350,7 +2351,6 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	// 	}
 	// }
 }
-
 
 void Game1_Hikaru::AutoStrategy(void)
 {

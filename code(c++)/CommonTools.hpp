@@ -4,7 +4,9 @@
 #define REP for
 #define rep(i, n) REP(int i = 0; i < (n); ++i)
 #define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
-#define ABS(i) (i ^ (i >> 31) - (i >> 31)) // abs()より18%速い
+// abs() より18 % 速い
+#define ABS(i) (((i) ^ ((i) >> 31)) - ((i) >> 31))
+#define FUNCNAME getFuncName(__FUNCTION__)
 
 // red cyan black super
 #define RED_LOADED_ID 0

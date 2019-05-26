@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 #define N 2000000
-#define ABS(i) (i ^ (i >> 31) - (i >> 31))
+#define ABS(i) ((i ^ (i >> 31)) - (i >> 31))
 
 using namespace std;
 
@@ -36,9 +36,7 @@ void test(int *a, int *b)
 }
 int main()
 {
-  int x = 0, y = 0;
-  test(&x, &y);
-  cout << x << y << endl;
+  cout << ABS(-15) << endl;
   return 0;
 
   double end;
