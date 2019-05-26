@@ -36,6 +36,8 @@ void test(int *a, int *b)
 }
 int main()
 {
+  printf(CS(d), 4);
+  return 1;
   cout << ABS(-15) << endl;
   return 0;
 

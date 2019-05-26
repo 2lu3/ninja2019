@@ -32,6 +32,7 @@ void AutoStrategy::loop()
     // static int prev_repeated_num = 0;
     if (PositionX != 0 || PositionY != 0)
     {
+        logMessage(FUNCNAME + "(): not in PLA and (x, y) is (" + to_string(PositionX) + ", " + to_string(PositionY) + ")", MODE_DEBUG);
         log_x = PositionX;
         log_y = PositionY;
         log_compass = Compass;
@@ -79,15 +80,6 @@ void AutoStrategy::loop()
                 // dot[y * kDotWidth + x].arrived_times += 2;
             }
         }
-    }
-
-    int x[3], y[3];
-    int ids[3] = {left_color_dot_id, now_dot_id, right_color_dot_id};
-    rep(i, 3)
-    {
-        y[i] = ids[i] / kDotWidth;
-        x[i] = ids[i] - y[i] * kDotWidth;
-        cout << x[i] << " " << y[i] << endl;
     }
 
     /*
@@ -339,7 +331,7 @@ void AutoStrategy::CheckNowDot(long *left_dot_id, long *middle_dot_id, long *rig
         if (map[0][y[i]][x[i]] == WALL)
         {
             // 近くのドットの中で、壁の中ではないドットにする
-            int range = 2 * kCM2DotScale;
+            int range = 10 / kCM2DotScale;
             int min_position[2] = {-1, -1};
             int min_value = 1000000;
             for (int hi = -range; hi <= range; hi++)
