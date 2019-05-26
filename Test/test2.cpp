@@ -1,9 +1,12 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <cstdlib>
+
+#define N 2000000
+#define ABS(i) (i ^ (i >> 31) - (i >> 31))
 
 using namespace std;
-int map[180][270];
 
 class ProcessingTime
 {
@@ -25,41 +28,69 @@ private:
 
 ProcessingTime Processing_time;
 
+void test(int *a, int *b)
+{
+  int *pointer[2] = {a, b};
+  *pointer[0] = 10;
+  *pointer[1] = 20;
+}
 int main()
 {
-  random_device rnd;
-  for (int i = 0; i < 180; i++)
-  {
-    for (int j = 0; j < 270; j++)
-    {
-      map[i][j] = rnd();
-    }
-  }
-  int temp;
+  int x = 0, y = 0;
+  test(&x, &y);
+  cout << x << y << endl;
+  return 0;
+
+  double end;
+  int temp = 0;
   Processing_time.start();
-  for (int k = 0; k < 1000; k++)
+  for (int ni = 0; ni < N; ni++)
   {
-    for (int i = 0; i < 180; i++)
+    for (int j = 0; j < 1000; j++)
     {
-      for (int j = 0; j < 270; j++)
+      if (temp < ABS(j) + ABS(j + 1))
       {
-        map[i][j] = k * 3;
+        temp = ABS(j) + ABS(j + 1);
+      }
+      else
+      {
+        temp = ABS(j) + ABS(j + 1);
       }
     }
+    temp = 0;
   }
-  cout << Processing_time.end() << endl;
+  end = Processing_time.end();
+  cout << end << endl;
 
   Processing_time.start();
-
-  for (int k = 0; k < 1000; k++)
+  register double temp2;
+  for (int ni = 0; ni < N; ni++)
   {
-    for (int i = 0; i < 180; i++)
+    for (int j = 0; j < 1000; j++)
     {
-      for (int j = 0; j < 270; j++)
+      temp2 = ABS(j) + ABS(j + 1);
+      if (temp < temp2)
       {
-        map[i][j] = map[i][j] * 3;
+        temp = temp2;
+      }
+      else
+      {
+        temp = temp2;
       }
     }
+    temp = 0;
   }
-  cout << Processing_time.end() << endl;
+  end = Processing_time.end();
+  cout << end << endl;
+
+  Processing_time.start();
+  for (int ni = 0; ni < N; ni++)
+  {
+    for (int j = 0; j < 1000; j++)
+    {
+      temp = max(temp, ABS(j) + ABS(j + 1));
+    }
+  }
+  end = Processing_time.end();
+  cout << end << endl;
 }

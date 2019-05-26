@@ -4,6 +4,7 @@
 #define REP for
 #define rep(i, n) REP(int i = 0; i < (n); ++i)
 #define PLUSMINUS(a, b, difference) ((b) < (a) + (difference) && (a) - (difference) < (b))
+#define ABS(i) (i ^ (i >> 31) - (i >> 31)) // abs()より18%速い
 
 // red cyan black super
 #define RED_LOADED_ID 0
@@ -56,6 +57,8 @@ class ProcessingTime
 public:
 	void start(void);
 	double end(void);
+	void print(std::string message);
+	void print();
 
 private:
 	std::chrono::system_clock::time_point start_time, end_time;
@@ -63,9 +66,14 @@ private:
 
 void setAction(Action pushed_action);
 Action getAction(void);
+
 Mode getDefaultRunMode();
 void setDefaultRunMode(Mode pushed_mode);
-void setRunMode(Mode pushed_mode);
 Mode getRunMode(void);
+void setRunMode(Mode pushed_mode);
+bool getIsOutputLogMessage2Console(void);
+void setIsOutputLogMessage2Console(bool option);
+bool getIsOutputErrorMessage2Console(void);
+void setIsOutputErrorMessage2Console(bool option);
 
 #endif // !COMMON_TOOLS

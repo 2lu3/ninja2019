@@ -1,21 +1,10 @@
 #ifndef COSPACE_SETTINGS
 #define COSPACE_SETTINGS
 
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <map>
-#include <cmath>
-#include <cassert>
-#include <ctime>
-#include <vector>
-#include <set>
-#include <deque>
-#include <queue>
-#include <chrono>
-#include <fstream>
-#include <random>
-#include <iomanip>
+#define _USE_MATH_DEFINES
+
+#include <bits/stdc++.h>
+
 #define PI 3.141592
 
 enum Action

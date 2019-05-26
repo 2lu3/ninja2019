@@ -5,6 +5,8 @@ using namespace std;
 enum Action action;
 enum Mode mode = MODE_NORMAL;
 enum Mode default_mode = MODE_NORMAL;
+bool is_output_log_message2console = false;
+bool is_output_error_message2console = false;
 
 int loaded_objects[4];
 int repeated_num = 0;
@@ -106,6 +108,14 @@ double ProcessingTime::end(void)
 	double elapsed = (double)chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 	return elapsed;
 }
+void ProcessingTime::print(string message)
+{
+	cout << message << " " << end() << "ms" << endl;
+}
+void ProcessingTime::print(void)
+{
+	print("");
+}
 
 std::string getFuncName(const char *name)
 {
@@ -141,6 +151,23 @@ void setRunMode(Mode pushed_mode)
 Mode getRunMode(void)
 {
 	return mode;
+}
+
+bool getIsOutputLogMessage2Console(void)
+{
+	return is_output_log_message2console;
+}
+void setIsOutputLogMessage2Console(bool option)
+{
+	is_output_log_message2console = option;
+}
+bool getIsOutputErrorMessage2Console(void)
+{
+	return is_output_error_message2console;
+}
+void setIsOutputErrorMessage2Console(bool option)
+{
+	is_output_error_message2console = option;
 }
 
 void resetLoadedObjects(void)

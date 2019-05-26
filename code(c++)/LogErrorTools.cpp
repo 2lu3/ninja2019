@@ -43,18 +43,7 @@ bool writeErrorMessage(string message)
 // mode = default mode
 bool errorMessage(string message)
 {
-	if (getDefaultRunMode() <= getRunMode())
-	{
-		logMessage(message);
-		bool result = writeErrorMessage(message);
-		// log message will do it
-		// if (MODE_DEBUG <= getRunMode())
-		// {
-		// 	cout << createMessage(message) << "\n";
-		// }
-		return result;
-	}
-	return true;
+	return errorMessage(message, getDefaultRunMode());
 }
 
 // mode = option
@@ -63,13 +52,11 @@ bool errorMessage(string message, Mode option)
 	if (option <= getRunMode())
 	{
 		logMessage(message, option);
-		bool result = writeErrorMessage(message);
-		// logMessage will do it
-		// if (MODE_DEBUG <= getRunMode())
-		// {
-		// 	cout << createMessage(message) << "\n";
-		// }
-		return result;
+		if (getIsOutputErrorMessage2Console())
+		{
+			cout << createMessage(message) << "\n";
+		}
+		return writeErrorMessage(message);
 	}
 	return true;
 }
@@ -90,16 +77,7 @@ bool writeLogMessage(string message)
 // mode = default mode
 bool logMessage(string message)
 {
-	if (getDefaultRunMode() <= getRunMode())
-	{
-		bool result = writeLogMessage(message);
-		if (MODE_DEBUG <= getRunMode())
-		{
-			cout << createMessage(message) << "\n";
-		}
-		return result;
-	}
-	return true;
+	return logMessage(message, getDefaultRunMode());
 }
 
 bool logMessage(string message, Mode option)
@@ -107,7 +85,7 @@ bool logMessage(string message, Mode option)
 	if (option <= getRunMode())
 	{
 		bool result = writeLogMessage(message);
-		if (MODE_DEBUG <= getRunMode())
+		if (getIsOutputLogMessage2Console())
 		{
 			cout << createMessage(message) << "\n";
 		}
