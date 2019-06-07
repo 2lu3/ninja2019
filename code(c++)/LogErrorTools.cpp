@@ -118,12 +118,7 @@ bool writeOutputData(string file_name, string message)
 
 bool outputData(string file_name, string message)
 {
-
-	if (getDefaultRunMode() <= getRunMode())
-	{
-		return writeOutputData(file_name, message);
-	}
-	return true;
+	return outputData(file_name, message, getDefaultRunMode());
 }
 
 bool outputData(string file_name, string message, Mode option)
