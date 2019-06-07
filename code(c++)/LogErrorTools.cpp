@@ -8,17 +8,26 @@ string log_file_name("log_file.txt");
 
 void delErrorFile()
 {
-	ofstream error_file("./" + error_file_name);
+	if (remove(("./" + error_file_name).c_str()))
+	{
+		errorMessage("failed to delete Error Message", MODE_MATCH);
+	}
 }
 
 void delLogFile()
 {
-	ofstream log_file("./" + log_file_name);
+	if (remove(("./" + log_file_name).c_str()))
+	{
+		errorMessage("failed to delete Error Message", MODE_MATCH);
+	}
 }
 
 void delOutFile(string file_name)
 {
-	ofstream out_file("./" + file_name);
+	if (remove(("./" + file_name).c_str()))
+	{
+		errorMessage("failed to delete Error Message", MODE_MATCH);
+	}
 }
 
 string createMessage(string message)
@@ -32,7 +41,7 @@ bool writeErrorMessage(string message)
 	ofstream error_file("./" + error_file_name, ios::app);
 	if (!error_file)
 	{
-		cerr << "writeErrorMessage() : Failed to open log file"
+		cerr << "writeErrorMessage() : Failed to open error file"
 			 << "\n";
 		return false;
 	}
@@ -94,37 +103,34 @@ bool logMessage(string message, Mode option)
 	return true;
 }
 
-bool outputData(string file_name, string message)
+bool writeOutputData(string file_name, string message)
 {
-	if (getDefaultRunMode() < getRunMode())
-	{
-		return true;
-	}
 	ofstream output_file("./" + file_name, ios::app);
 	if (!output_file)
 	{
-		cerr << "outputData() : Failed to output data file"
-			 << " " << file_name << " " << message << "\n";
+		cerr << "writeOutputData() : Failed to open output file"
+			 << "\n";
 		return false;
 	}
-	if (getDefaultRunMode() >= MODE_DEBUG)
+	output_file << message;
+	return true;
+}
+
+bool outputData(string file_name, string message)
+{
+
+	if (getDefaultRunMode() <= getRunMode())
 	{
-		cout << message << "\n";
+		return writeOutputData(file_name, message);
 	}
-	output_file << message << "\n";
 	return true;
 }
 
 bool outputData(string file_name, string message, Mode option)
 {
-	if (option < getRunMode())
+	if (option <= getRunMode())
 	{
-		return true;
+		return writeOutputData(file_name, message);
 	}
-	bool result = outputData(file_name, message);
-	if (getDefaultRunMode() < MODE_DEBUG && option >= MODE_DEBUG)
-	{
-		cout << message << "\n";
-	}
-	return result;
+	return true;
 }

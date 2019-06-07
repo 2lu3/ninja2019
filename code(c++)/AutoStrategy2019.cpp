@@ -5,12 +5,9 @@ using namespace std;
 AutoStrategy::AutoStrategy()
 {
     pt.start();
-    delErrorFile();
-    delLogFile();
-    InputColorInformation();
-    setRunMode(MODE_DEBUG);
+    setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
-    setIsOutputLogMessage2Console(false);
+    setIsOutputLogMessage2Console(true);
     setIsOutputErrorMessage2Console(true);
     pt.print("AutoStrategy::AutoStrategy() :");
 }
@@ -19,6 +16,10 @@ void AutoStrategy::setup()
 {
     pt.start();
     UserGame1::setup();
+    delErrorFile();
+    delLogFile();
+    InputColorInformation();
+    cout << "run mode : " << getRunMode() << endl;
     pt.print("AutoStrategy::setup() :");
 }
 
@@ -26,7 +27,7 @@ void AutoStrategy::loop()
 {
     pt.start();
     UserGame1::loop();
-    logMessage("loop start", MODE_DEBUG);
+    logMessage("Auto Strategy loop start", MODE_DEBUG);
 
     // static int same_time = 0;
     // static int prev_repeated_num = 0;
@@ -83,39 +84,50 @@ void AutoStrategy::loop()
     // 色のデータを保存
     if (IsOnDepositArea())
     {
+        cout << "deposit" << endl;
         if (ColorJudgeLeft(object_box))
         {
             map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_DEPOSIT;
+            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(object_box))
         {
             map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_DEPOSIT;
+            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnYellowLine())
     {
+        cout << "yellow" << endl;
+        logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
         if (ColorJudgeLeft(trap_line))
         {
             map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_YELLOW;
+            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(trap_line))
         {
             map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_YELLOW;
+            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnSwampland())
     {
+        cout << "swampland" << endl;
         if (ColorJudgeLeft(gray_zone))
         {
             map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SWAMPLAND;
+            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(gray_zone))
         {
             map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_SWAMPLAND;
+            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnBlueFloor())
     {
+        cout << "blue floor" << endl;
         if (ColorJudgeLeft(blue_zone))
         {
             map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SUPER_AREA;
@@ -166,7 +178,15 @@ void AutoStrategy::loop()
             }
 
             // 傾き
-            float tilt = abs(calculated_position[i][1] / calculated_position[i][0]);
+            float tilt;
+            if (calculated_position[i][0] == 0)
+            {
+                tilt = 1000000000;
+            }
+            else
+            {
+                tilt = abs(calculated_position[i][1] / calculated_position[i][0]);
+            }
 
             // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
             // ただし、x[0]とx[1]はMAP_WHITEを代入しない
@@ -203,6 +223,39 @@ void AutoStrategy::loop()
             }
         }
     }
+
+    if (getRepeatedNum() % 100 == 0)
+    {
+        cout << "output" << endl;
+        delOutFile("output_data.txt");
+        int k = 2;
+        int temp;
+        for (long hi = kDotHeight - 1; hi >= 0; --hi)
+        {
+            rep(wj, kDotWidth)
+            {
+                // temp += map[0][hi][wj];
+                // if (hi % k == k - 1 && wj % k == k - 1)
+                // {
+                //     if (temp == 0)
+                //     {
+                //         outputData("output_data.txt", "0", MODE_MATCH);
+                //     }
+                //     else
+                //     {
+                //         outputData("output_data.txt", "1", MODE_MATCH);
+                //     }
+                // }
+
+                outputData("output_data.txt", to_string(map[0][hi][wj]), MODE_MATCH);
+            }
+            outputData("output_data.txt", "\n", MODE_MATCH);
+        }
+        outputData("output_data.txt", "\n", MODE_MATCH);
+        cout << "output finished" << endl;
+    }
+
+    motor(3, 5);
 
     /*
     if (SuperObj_Num != 0)
@@ -416,7 +469,7 @@ void AutoStrategy::loop()
         super_sameoperate = 0;
     }*/
     double seconds = pt.end();
-    logMessage("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
+    logMessage("AutoStrategy loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
 void AutoStrategy::CheckNowDot()
