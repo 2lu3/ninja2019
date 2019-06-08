@@ -1,4 +1,5 @@
 #ifndef LOG_ERROR_TOOLS
+#define LOG_ERROR_TOOLS
 
 #include "CospaceSettings.hpp"
 
@@ -16,10 +17,12 @@ public:
     void delOutFile(std::string file_name);
 
 private:
-    std::string createMessage(string message);
-    bool writeLogMessage(string message);
-    bool writeErrorMessage(string message);
-    bool writeOutputData(string file_name, string message);
-}
+    std::string createMessage(std::string message);
+    bool writeLogMessage(std::string message);
+    bool writeErrorMessage(std::string message);
+    bool writeOutputData(std::string file_name, std::string message);
+};
+
+extern LogErrorMessage logErrorMessage;
 
 #endif // !LOG_ERROR_TOOLS

@@ -35,11 +35,11 @@ std::string getFuncName(const char *name);
 class UserGame0
 {
 public:
+	virtual ~UserGame0();
 	virtual void setup(void);
 	virtual void loop(void);
 	virtual int shouldTeleport(void);
 	virtual void taskOnTeleport(void);
-	virtual ~UserGame0();
 
 private:
 };
@@ -47,9 +47,9 @@ private:
 class UserGame1
 {
 public:
+	virtual ~UserGame1();
 	virtual void setup(void);
 	virtual void loop(void);
-	virtual ~UserGame1();
 
 private:
 };

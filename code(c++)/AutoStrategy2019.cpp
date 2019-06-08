@@ -2,10 +2,14 @@
 
 using namespace std;
 
+AutoStrategy::~AutoStrategy()
+{
+}
+
 AutoStrategy::AutoStrategy()
 {
     pt.start();
-    setRunMode(MODE_VERBOSE);
+    setRunMode(MODE_DEBUG);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
@@ -16,10 +20,9 @@ void AutoStrategy::setup()
 {
     pt.start();
     UserGame1::setup();
-    delErrorFile();
-    delLogFile();
-    InputColorInformation();
-    cout << "run mode : " << getRunMode() << endl;
+    logErrorMessage.delErrorFile();
+    logErrorMessage.delLogFile();
+    cout << "run mode : " << static_cast<int>(getRunMode()) << endl;
     pt.print("AutoStrategy::setup() :");
 }
 
@@ -27,13 +30,13 @@ void AutoStrategy::loop()
 {
     pt.start();
     UserGame1::loop();
-    logMessage("Auto Strategy loop start", MODE_DEBUG);
+    logErrorMessage.logMessage("Auto Strategy loop start", MODE_DEBUG);
 
     // static int same_time = 0;
     // static int prev_repeated_num = 0;
     if (PositionX != 0 || PositionY != 0)
     {
-        logMessage(FUNCNAME + "(): not in PLA and (x, y) is (" + to_string(PositionX) + ", " + to_string(PositionY) + ")", MODE_DEBUG);
+        logErrorMessage.logMessage(FUNCNAME + "(): not in PLA and (x, y) is (" + to_string(PositionX) + ", " + to_string(PositionY) + ")", MODE_DEBUG);
         log_x = PositionX;
         log_y = PositionY;
         log_compass = Compass;
@@ -143,12 +146,11 @@ void AutoStrategy::loop()
 
     {
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        cout << "us " << US_Left << " " << US_Front << " " << US_Right << endl;
         int angles[3] = {-45, 0, 45};
         int calculated_position[3][2];
         rep(i, 3)
         {
-            angles[3] += Compass + 90;
+            angles[i] += Compass + 90;
             if (us_sensors[i] > 180)
             {
                 calculated_position[i][0] = -1;
@@ -189,7 +191,7 @@ void AutoStrategy::loop()
             }
             else
             {
-                tilt = abs(calculated_position[i][1] / calculated_position[i][0]);
+                tilt = fabs(static_cast<float>(calculated_position[i][1] / calculated_position[i][0]));
             }
 
             // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
@@ -202,7 +204,7 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                for (int yj = static_cast<int>((xi - x[0]) * tilt) + y[0]; yj <= (xi - x[0] + 1) * tilt + y[0]; yj++)
+                for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
                 {
                     if (yj < 0 || yj >= kDotHeight)
                     {
@@ -483,7 +485,7 @@ void AutoStrategy::loop()
         super_sameoperate = 0;
     }*/
     double seconds = pt.end();
-    logMessage("AutoStrategy loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
+    logErrorMessage.logMessage("AutoStrategy loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
 void AutoStrategy::CheckNowDot()
@@ -531,7 +533,7 @@ void AutoStrategy::CheckNowDot()
                     {
                         continue;
                     }
-                    if (map[0][temp_y][temp_x] != WALL)
+                    if (map[0][temp_y][temp_x] != MAP_WALL)
                     {
                         if (min_value > ABS(hi) + ABS(wj))
                         {
@@ -545,7 +547,7 @@ void AutoStrategy::CheckNowDot()
             if (min_position[0] < 0)
             {
                 // y * kDotWidth + x -> -1
-                errorMessage(FUNCNAME + "(): there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]), MODE_NORMAL);
+                logErrorMessage.errorMessage(FUNCNAME + "(): there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]), MODE_NORMAL);
                 y[i] = -1;
                 x[i] = -1;
             }

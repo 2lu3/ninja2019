@@ -13,6 +13,10 @@ int repeated_num = 0;
 
 std::random_device rnd;
 
+UserGame0::~UserGame0()
+{
+}
+
 void UserGame0::setup(void)
 {
 	InputColorInformation();
@@ -37,6 +41,10 @@ void UserGame0::taskOnTeleport(void)
 	resetLoadedObjects();
 	CurGame = 1;
 	Teleport = 1;
+}
+
+UserGame1::~UserGame1()
+{
 }
 
 void UserGame1::setup(void)
@@ -103,7 +111,7 @@ void ProcessingTime::start(void)
 double ProcessingTime::end(void)
 {
 	end_time = chrono::system_clock::now();
-	double elapsed = (double)chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+	double elapsed = static_cast<double>(chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
 	return elapsed;
 }
 void ProcessingTime::print(string message)
@@ -143,7 +151,7 @@ void setDefaultRunMode(Mode pushed_mode)
 void setRunMode(Mode pushed_mode)
 {
 	mode = pushed_mode;
-	logMessage("Set Run Mode as " + to_string(pushed_mode), MODE_DEBUG);
+	logErrorMessage.logMessage("Set Run Mode as " + to_string(static_cast<int>(pushed_mode)), MODE_DEBUG);
 }
 
 Mode getRunMode(void)

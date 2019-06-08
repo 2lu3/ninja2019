@@ -39,10 +39,10 @@ int BothColorJudge(int col[3][2])
 int color_world2[COLOR_TYPE_NUMBER][6];
 int ColorInformationInputer(int num, int col[3][2])
 {
-	logMessage("ColorInformationInputer() : Input new color", MODE_VERBOSE);
+	logErrorMessage.logMessage("ColorInformationInputer() : Input new color", MODE_VERBOSE);
 	if (num >= COLOR_TYPE_NUMBER)
 	{
-		errorMessage("ColorInformationInputer(): num's value is strange\n", MODE_NORMAL);
+		logErrorMessage.errorMessage("ColorInformationInputer(): num's value is strange\n", MODE_NORMAL);
 		return 0;
 	}
 	for (int i = 0; i < 3; i++)
@@ -51,17 +51,17 @@ int ColorInformationInputer(int num, int col[3][2])
 		{
 			if (col[i][j] < 0 || col[i][j] > 255)
 			{
-				errorMessage("ColorInformationInputer() : �F�̒l���ُ��ł�", MODE_NORMAL);
+				logErrorMessage.errorMessage("ColorInformationInputer() : value > 255", MODE_NORMAL);
 			}
 			color_world2[num][j * 3 + i] = col[i][j];
 		}
 	}
-	logMessage("ColorInformationInputer() successful\n", MODE_VERBOSE);
+	logErrorMessage.logMessage("ColorInformationInputer() successful\n", MODE_VERBOSE);
 	return 1;
 }
 void InputColorInformation(void)
 {
-	logMessage("Start InputColorInformation()\n", MODE_VERBOSE);
+	logErrorMessage.logMessage("Start InputColorInformation()\n", MODE_VERBOSE);
 	ColorInformationInputer(COLOR_YELLOW, trap_line);
 	ColorInformationInputer(COLOR_RED, red_obj);
 	ColorInformationInputer(COLOR_CYAN, cyan_obj);
@@ -70,7 +70,7 @@ void InputColorInformation(void)
 	ColorInformationInputer(COLOR_BLUE_FLOOR, blue_zone);
 	ColorInformationInputer(COLOR_DEPOSIT, object_box);
 	ColorInformationInputer(COLOR_SWAMPLAND, gray_zone);
-	logMessage("End InputColorInformation\n", MODE_VERBOSE);
+	logErrorMessage.logMessage("End InputColorInformation\n", MODE_VERBOSE);
 }
 
 int IsOnStuff(int num)

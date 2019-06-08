@@ -2,7 +2,7 @@
 #include "CommonTools.hpp"
 
 using namespace std;
-
+LogErrorMessage logErrorMessage;
 string error_file_name("error_file.txt");
 string log_file_name("log_file.txt");
 

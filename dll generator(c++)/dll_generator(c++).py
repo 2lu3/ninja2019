@@ -5,7 +5,7 @@ import sys
 
 # is_debug = True
 is_debug = False
-
+is_strip = True
 is_lite_warming = True
 
 def printforDebug(message):
@@ -74,8 +74,9 @@ def main():
         command = command + " " + file_path
     command = command + " -o " +  '\"' + out_path + "Ninja.dll\""
 
-    # command = command + " & REM 2> errors.txt strip --strip-unneeded \"" + out_path + "Ninja.dll\" pause"
-    command = command + " &  strip --strip-unneeded \"" + out_path + "Ninja.dll\""
+    # command = command + " & REM 2> errors.txt strip --strip-unneeded \"" + out_path + "Ninja.dll\" pause"]
+    if is_strip == True:
+        command = command + " &  strip --strip-unneeded \"" + out_path + "Ninja.dll\""
     printforDebug("command : " + command)
 
     # dll作成コマンドを実行する
@@ -87,7 +88,7 @@ def main():
 
 
 
-command_options = ['--help', '--debug', '--outhere', '--outcospace', '-O1', '-O2', '-O3']
+command_options = ['--help', '--debug', '--outhere', '--outcospace', '--no-strip', '-O1', '-O2', '-O3']
 
 
 if __name__ == '__main__':
@@ -110,6 +111,9 @@ if __name__ == '__main__':
         elif arg == '--no-lite-warming':
             print('mode : no lite warming')
             is_lite_warming = False
+        elif arg == '--no-strip':
+            print('mode : no strip')
+            is_strip = False
         elif arg == '-O1':
             print('mode : optimisation-level-1')
             optimisation_level = 1

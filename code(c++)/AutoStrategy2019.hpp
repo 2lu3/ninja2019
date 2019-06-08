@@ -8,6 +8,7 @@ class AutoStrategy : public UserGame1
 {
 public:
     AutoStrategy();
+    ~AutoStrategy() override;
     void setup() override;
     void loop() override;
 
@@ -17,6 +18,7 @@ private:
     const static int kCM2DotScale = 3;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
+
     ProcessingTime pt;
 
     enum MapInfo
