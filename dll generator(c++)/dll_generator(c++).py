@@ -68,7 +68,7 @@ def main():
     if optimisation_level != 0:
         command += '-O' + str(optimisation_level) + ' '
     if is_lite_warming:
-        command = command + '-Wall -Wextra'
+        command = command + '-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wsign-promo -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings'
 
     for file_path in fileList:
         command = command + " " + file_path
