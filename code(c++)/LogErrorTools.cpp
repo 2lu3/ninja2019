@@ -6,7 +6,7 @@ using namespace std;
 string error_file_name("error_file.txt");
 string log_file_name("log_file.txt");
 
-void delErrorFile()
+void LogErrorMessage::delErrorFile()
 {
 	if (remove(("./" + error_file_name).c_str()))
 	{
@@ -14,7 +14,7 @@ void delErrorFile()
 	}
 }
 
-void delLogFile()
+void LogErrorMessage::delLogFile()
 {
 	if (remove(("./" + log_file_name).c_str()))
 	{
@@ -22,7 +22,7 @@ void delLogFile()
 	}
 }
 
-void delOutFile(string file_name)
+void LogErrorMessage::delOutFile(string file_name)
 {
 	if (remove(("./" + file_name).c_str()))
 	{
@@ -30,13 +30,13 @@ void delOutFile(string file_name)
 	}
 }
 
-string createMessage(string message)
+string LogErrorMessage::createMessage(string message)
 {
 	message = to_string(getRepeatedNum()) + " " + message;
 	return message;
 }
 
-bool writeErrorMessage(string message)
+bool LogErrorMessage::writeErrorMessage(string message)
 {
 	ofstream error_file("./" + error_file_name, ios::app);
 	if (!error_file)
@@ -50,13 +50,13 @@ bool writeErrorMessage(string message)
 }
 
 // mode = default mode
-bool errorMessage(string message)
+bool LogErrorMessage::errorMessage(string message)
 {
 	return errorMessage(message, getDefaultRunMode());
 }
 
 // mode = option
-bool errorMessage(string message, Mode option)
+bool LogErrorMessage::errorMessage(string message, Mode option)
 {
 	if (option <= getRunMode())
 	{
@@ -70,7 +70,7 @@ bool errorMessage(string message, Mode option)
 	return true;
 }
 
-bool writeLogMessage(string message)
+bool LogErrorMessage::writeLogMessage(string message)
 {
 	ofstream log_file("./" + log_file_name, ios::app);
 	if (!log_file)
@@ -84,12 +84,12 @@ bool writeLogMessage(string message)
 }
 
 // mode = default mode
-bool logMessage(string message)
+bool LogErrorMessage::logMessage(string message)
 {
 	return logMessage(message, getDefaultRunMode());
 }
 
-bool logMessage(string message, Mode option)
+bool LogErrorMessage::logMessage(string message, Mode option)
 {
 	if (option <= getRunMode())
 	{
@@ -103,7 +103,7 @@ bool logMessage(string message, Mode option)
 	return true;
 }
 
-bool writeOutputData(string file_name, string message)
+bool LogErrorMessage::writeOutputData(string file_name, string message)
 {
 	ofstream output_file("./" + file_name, ios::app);
 	if (!output_file)
@@ -116,12 +116,12 @@ bool writeOutputData(string file_name, string message)
 	return true;
 }
 
-bool outputData(string file_name, string message)
+bool LogErrorMessage::outputData(string file_name, string message)
 {
 	return outputData(file_name, message, getDefaultRunMode());
 }
 
-bool outputData(string file_name, string message, Mode option)
+bool LogErrorMessage::outputData(string file_name, string message, Mode option)
 {
 	if (option <= getRunMode())
 	{

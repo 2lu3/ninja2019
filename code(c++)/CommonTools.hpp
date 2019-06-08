@@ -39,6 +39,7 @@ public:
 	virtual void loop(void);
 	virtual int shouldTeleport(void);
 	virtual void taskOnTeleport(void);
+	virtual ~UserGame0();
 
 private:
 };
@@ -48,6 +49,7 @@ class UserGame1
 public:
 	virtual void setup(void);
 	virtual void loop(void);
+	virtual ~UserGame1();
 
 private:
 };

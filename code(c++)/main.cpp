@@ -1,7 +1,7 @@
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
 #include "Hikaru.hpp"
-#include "Masuda.hpp"
+// #include "Masuda.hpp"
 #include "AutoStrategy2019.hpp"
 #include <bits/stdc++.h>
 
