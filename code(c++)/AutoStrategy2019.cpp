@@ -146,7 +146,8 @@ void AutoStrategy::loop()
 
     {
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        int angles[3] = {-45, 0, 45};
+        cout << "us " << US_Left << " " << US_Front << " " << US_Right << endl;
+        int angles[3] = {45, 0, -45};
         int calculated_position[3][2];
         rep(i, 3)
         {
@@ -165,7 +166,7 @@ void AutoStrategy::loop()
             // 壁の位置とロボットそれぞれの絶対座標
             int x[2] = {log_x, calculated_position[i][0] + log_x};
             int y[2] = {log_y, calculated_position[i][1] + log_y};
-            cout << i << " " << x[1] << " " << y[1] << endl;
+            cout << i << " " << calculated_position[i][0] << " " << calculated_position[i][1] << endl;
 
             // 0 < 1にする
             if (x[0] > x[1])
