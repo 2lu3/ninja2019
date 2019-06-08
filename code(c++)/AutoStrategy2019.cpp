@@ -7,7 +7,7 @@ AutoStrategy::AutoStrategy()
     pt.start();
     setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
-    setIsOutputLogMessage2Console(true);
+    setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
     pt.print("AutoStrategy::AutoStrategy() :");
 }
@@ -52,13 +52,13 @@ void AutoStrategy::loop()
         {
             rep(wj, range * 2 + 1)
             {
-                int y = hi + robot_positions[1][1] - range;
-                int x = wj + robot_positions[0][0] - range;
-                if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
-                {
-                    continue;
-                }
-                // dot[y * kDotWidthNum + x].arrived_times++;
+                // int y = hi + robot_dot_positions[1][1] - range;
+                // int x = wj + robot_dot_positions[0][0] - range;
+                // if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+                // {
+                //     continue;
+                // }
+                // // dot[y * kDotWidthNum + x].arrived_times++;
             }
         }
     }
@@ -81,34 +81,35 @@ void AutoStrategy::loop()
         }
     }
 
+    /*
     // 色のデータを保存
     if (IsOnDepositArea())
     {
         cout << "deposit" << endl;
         if (ColorJudgeLeft(object_box))
         {
-            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_DEPOSIT;
-            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_DEPOSIT;
+            logMessage(to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(object_box))
         {
-            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_DEPOSIT;
-            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_DEPOSIT;
+            logMessage(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnYellowLine())
     {
         cout << "yellow" << endl;
-        logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
+        logMessage(to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         if (ColorJudgeLeft(trap_line))
         {
-            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_YELLOW;
-            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_YELLOW;
+            logMessage(to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(trap_line))
         {
-            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_YELLOW;
-            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_YELLOW;
+            logMessage(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnSwampland())
@@ -116,13 +117,13 @@ void AutoStrategy::loop()
         cout << "swampland" << endl;
         if (ColorJudgeLeft(gray_zone))
         {
-            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SWAMPLAND;
-            logMessage(to_string(robot_positions[0][0]) + " " + to_string(robot_positions[0][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SWAMPLAND;
+            logMessage(to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         if (ColorJudgeRight(gray_zone))
         {
-            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_SWAMPLAND;
-            logMessage(to_string(robot_positions[2][0]) + " " + to_string(robot_positions[2][1]), MODE_VERBOSE);
+            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SWAMPLAND;
+            logMessage(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
     }
     if (IsOnBlueFloor())
@@ -130,18 +131,19 @@ void AutoStrategy::loop()
         cout << "blue floor" << endl;
         if (ColorJudgeLeft(blue_zone))
         {
-            map[0][robot_positions[0][1]][robot_positions[0][0]] = MAP_SUPER_AREA;
+            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SUPER_AREA;
         }
         if (ColorJudgeRight(blue_zone))
         {
-            map[0][robot_positions[2][1]][robot_positions[2][0]] = MAP_SUPER_AREA;
+            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SUPER_AREA;
         }
-    }
+    }*/
 
     // 壁の距離を計算
 
     {
         int us_sensors[3] = {US_Left, US_Front, US_Right};
+        cout << "us " << US_Left << " " << US_Front << " " << US_Right << endl;
         int angles[3] = {-45, 0, 45};
         int calculated_position[3][2];
         rep(i, 3)
@@ -151,6 +153,7 @@ void AutoStrategy::loop()
             {
                 calculated_position[i][0] = -1;
                 calculated_position[i][1] = -1;
+                cout << i << " pass; value = " << us_sensors[i] << endl;
                 continue;
             }
             // 壁の位置とロボットの相対座標
@@ -160,6 +163,7 @@ void AutoStrategy::loop()
             // 壁の位置とロボットそれぞれの絶対座標
             int x[2] = {log_x, calculated_position[i][0] + log_x};
             int y[2] = {log_y, calculated_position[i][1] + log_y};
+            cout << i << " " << x[1] << " " << y[1] << endl;
 
             // 0 < 1にする
             if (x[0] > x[1])
@@ -223,13 +227,12 @@ void AutoStrategy::loop()
             }
         }
     }
-
-    if (getRepeatedNum() % 100 == 0)
+    /*
+    if (getRepeatedNum() % 1000 == 0)
     {
         cout << "output" << endl;
         delOutFile("output_data.txt");
-        int k = 2;
-        int temp;
+        string temp;
         for (long hi = kDotHeight - 1; hi >= 0; --hi)
         {
             rep(wj, kDotWidth)
@@ -246,14 +249,25 @@ void AutoStrategy::loop()
                 //         outputData("output_data.txt", "1", MODE_MATCH);
                 //     }
                 // }
-
-                outputData("output_data.txt", to_string(map[0][hi][wj]), MODE_MATCH);
+                switch (map[0][hi][wj])
+                {
+                case MAP_WALL:
+                    temp = '1';
+                    break;
+                case MAP_WHITE:
+                case MAP_UNKNOWN:
+                case MAP_SUPER_AREA:
+                default:
+                    temp = '0';
+                    break;
+                }
+                outputData("output_data.txt", temp, MODE_MATCH);
             }
             outputData("output_data.txt", "\n", MODE_MATCH);
         }
         outputData("output_data.txt", "\n", MODE_MATCH);
         cout << "output finished" << endl;
-    }
+    }*/
 
     motor(3, 5);
 
@@ -536,7 +550,7 @@ void AutoStrategy::CheckNowDot()
                 x[i] = -1;
             }
         }
-        robot_positions[i][0] = x[i];
-        robot_positions[i][1] = y[i];
+        robot_dot_positions[i][0] = x[i];
+        robot_dot_positions[i][1] = y[i];
     }
 }

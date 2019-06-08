@@ -14,7 +14,7 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 1;
+    const static int kCM2DotScale = 3;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     ProcessingTime pt;
@@ -34,7 +34,7 @@ private:
     char map[4][kDotHeight][kDotWidth];
 
     int log_x, log_y, log_compass;
-    long robot_positions[3][2];
+    long robot_dot_positions[3][2];
 
     void CheckNowDot();
 };
