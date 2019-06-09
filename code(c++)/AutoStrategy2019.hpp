@@ -60,7 +60,7 @@ private:
     int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
-    int isNearTheFloor(MapInfo color, int x, int y, int radius);
+    int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
 };
 
 #endif //!AUTO_STRATEGY_HPP

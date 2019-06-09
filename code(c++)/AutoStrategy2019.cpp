@@ -3,6 +3,8 @@
 #define IF if
 #define LOG_MESSAGE(MESSAGE, OPTION) \
     IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
+#define ERROR_MESSAGE(MESSAGE, OPTION) \
+    IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
 using namespace std;
 
@@ -1262,86 +1264,88 @@ void AutoStrategy::CheckNowDot()
 // }
 
 
-// int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
-// {
-// 	//fprintf(logfile, " %d Start GoToPosition(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
+{
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + ", " + to_string(y) + ", " + to_string(wide_decide_x) + ", " + to_string(wide_decide_y) + ", " + to_string(wide_judge_arrived) + "): start", MODE_VERBOSE);
 
-// 	static int absolute_x = -1;
-// 	static int absolute_y = -1;
-// 	static int absolute_distance = -1;
-// 	static int same_operate = -1;
+    static int absolute_x = -1;
+	static int absolute_y = -1;
+	static int absolute_distance = -1;
+	static int same_operate = -1;
 
-// 	static int repeated_num_log = -1;
-// 	static int objects_num_log = -1;
-// 	if (repeated_num_log == -1)
-// 	{
-// 		repeated_num_log = getRepeatedNum() - 1;
-// 		objects_num_log = LoadedObjects;
-// 	}
+	static int repeated_num_log = -1;
+	static int objects_num_log = -1;
+	if (repeated_num_log == -1)
+	{
+		repeated_num_log = getRepeatedNum() - 1;
+		objects_num_log = LoadedObjects;
+	}
 
-// 	//引数の値がおかしい場合
-// 	if (x < 0 || y < 0 || x > kCospaceWidth || y > kCospaceHeight || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
-// 	{
-// 		printf("GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-// 		//fprintf(errfile, "%d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-// 		//fprintf(logfile, " %d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-// 		return 0;
-// 	}
+	//引数の値がおかしい場合
+	if (x < 0 || y < 0 || x > kCospaceWidth || y > kCospaceHeight || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
+	{
 
-// 	//absolute_x,yの値が、x, yの値からずれている場合
-// 	if (absolute_x == -1 || !(PLUSMINUS(absolute_x, x, wide_decide_x) && PLUSMINUS(absolute_y, y, wide_decide_y)))
-// 	{
-// 		int i = 0;
-// 		do
-// 		{
-// 			if (i > 5)
-// 			{
-// 				absolute_x = x;
-// 				absolute_y = y;
-// 				printf("warming GoToPosition(): absolute_x, absolute_yが決まりません\n");
-// 				printf("(x, y, wide_x, wide_y, wide_arrive) = (%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-// 				break;
-// 			}
-// 			absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
-// 			absolute_y = y - wide_decide_y + (rand() + 1) % (wide_decide_y * 2 + 1);
-// 			i++;
-// 		} while (absolute_x < 10 || absolute_x > kCospaceWidth - 10 || absolute_y < 10 || absolute_y > kCospaceHeight - 10);
-// 		//same_operate = 0;
-// 	}
+		printf("GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+		//fprintf(errfile, "%d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+		//fprintf(logfile, " %d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+		return 0;
+	}
 
-// 	if (absolute_distance <= -1)
-// 	{
-// 		absolute_distance = (int)sqrt(pow(absolute_x - log_x, 2) + pow(absolute_y - log_y, 2)) + 40;
-// 	}
+	//absolute_x,yの値が、x, yの値からずれている場合
+	if (absolute_x == -1 || !(PLUSMINUS(absolute_x, x, wide_decide_x) && PLUSMINUS(absolute_y, y, wide_decide_y)))
+	{
+		int i = 0;
+		do
+		{
+			if (i > 5)
+			{
+				absolute_x = x;
+				absolute_y = y;
+				printf("warming GoToPosition(): absolute_x, absolute_yが決まりません\n");
+				printf("(x, y, wide_x, wide_y, wide_arrive) = (%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+				break;
+			}
+			absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
+			absolute_y = y - wide_decide_y + (rand() + 1) % (wide_decide_y * 2 + 1);
+			i++;
+		} while (absolute_x < 10 || absolute_x > kCospaceWidth - 10 || absolute_y < 10 || absolute_y > kCospaceHeight - 10);
+		//same_operate = 0;
+	}
 
-// 	if (absolute_distance < same_operate)
-// 	{
-// 		printf("(%d, %d) arrive because too many same_operate\n", x, y);
-// 		absolute_x = -1;
-// 		absolute_y = -1;
-// 		same_operate = -1;
-// 		absolute_distance = -1;
-// 		if (PositionX == -1)
-// 		{
-// 			log_x = x;
-// 			log_y = y;
-// 		}
-// 		return 1;
-// 	}
+	if (absolute_distance <= -1)
+	{
+		absolute_distance = (int)sqrt(pow(absolute_x - log_x, 2) + pow(absolute_y - log_y, 2)) + 40;
+	}
 
-// 	int temp_x = WhereIsColorSensor();
-// 	int temp_y = temp_x / 1000;
-// 	temp_x -= temp_y * 1000;
-// 	if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
-// 	{
-// 		printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
-// 		logMessage("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
-// 		absolute_x = -1;
-// 		absolute_y = -1;
-// 		same_operate = -1;
-// 		absolute_distance = -1;
-// 		return 1;
-// 	}
+	if (absolute_distance < same_operate)
+	{
+		printf("(%d, %d) arrive because too many same_operate\n", x, y);
+		absolute_x = -1;
+		absolute_y = -1;
+		same_operate = -1;
+		absolute_distance = -1;
+		if (PositionX == -1)
+		{
+			log_x = x;
+			log_y = y;
+		}
+		return 1;
+	}
+
+	int temp_x = WhereIsColorSensor();
+	int temp_y = temp_x / 1000;
+	temp_x -= temp_y * 1000;
+	if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
+	{
+		printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
+		LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
+		absolute_x = -1;
+		absolute_y = -1;
+		same_operate = -1;
+		absolute_distance = -1;
+		return 1;
+	}
+}
 
 // 	logMessage("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
 // 	x = absolute_x;
@@ -2408,25 +2412,28 @@ void AutoStrategy::CheckNowDot()
 // 	return curved_times;
 // }
 
-int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radious)
+int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radius)
 {
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(static_cast<int>(color)) + "," + to_string(x) + "," + to_string(y) + "," + to_string(cm_radious) + "): start", MODE_VERBOSE);
-    int dot_radious = (cm_radious + kCM2DotScale - 1) / kCM2DotScale;
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(static_cast<int>(color)) + "," + to_string(x) + "," + to_string(y) + "," + to_string(cm_radius) + "): start", MODE_VERBOSE);
+    int dot_radious = (cm_radius + kCM2DotScale - 1) / kCM2DotScale;
 
     // xi = now_x - radious ~ now_x + radious
     for (int xi = robot_dot_positions[1][0] - dot_radious; xi <= robot_dot_positions[1][0] + dot_radious; xi++)
     {
-        if(xi < 0 || xi >= kDotWidth) {
+        if (xi < 0 || xi >= kDotWidth)
+        {
             continue;
         }
 
         // yj = now_y - radious ~ now_y + radious
         for (int yj = robot_dot_positions[1][1] - dot_radious; yj <= robot_dot_positions[1][1] + dot_radious; yj++)
         {
-            if(yj < 0 || yj >= kDotHeight) {
+            if (yj < 0 || yj >= kDotHeight)
+            {
                 continue;
             }
-            if(map[0][yj][xi] == color) {
+            if (map[0][yj][xi] == color)
+            {
                 LOG_MESSAGE(FUNCNAME + "(): return 1", MODE_VERBOSE);
                 return 1;
             }
@@ -2438,7 +2445,8 @@ int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radious)
 
 void AutoStrategy::GoToAngle(int angle, int distance)
 {
-	angle = angle - Compass;
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
+    angle = angle - Compass;
 	angle %= 360;
 	if (angle > 180)
 	{
@@ -2668,53 +2676,53 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 					}
 				}
 			}
-			else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
-			{
-				if (abs(angle) < 10)
-				{
-					if (rand() % 4)
-					{
-						motor(4, 4);
-					}
-					else
-					{
-						motor(5, 5);
-					}
-				}
-				else if (abs(angle) < 80)
-				{
-					if (angle < 0)
-					{
-						motor(5, 2);
-					}
-					else
-					{
-						motor(2, 5);
-					}
-				}
-				else if (abs(angle) < 120)
-				{
-					if (angle < 0)
-					{
-						motor(5, 0);
-					}
-					else
-					{
-						motor(0, 5);
-					}
-				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(2, -3);
-					}
-					else
-					{
-						motor(-3, 2);
-					}
-				}
-			}
+			// else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
+			// {
+			// 	if (abs(angle) < 10)
+			// 	{
+			// 		if (rand() % 4)
+			// 		{
+			// 			motor(4, 4);
+			// 		}
+			// 		else
+			// 		{
+			// 			motor(5, 5);
+			// 		}
+			// 	}
+			// 	else if (abs(angle) < 80)
+			// 	{
+			// 		if (angle < 0)
+			// 		{
+			// 			motor(5, 2);
+			// 		}
+			// 		else
+			// 		{
+			// 			motor(2, 5);
+			// 		}
+			// 	}
+			// 	else if (abs(angle) < 120)
+			// 	{
+			// 		if (angle < 0)
+			// 		{
+			// 			motor(5, 0);
+			// 		}
+			// 		else
+			// 		{
+			// 			motor(0, 5);
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 		if (angle < 0)
+			// 		{
+			// 			motor(2, -3);
+			// 		}
+			// 		else
+			// 		{
+			// 			motor(-3, 2);
+			// 		}
+			// 	}
+			// }
 			else
 			{
 				// printf("angle = %d\n", angle);
@@ -2733,21 +2741,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 					}
 					else
 					{
-						if (dot[now_dot_id].point == POINT_WHITE && IsOnSwampland())
-						{
-							if (IsOnSwampland() == 1)
-							{
-								motor(5, 2);
-							}
-							else if (IsOnSwampland() == 2)
-							{
-								motor(2, 5);
-							}
-						}
-						else
-						{
-							motor(5, 5);
-						}
+                        motor(5, 5);
 					}
 				}
 				else if (abs(angle) < 60)
@@ -2856,4 +2850,5 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 	// 		}
 	// 	}
 	// }
+    LOG_MESSAGE(FUNCNAME + "(): end with motor(" + to_string(WheelLeft) + "," + to_string(WheelRight) + ")", MODE_VERBOSE);
 }
