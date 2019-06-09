@@ -116,7 +116,7 @@ double ProcessingTime::end(void)
 }
 void ProcessingTime::print(string message)
 {
-	cout << message << " " << end() << "ms" << endl;
+	cout << message << " " << end() << "ms\n";
 }
 void ProcessingTime::print(void)
 {

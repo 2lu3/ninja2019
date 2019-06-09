@@ -10,7 +10,7 @@ void LogErrorMessage::delErrorFile()
 {
 	if (remove(("./" + error_file_name).c_str()))
 	{
-		errorMessage("failed to delete Error Message", MODE_MATCH);
+		cerr << "failed to delete Error file" << endl;
 	}
 }
 
@@ -18,7 +18,7 @@ void LogErrorMessage::delLogFile()
 {
 	if (remove(("./" + log_file_name).c_str()))
 	{
-		errorMessage("failed to delete Error Message", MODE_MATCH);
+		errorMessage("failed to delete Log file", MODE_MATCH);
 	}
 }
 
@@ -26,7 +26,7 @@ void LogErrorMessage::delOutFile(string file_name)
 {
 	if (remove(("./" + file_name).c_str()))
 	{
-		errorMessage("failed to delete Error Message", MODE_MATCH);
+		errorMessage("failed to delete " + file_name + " file", MODE_MATCH);
 	}
 }
 
