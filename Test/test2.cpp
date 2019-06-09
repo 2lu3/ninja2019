@@ -1,10 +1,15 @@
+#define _USE_MATH_DEFINES
 #include <iostream>
+#include <cmath>
 #include <chrono>
 #include <random>
 #include <cstdlib>
+#include <iomanip>
 
-#define N 200000
+#define N 10
 #define ABS(i) ((i ^ (i >> 31)) - (i >> 31))
+#define REP for
+#define rep(i, n) REP(long i = 0; i < n; i++)
 
 using namespace std;
 
@@ -28,52 +33,72 @@ private:
 
 ProcessingTime Processing_time;
 
-void test(int *a, int *b)
-{
-  int *pointer[2] = {a, b};
-  *pointer[0] = 10;
-  *pointer[1] = 20;
-}
+int us_data[N][5] = {
+    {47, 347, 6, 8, 16},
+    {42, 7, 11, 20, 15},
+    {44, 17, 10, 24, 11},
+    {44, 351, 9, 12, 18},
+    {29, 20, 15, 38, 16},
+    {30, 9, 24, 42, 29},
+    {44, 348, 9, 12, 20},
+    {45, 2, 9, 15, 13},
+    {40, 1, 13, 21, 19},
+    {43, 19, 12, 30, 12}};
+int angle[3] = {0, 45, -45};
+//  a, b, c
+double us_distance[3] = {8, 13, 4};
+
+int is_test = 0;
+
 int main()
 {
-  double end;
-  // Processing_time.start();
-  int x[2], y[2];
-  // for (int ni = 0; ni < N; ni++)
-  // {
-  //   for (int j = 0; j < 1000; j++)
-  //   {
-  //     x[0] *= x[1];
-  //     x[1] = x[0] / x[1];
-  //     x[0] = x[0] / x[1];
-  //   }
-  // }
-  // end = Processing_time.end();
-  // cout << end << endl;
+  cout << std::fixed;
+  // 前処理
+  rep(i, N)
+  {
+    us_data[i][1] += 90;
+    us_data[i][1] %= 360;
+  }
 
-  Processing_time.start();
-  for (int ni = 0; ni < N; ni++)
+  double k = 0.6;
+  int epoch_num = 1000;
+  double difference_sum = 0;
+  rep(epoch, epoch_num)
   {
-    for (int j = 0; j < 1000; j++)
+    k *= 1 - epoch / epoch_num;
+    difference_sum = 0;
+    rep(i, N)
     {
-      int temp = x[0];
-      x[0] = x[1];
-      x[1] = temp;
+      double y = sin(static_cast<double>(us_data[i][1]) * M_PI / 180) * us_distance[2];
+      rep(j, 3)
+      {
+        double wall_y = sin(static_cast<double>(us_data[i][1] + angle[j]) * M_PI / 180) * us_distance[j % 2];
+
+        double difference = static_cast<double>(us_data[i][0]) + y + wall_y - 50;
+        if (is_test)
+        {
+          cout << y + wall_y + us_data[i][0] << " " << difference << endl;
+        }
+        else
+        {
+          difference_sum += fabs(difference);
+          // cout << static_cast<double>(us_data[i][0]) + y + wall_y << " " << difference << endl;
+          // us_distance[2] -= difference * y / (y + wall_y) * k;
+          us_distance[j % 2] -= difference * wall_y / (y + wall_y) * k;
+          // cout << difference * y / (y + wall_y) * k << endl;
+        }
+      }
     }
+    if (is_test)
+    {
+      return 1;
+    }
+    cout << "difference " << difference_sum / N / 3 << endl;
   }
-  end = Processing_time.end();
-  cout << end << endl;
-  Processing_time.start();
-  int temp;
-  for (int ni = 0; ni < N; ni++)
+  rep(i, 3)
   {
-    for (int j = 0; j < 1000; j++)
-    {
-      temp = x[0];
-      x[0] = x[1];
-      x[1] = temp;
-    }
+    cout << us_distance[i] << " ";
   }
-  end = Processing_time.end();
-  cout << end << endl;
+  cout << endl;
+  cout << "all finished" << endl;
 }

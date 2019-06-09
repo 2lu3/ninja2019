@@ -145,13 +145,15 @@ void AutoStrategy::loop()
     // 壁の距離を計算
 
     {
+        int difference_us_position[2] = {10, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        cout << "us " << US_Left << " " << US_Front << " " << US_Right << endl;
-        int angles[3] = {45, 0, -45};
+        cout << "us " << US_Left << " " << US_Front << " " << US_Right << " " << Compass << endl;
+        int angles[3] = {40, 0, -40};
         int calculated_position[3][2];
         rep(i, 3)
         {
             angles[i] += Compass + 90;
+            angles[i] %= 360;
             if (us_sensors[i] > 180)
             {
                 calculated_position[i][0] = -1;
@@ -159,6 +161,7 @@ void AutoStrategy::loop()
                 cout << i << " pass; value = " << us_sensors[i] << endl;
                 continue;
             }
+            us_sensors[i] += difference_us_position[i % 2];
             // 壁の位置とロボットの相対座標
             calculated_position[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i]);
             calculated_position[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i]);
@@ -166,7 +169,7 @@ void AutoStrategy::loop()
             // 壁の位置とロボットそれぞれの絶対座標
             int x[2] = {log_x, calculated_position[i][0] + log_x};
             int y[2] = {log_y, calculated_position[i][1] + log_y};
-            cout << i << " " << calculated_position[i][0] << " " << calculated_position[i][1] << endl;
+            cout << i << " " << x[1] << " " << y[1] << endl;
 
             // 0 < 1にする
             if (x[0] > x[1])
@@ -272,7 +275,7 @@ void AutoStrategy::loop()
         cout << "output finished" << endl;
     }*/
 
-    motor(3, 5);
+    // motor(3, 5);
 
     /*
     if (SuperObj_Num != 0)
