@@ -249,219 +249,10 @@ void AutoStrategy::loop()
         }
     }
 
+    GoToAngle(120, 100);
+
     pt.print("AutoStrategy loop time :");
 }
-
-/*
-    if (SuperObj_Num != 0)
-    {
-        if (log_superobj_num <= 0 && (log_superobj_x[0] != SuperObj_X || log_superobj_y[0] != SuperObj_Y))
-        {
-            //I separate this from *1 because log_superobj_x[0 - 1] makes error
-            log_superobj_x[0] = SuperObj_X;
-            log_superobj_y[0] = SuperObj_Y;
-            log_superobj_num++;
-        }
-        else
-        {
-            //This avoid record same data many times
-            // if the new SuperObject is undefined
-            // hint : if log_superobj_num == 0, this doesn't work. so I separate this case
-            if (log_superobj_x[log_superobj_num - 1] != SuperObj_X || log_superobj_y[log_superobj_num - 1] != SuperObj_Y)
-            {
-                log_superobj_x[log_superobj_num] = SuperObj_X;
-                log_superobj_y[log_superobj_num] = SuperObj_Y;
-                log_superobj_num++;
-            }
-        }
-    }
-    if (SuperDuration > 0)
-    {
-        SuperDuration--;
-    }
-    else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-    {
-        setAction(FIND_OBJ);
-        loaded_objects[0]++;
-        SuperDuration = kFindObjDuration;
-    }
-    else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-    {
-        setAction(FIND_OBJ);
-        loaded_objects[1]++;
-        SuperDuration = kFindObjDuration;
-    }
-    else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-    {
-        setAction(FIND_OBJ);
-        loaded_objects[2]++;
-        SuperDuration = kFindObjDuration;
-    }
-    else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
-    {
-        same_time = 0;
-        setAction(FIND_OBJ);
-        SuperDuration = kFindObjDuration;
-        int min = 10000;
-        int num = 0;
-        for (int i = 0; i < log_superobj_num; i++)
-        {
-            if (pow(log_superobj_x[i] - log_x, 2) + pow(log_superobj_y[i] - log_y, 2) < min)
-            {
-                min = pow(log_superobj_x[i] - log_x, 2) + pow(log_superobj_y[i] - log_y, 2);
-                num = i;
-            }
-        }
-
-        if (min < 1200)
-        {
-            //I delete log_superobj_x[2], I have to move the data of log_superobj_x[3] to [2].
-            for (int i = num + 1; i < log_superobj_num; i++)
-            {
-                log_superobj_x[i] = log_superobj_x[i - 1];
-                log_superobj_y[i] = log_superobj_y[i - 1];
-            }
-            loaded_objects[3]++;
-            log_superobj_num--;
-        }
-        else
-        {
-            motor(3, 3);
-        }
-    }
-    else if (Duration > 0)
-    {
-        Duration--;
-    }
-    else if (IsOnYellowLine() && LoadedObjects > 0)
-    {
-        motor(-5, -3);
-        Duration = 3;
-    }
-    else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
-    {
-        process = 0;
-        if (IsOnDepositArea() == 3)
-        {
-            setAction(DEPOSIT_OBJ);
-            Duration = kFindObjDuration;
-        }
-        else if (IsOnDepositArea() == 1)
-        {
-            motor(0, 5);
-        }
-        else
-        {
-            motor(5, 0);
-        }
-    }
-    else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
-    {
-        searching_object = -1;
-        GoInDots(180, 135, 180, 135, MAP_DEPOSIT);
-    }
-    else if (log_superobj_num > 0)
-    {
-        searching_object = SUPER_LOADED_ID;
-        if (GoToDots(log_superobj_x[0], log_superobj_y[0], 0, 0))
-        {
-            if (prev_repeated_num + 40 < getRepeatedNum())
-            {
-                same_time = 0;
-            }
-            if (same_time > 10)
-            {
-                log_superobj_num = 0;
-                LOG_MESSAGE("There is no superobj", MODE_NORMAL);
-            }
-            GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
-            same_time++;
-        }
-    }
-    else
-    {
-        if (loaded_objects[BLACK_LOADED_ID] < 2)
-        {
-            GoInDots(180, 135, 180, 135, POINT_BLACK);
-            searching_object = BLACK_LOADED_ID;
-        }
-        else if (loaded_objects[CYAN_LOADED_ID] < 2)
-        {
-            GoInDots(180, 135, 180, 135, POINT_CYAN);
-            searching_object = CYAN_LOADED_ID;
-        }
-        else
-        {
-            GoInDots(180, 135, 180, 135, POINT_RED);
-            searching_object = RED_LOADED_ID;
-        }
-    }
-    switch (getAction())
-    {
-    case DEFINED:
-        //defined motor power by motor(int left, int right)
-        break;
-    case FIND_OBJ:
-        if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
-        {
-            LoadedObjects++;
-        }
-        LED_1 = 1;
-        MyState = 0;
-        WheelLeft = 0;
-        WheelRight = 0;
-        if (Duration == 0 && SuperDuration == 0)
-        {
-            LED_1 = 0;
-        }
-        break;
-    case DEPOSIT_OBJ:
-        WheelLeft = 0;
-        WheelRight = 0;
-        LED_1 = 2;
-        MyState = 0;
-        LoadedObjects = 0;
-        //initialize all value of loaded_objects
-        for (int i = 0; i < 4; i++)
-        {
-            loaded_objects[i] = 0;
-        }
-        if (Duration == 0 && SuperDuration == 0)
-        {
-            LED_1 = 0;
-        }
-        else
-        {
-            if (!IsOnDepositArea())
-            {
-                LoadedObjects = 6;
-                Duration = 0;
-                SuperDuration = 0;
-                for (int i = 0; i < 3; i++)
-                {
-                    loaded_objects[i] = 2;
-                }
-            }
-        }
-        break;
-    default:
-        printf("World2System(): action's value is ubnormal\n");
-        break;
-    }
-
-    //This is for superobj
-    //When there is no superobj, I give up to search superobj
-    super_sameoperate++;
-    if (log_superobj_num == 0)
-    {
-        super_sameoperate = 0;
-    }
-    if (super_sameoperate > 800)
-    {
-        log_superobj_num = 0;
-        super_sameoperate = 0;
-    }
-    */
 
 void AutoStrategy::CheckNowDot()
 {
@@ -532,819 +323,176 @@ void AutoStrategy::CheckNowDot()
     }
 }
 
-// /*
-// todo : 回転するときに、カラーセンサが沼地に入ってしまう問題を解決
-// オドメトリを用いて、PLAでTrapに入る問題を解決
-// 360 x 270にすること
-// */
-// #include "Hikaru.hpp"
-// #include "MapData.hpp"
-// #include <iostream>
+long AutoStrategy::WhereIsMotor(void)
+{
+    LOG_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
+    long x, y;
+    if (log_x < 0)
+    {
+        x = 0;
+    }
+    if (log_x >= kCospaceWidth)
+    {
+        x = kCospaceWidth - 1;
+    }
+    if (log_y < 0)
+    {
+        y = 0;
+    }
+    if (log_y >= kCospaceHeight)
+    {
+        y = kCospaceHeight - 1;
+    }
+    x = log_x - static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
+    y = log_y - static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
+    LOG_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
+    return y * 1000 + x;
+}
 
-// #define POINT_BLACK 20
-// #define POINT_RED 10
-// #define POINT_CYAN 15
-// #define POINT_SUPERAREA 2
-// #define POINT_WHITE 1
-// #define POINT_DEPOSIT 0
-// #define POINT_SWAMPLAND -1
-// #define POINT_WALL -2
-// #define POINT_YELLOW -3
-
-// #define RED_LOADED_ID 0
-// #define CYAN_LOADED_ID 1
-// #define BLACK_LOADED_ID 2
-// #define SUPER_LOADED_ID 3
-
-// #define FUNC_NAME getFuncName(__FUNCTION__)
-
-// using namespace std;
-
-// void Game0_Hikaru::setup(void)
-// {
-// 	pt.start();
-
-// 	UserGame0::setup();
-
-// 	delErrorFile();
-// 	delLogFile();
-// 	InputColorInformation();
-
-// 	double seconds = pt.end();
-// 	logMessage("game0 setup() : " + to_string(seconds) + " milliseconds");
-// }
-
-// void Game0_Hikaru::loop(void)
-// {
-// 	UserGame0::loop();
-// 	pt.start();
-// 	logMessage("World1 loop start");
-// 	if (SuperDuration > 0)
-// 	{
-// 		SuperDuration--;
-// 	}
-// 	else if (IsOnDepositArea() && LoadedObjects >= 5)
-// 	{
-// 		logMessage("find object box", MODE_DEBUG);
-// 		switch (IsOnDepositArea())
-// 		{
-// 		case 1:
-// 			logMessage("Left Sensor is in object_box", MODE_DEBUG);
-// 			motor(0, 5);
-// 			break;
-// 		case 2:
-// 			logMessage("Right Sensor is in object_box", MODE_DEBUG);
-// 			motor(5, 0);
-// 			break;
-// 		case 3:
-// 			logMessage("I am in object_box", MODE_DEBUG);
-// 			setAction(DEPOSIT_OBJ);
-// 			SuperDuration = 50;
-// 			break;
-// 		default:
-// 			break;
-// 		}
-// 	}
-// 	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-// 	{
-// 		logMessage("find black obj");
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[BLACK_LOADED_ID]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-// 	{
-// 		logMessage("find cyan obj");
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[CYAN_LOADED_ID]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-// 	{
-// 		logMessage("find red obj");
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[RED_LOADED_ID]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (Duration > 0)
-// 	{
-// 		Duration--;
-// 	}
-// 	else if (IsOnYellowLine() && LoadedObjects > 0)
-// 	{
-// 		if (IsOnYellowLine() == 1)
-// 		{
-// 			motor(-1, -3);
-// 		}
-// 		else
-// 		{
-// 			motor(-3, -1);
-// 		}
-// 		setAction(YELLOW_AVOIDANCE);
-// 		Duration = 3;
-// 	}
-// 	else if (obstacle(8, 10, 8))
-// 	{
-// 		motor(-3, 2);
-// 		// int speed = 3;
-// 		// switch(obstacle(10, 10, 10)) {
-// 		// 	case 1:// 左のみ
-// 		// 		motor(speed, -speed);
-// 		// 		break;
-// 		// 	case 2:
-// 		// 		if(US_Left < US_Right) {
-// 		// 			motor(speed, -speed);
-// 		// 			break;
-// 		// 		}
-// 		// 		else {
-// 		// 			motor(-speed, speed);
-// 		// 		}
-// 		// 		break;
-// 		// 	case 3:
-// 		// 		motor(speed, -speed);
-// 		// 		break;
-// 		// 	case 4:
-// 		// 		motor(-speed, speed);
-// 		// 		break;
-// 		// 	case 5:
-// 		// 		motor(speed, speed);
-// 		// 		break;
-// 		// 	case 6:
-// 		// 		motor(-speed, speed);
-// 		// 		break;
-// 		// 	case 7:
-// 		// 		motor(-speed, speed);
-// 		// 		break;
-// 		// 	default:
-// 		// 		logMessage("obstacle value is " + obstacle(10, 10, 10), MODE_NORMAL);
-// 		// }
-// 	}
-// 	else if (LoadedObjects >= 5)
-// 	{
-// 		logMessage("deposit", MODE_NORMAL);
-// 		if (US_Front < 14)
-// 		{
-// 			motor(-3, 1);
-// 		}
-// 		else if (US_Left < 8)
-// 		{
-// 			motor(-3, -1);
-// 		}
-// 		else if (US_Right < 8)
-// 		{
-// 			motor(-3, -1);
-// 		}
-// 		else if (US_Right < 15)
-// 		{
-// 			motor(3, 4);
-// 		}
-// 		else if (US_Right < 40)
-// 		{
-// 			motor(5, 3);
-// 		}
-// 		else if (US_Right < 80)
-// 		{
-// 			motor(4, 2);
-// 		}
-// 		else
-// 		{
-// 			motor(4, 2);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		// if (US_Front < 14)
-// 		// {
-// 		// 	motor(-3, 1);
-// 		// }
-// 		// else if (US_Left < 8)
-// 		// {
-// 		// 	motor(-3, -1);
-// 		// }
-// 		// else if (US_Right < 8)
-// 		// {
-// 		// 	motor(-3, -1);
-// 		// }
-// 		// else if (US_Right < 15 + rand() % 30)
-// 		// {
-// 		// 	motor(4, 5);
-// 		// }
-// 		// else if (US_Right < 40 + rand() % 30)
-// 		// {
-// 		// 	motor(4, 3);
-// 		// }
-// 		// else if (US_Right < 80)
-// 		// {
-// 		// 	motor(3, 1);
-// 		// }
-// 		// else
-// 		// {
-// 		// 	motor(4, 2);
-// 		// }
-// 		motor(3, 3);
-// 	}
-
-// 	/*if (Time > 180 && getAction() != FIND_OBJ && getAction() != DEPOSIT_OBJ && (!EitherColorJudge(object_box) && LoadedObjects < 3) || Time > 200)
-// 	{
-// 		logMessage("Teleport");
-// 		setAction(TELEPORT);
-// 	}*/
-
-// 	switch (getAction())
-// 	{
-// 	case DEFINED:
-// 		break;
-// 	case YELLOW_AVOIDANCE:
-// 		break;
-// 	case FIND_OBJ:
-// 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
-// 		{
-// 			logMessage("Add 1 to LoadedObjects", MODE_VERBOSE);
-// 			LoadedObjects++;
-// 		}
-// 		LED_1 = 1;
-// 		MyState = 0;
-// 		motor_no_action_change(0, 0);
-// 		if (Duration == 0 && SuperDuration == 0)
-// 		{
-// 			LED_1 = 0;
-// 		}
-// 		break;
-// 	case DEPOSIT_OBJ:
-// 		motor_no_action_change(0, 0);
-// 		LED_1 = 2;
-// 		MyState = 0;
-// 		LoadedObjects = 0;
-// 		// loaded_objects全体の大きさ / loaded_objects[0]の大きさ
-// 		resetLoadedObjects();
-
-// 		motor_no_action_change(0, 0);
-
-// 		if (Duration == 0 && SuperDuration == 0)
-// 		{
-// 			LED_1 = 0;
-// 		}
-// 		else if (!BothColorJudge(object_box))
-// 		{
-// 			errorMessage("this robot is not in object_box", MODE_NORMAL);
-// 			LoadedObjects = 6;
-// 			Duration = 0;
-// 			for (int i = 0; i < 3; i++)
-// 			{
-// 				loaded_objects[i] = 2;
-// 			}
-// 		}
-// 		break;
-// 	case TELEPORT:
-// 		Teleport = 2;
-// 		WheelLeft = 0;
-// 		WheelRight = 0;
-// 		LED_1 = 0;
-// 		MyState = 0;
-// 		LoadedObjects = 0;
-// 		SuperDuration = 0;
-// 		resetLoadedObjects();
-// 		CurGame = 1;
-// 		break;
-// 	default:
-// 		errorMessage("action is " + to_string(getAction()));
-// 		break;
-// 	}
-// 	logMessage("World1 Loop End");
-// }
-
-// int Game0_Hikaru::shouldTeleport(void)
-// {
-// 	return UserGame0::shouldTeleport();
-// }
-// void Game0_Hikaru::taskOnTeleport(void)
-// {
-// 	UserGame0::taskOnTeleport();
-// 	Teleport = 3;
-// }
-
-// void Game1_Hikaru::setup(void)
-// {
-// 	system("cls");
-// 	UserGame1::setup();
-// 	// fp = fopen("motor.txt", "a");
-// 	InputDotInformation();
-// 	InputColorInformation();
-// 	system("chcp 65001");
-// 	srand((unsigned int)time(NULL));
-
-// 	log_compass = Compass;
-// 	if (PositionX == 0 && PositionY == 0)
-// 	{
-// 		int y = emergency_now_dot_id / kDotWidthNum;
-// 		int x = emergency_now_dot_id - kDotWidthNum * y;
-// 		log_y = y * kSize;
-// 		log_x = x * kSize;
-// 		now_dot_id = emergency_now_dot_id;
-// 	}
-// 	else
-// 	{
-// 		log_x = PositionX;
-// 		log_y = PositionY;
-// 	}
-
-// 	setRunMode(MODE_MATCH);
-// }
-
-// void Game1_Hikaru::loop()
-// {
-// 	ProcessingTime pt;
-// 	pt.start();
-
-// 	UserGame1::loop();
-
-// 	// printf("serach %d\n", searching_object);
-// 	static int same_time = 0;
-// 	static int prev_repeated_num = 0;
-// 	// printf("%d %d\n", log_x, log_y);
-// 	if (PositionX != 0 || PositionY != 0)
-// 	{
-// 		log_x = PositionX;
-// 		log_y = PositionY;
-// 		log_compass = Compass;
-
-// 		if (log_x < 0)
-// 		{
-// 			log_x = 0;
-// 		}
-// 		if (log_x >= kCospaceWidth)
-// 		{
-// 			log_x = kCospaceWidth - 1;
-// 		}
-// 		if (log_y < 0)
-// 		{
-// 			log_y = 0;
-// 		}
-// 		if (log_y >= kCospaceHeight)
-// 		{
-// 			log_y = kCospaceHeight - 1;
-// 		}
-// 		now_dot_id = CheckNowDot();
-// 		int now_y = now_dot_id / kDotWidthNum;
-// 		int now_x = now_dot_id - now_y * kDotWidthNum;
-// 		int range = 0;
-// 		rep(hi, range * 2 + 1)
-// 		{
-// 			rep(wj, range * 2 + 1)
-// 			{
-// 				int y = hi + now_y - range;
-// 				int x = wj + now_x - range;
-// 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
-// 				{
-// 					continue;
-// 				}
-// 				dot[y * kDotWidthNum + x].arrived_times++;
-// 			}
-// 		}
-// 	}
-// 	else
-// 	{
-// 		PositionX = -1;
-// 		int range = 2;
-// 		for (int wi = 0; wi < range * 2; wi++)
-// 		{
-// 			for (int hj = 0; hj < range * 2; hj++)
-// 			{
-// 				int x = log_x / kSize + wi - range;
-// 				int y = log_y / kSize + hj - range;
-// 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
-// 				{
-// 					continue;
-// 				}
-// 				dot[y * kDotWidthNum + x].arrived_times += 2;
-// 			}
-// 		}
-// 	}
-
-// 	if (SuperObj_Num != 0)
-// 	{
-// 		if (log_superobj_num <= 0 && (log_superobj_x[0] != SuperObj_X || log_superobj_y[0] != SuperObj_Y))
-// 		{
-// 			//I separate this from *1 because log_superobj_x[0 - 1] makes error
-// 			log_superobj_x[0] = SuperObj_X;
-// 			log_superobj_y[0] = SuperObj_Y;
-// 			log_superobj_num++;
-// 		}
-// 		else
-// 		{
-// 			//*1
-// 			//This avoid record same data many times
-// 			// if the new SuperObject is undefined
-// 			// hint : if log_superobj_num == 0, this doesn't work. so I separate this case
-// 			if (log_superobj_x[log_superobj_num - 1] != SuperObj_X || log_superobj_y[log_superobj_num - 1] != SuperObj_Y)
-// 			{
-// 				log_superobj_x[log_superobj_num] = SuperObj_X;
-// 				log_superobj_y[log_superobj_num] = SuperObj_Y;
-// 				log_superobj_num++;
-// 			}
-// 		}
-// 	}
-
-// 	if (SuperDuration > 0)
-// 	{
-// 		SuperDuration--;
-// 	}
-// 	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-// 	{
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[0]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-// 	{
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[1]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
-// 	{
-// 		setAction(FIND_OBJ);
-// 		loaded_objects[2]++;
-// 		SuperDuration = kFindObjDuration;
-// 	}
-// 	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
-// 	{
-// 		same_time = 0;
-// 		setAction(FIND_OBJ);
-// 		SuperDuration = kFindObjDuration;
-// 		int min = 10000;
-// 		int num = 0;
-// 		for (int i = 0; i < log_superobj_num; i++)
-// 		{
-// 			if (pow(log_superobj_x[i] - log_x, 2) + pow(log_superobj_y[i] - log_y, 2) < min)
-// 			{
-// 				min = pow(log_superobj_x[i] - log_x, 2) + pow(log_superobj_y[i] - log_y, 2);
-// 				num = i;
-// 			}
-// 		}
-
-// 		if (min < 1200)
-// 		{
-// 			//I delete log_superobj_x[2], I have to move the data of log_superobj_x[3] to [2].
-// 			for (int i = num + 1; i < log_superobj_num; i++)
-// 			{
-// 				log_superobj_x[i] = log_superobj_x[i - 1];
-// 				log_superobj_y[i] = log_superobj_y[i - 1];
-// 			}
-// 			loaded_objects[3]++;
-// 			log_superobj_num--;
-// 		}
-// 		else
-// 		{
-// 			motor(3, 3);
-// 		}
-// 	}
-// 	else if (Duration > 0)
-// 	{
-// 		Duration--;
-// 	}
-// 	else if (IsOnYellowLine() && LoadedObjects > 0)
-// 	{
-// 		motor(-5, -3);
-// 		Duration = 3;
-// 	}
-// 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
-// 	{
-// 		process = 0;
-// 		if (IsOnDepositArea() == 3)
-// 		{
-// 			setAction(DEPOSIT_OBJ);
-// 			Duration = kFindObjDuration;
-// 		}
-// 		else if (IsOnDepositArea() == 1)
-// 		{
-// 			motor(0, 5);
-// 		}
-// 		else
-// 		{
-// 			motor(5, 0);
-// 		}
-// 	}
-// 	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
-// 	{
-// 		searching_object = -1;
-// 		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
-// 	}
-// 	else if (log_superobj_num > 0)
-// 	{
-// 		searching_object = SUPER_LOADED_ID;
-// 		if (GoToDots(log_superobj_x[0], log_superobj_y[0], 0, 0))
-// 		{
-// 			if (prev_repeated_num + 40 < getRepeatedNum())
-// 			{
-// 				same_time = 0;
-// 			}
-// 			if (same_time > 10)
-// 			{
-// 				log_superobj_num = 0;
-// 				logMessage("There is no superobj", MODE_NORMAL);
-// 			}
-// 			GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
-// 			same_time++;
-// 		}
-// 	}
-// 	else
-// 	{
-// 		if (loaded_objects[BLACK_LOADED_ID] < 2)
-// 		{
-// 			GoInDots(180, 135, 180, 135, POINT_BLACK);
-// 			searching_object = BLACK_LOADED_ID;
-// 		}
-// 		else if (loaded_objects[CYAN_LOADED_ID] < 2)
-// 		{
-// 			GoInDots(180, 135, 180, 135, POINT_CYAN);
-// 			searching_object = CYAN_LOADED_ID;
-// 		}
-// 		else
-// 		{
-// 			GoInDots(180, 135, 180, 135, POINT_RED);
-// 			searching_object = RED_LOADED_ID;
-// 		}
-// 	}
-
-// 	switch (getAction())
-// 	{
-// 	case DEFINED:
-// 		//defined motor power by motor(int left, int right)
-// 		break;
-// 	case FIND_OBJ:
-// 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
-// 		{
-// 			LoadedObjects++;
-// 		}
-// 		LED_1 = 1;
-// 		MyState = 0;
-// 		WheelLeft = 0;
-// 		WheelRight = 0;
-// 		if (Duration == 0 && SuperDuration == 0)
-// 		{
-// 			LED_1 = 0;
-// 		}
-// 		break;
-// 	case DEPOSIT_OBJ:
-// 		WheelLeft = 0;
-// 		WheelRight = 0;
-// 		LED_1 = 2;
-// 		MyState = 0;
-// 		LoadedObjects = 0;
-// 		//initialize all value of loaded_objects
-// 		for (int i = 0; i < 4; i++)
-// 		{
-// 			loaded_objects[i] = 0;
-// 		}
-// 		if (Duration == 0 && SuperDuration == 0)
-// 		{
-// 			LED_1 = 0;
-// 		}
-// 		else
-// 		{
-// 			if (!IsOnDepositArea())
-// 			{
-// 				LoadedObjects = 6;
-// 				Duration = 0;
-// 				SuperDuration = 0;
-// 				for (int i = 0; i < 3; i++)
-// 				{
-// 					loaded_objects[i] = 2;
-// 				}
-// 			}
-// 		}
-// 		break;
-// 	default:
-// 		printf("World2System(): action's value is ubnormal\n");
-// 		break;
-// 	}
-
-// 	//This is for superobj
-// 	//When there is no superobj, I give up to search superobj
-// 	super_sameoperate++;
-// 	if (log_superobj_num == 0)
-// 	{
-// 		super_sameoperate = 0;
-// 	}
-// 	if (super_sameoperate > 800)
-// 	{
-// 		log_superobj_num = 0;
-// 		super_sameoperate = 0;
-// 	}
-// 	double seconds = pt.end();
-// 	logMessage("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
-// }
-
-// long Game1_Hikaru::WhereIsMotor(void)
-// {
-// 	//fprintf(logfile, "%4d Start WhereIsMotor()\n", getRepeatedNum());
-// 	long x, y;
-// 	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-// 		//fprintf(logfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-// 		log_x = kCospaceWidth / 2;
-// 		log_y = kCospaceHeight / 2;
-// 	}
-// 	x = log_x - (long)cos((double)(Compass + 90) * 3.14 / 180) * 5;
-// 	y = log_y - (long)sin((double)(Compass + 90) * 3.14 / 180) * 5;
-// 	//fprintf(logfile, "%4d End WhereIsMotor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
-// 	return y * 1000 + x;
-// }
-// long Game1_Hikaru::WhereIsColorSensor(void)
-// {
-// 	//fprintf(logfile, "%4d Start WhereIsColorSensor()\n", getRepeatedNum());
-// 	long x, y;
-// 	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-// 		//fprintf(logfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-// 		log_x = kCospaceWidth / 2;
-// 		log_y = kCospaceHeight / 2;
-// 	}
-// 	x = log_x + (int)(cos((double)(Compass + 90) * 3.14 / 180) * 5);
-// 	y = log_y + (int)(sin((double)(Compass + 90) * 3.14 / 180) * 5);
-// 	//fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-// 	if (x < 0)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-// 		x = 0;
-// 	}
-// 	if (y < 0)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-// 		y = 0;
-// 	}
-// 	if (x >= kCospaceWidth)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-// 		x = kCospaceWidth - 1;
-// 	}
-// 	if (y >= kCospaceHeight)
-// 	{
-// 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
-// 		y = kCospaceHeight - 1;
-// 	}
-// 	//fprintf(logfile, "%4d End WhereIsColorSensor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
-// 	return y * 1000 + x;
-// }
-
-// int Game1_Hikaru::CheckNowDot(void)
-// {
-// 	//fprintf(logfile, "%4d Start CheckNowDot()\n", getRepeatedNum());
-// 	int x = WhereIsColorSensor();
-// 	int y = x / 1000;
-// 	x = x - y * 1000;
-// 	//fprintf(logfile, "%4d CheckNowDot(): color sensor is (%d, %d)\n", getRepeatedNum(), x, y);
-// 	if (x < 0 || x >= kCospaceWidth || y < 0 || y >= kCospaceHeight)
-// 	{
-// 		//fprintf(logfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
-// 		//fprintf(errfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
-// 		if (x < 0)
-// 		{
-// 			x = 10;
-// 		}
-// 		else
-// 		{
-// 			x = kCospaceWidth - 11;
-// 		}
-// 		if (y < 0)
-// 		{
-// 			y = 10;
-// 		}
-// 		else
-// 		{
-// 			y = kCospaceHeight - 11;
-// 		}
-// 	}
-
-// 	x = x / kSize;
-// 	y = y / kSize;
-
-// 	//もし、今壁の中の場合
-// 	if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
-// 	{
-// 		// printf("%d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
-// 		//fprintf(logfile, " %d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
-// 		for (int i = 3; i <= 5 && dot[y * kDotWidthNum + x].point <= POINT_WALL; i = i + 2)
-// 		{
-// 			for (int j = 0; j < pow(i, 2); j++)
-// 			{
-// 				int temp_x, temp_y;
-// 				temp_y = j / i;
-// 				temp_x = j - temp_y * i;
-// 				temp_x += x - i / 2;
-// 				temp_y += y - i / 2;
-// 				if (temp_x < 0 || temp_x >= kDotWidthNum)
-// 				{
-// 					continue;
-// 				}
-// 				if (temp_y < 0 || temp_y >= kDotHeightNum)
-// 				{
-// 					continue;
-// 				}
-// 				if (dot[temp_y * kDotWidthNum + temp_x].point >= POINT_DEPOSIT)
-// 				{
-// 					x = temp_x;
-// 					y = temp_y;
-// 					break;
-// 				}
-// 			}
-// 		}
-// 		if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
-// 		{
-// 			logMessage("CheckNowDot(): I(" + to_string(x) + "," + to_string(y) + ") and around me are in wall or yellow", MODE_NORMAL);
-// 			//fprintf(logfile, "%4d End CheckNowDot() with returning %d\n", getRepeatedNum(), emergency_now_dot_id);
-// 			return emergency_now_dot_id;
-// 		}
-// 	}
-// 	//fprintf(logfile, "%4d End CheckNowDot() with returning (%d, %d) = %d\n", getRepeatedNum(), x, y, y * kDotWidthNum + x);
-// 	return y * kDotWidthNum + x;
-// }
-
+long AutoStrategy::WhereIsColorSensor(void)
+{
+    LOG_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
+    long x, y;
+    if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
+    {
+        log_x = kCospaceWidth / 2;
+        log_y = kCospaceHeight / 2;
+    }
+    x = log_x + static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
+    y = log_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
+    //fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+    if (x < 0)
+    {
+        //fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+        x = 0;
+    }
+    if (y < 0)
+    {
+        //fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+        y = 0;
+    }
+    if (x >= kCospaceWidth)
+    {
+        //fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+        x = kCospaceWidth - 1;
+    }
+    if (y >= kCospaceHeight)
+    {
+        //fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+        y = kCospaceHeight - 1;
+    }
+    LOG_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
+    return y * 1000 + x;
+}
 
 int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
 {
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + ", " + to_string(y) + ", " + to_string(wide_decide_x) + ", " + to_string(wide_decide_y) + ", " + to_string(wide_judge_arrived) + "): start", MODE_VERBOSE);
+    //fprintf(logfile, " %d Start GoToPosition(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
 
     static int absolute_x = -1;
-	static int absolute_y = -1;
-	static int absolute_distance = -1;
-	static int same_operate = -1;
+    static int absolute_y = -1;
+    static int absolute_distance = -1;
+    static int same_operate = -1;
 
-	static int repeated_num_log = -1;
-	static int objects_num_log = -1;
-	if (repeated_num_log == -1)
-	{
-		repeated_num_log = getRepeatedNum() - 1;
-		objects_num_log = LoadedObjects;
-	}
+    static int repeated_num_log = -1;
+    static int objects_num_log = -1;
+    if (repeated_num_log == -1)
+    {
+        repeated_num_log = getRepeatedNum() - 1;
+        objects_num_log = LoadedObjects;
+    }
 
-	//引数の値がおかしい場合
-	if (x < 0 || y < 0 || x > kCospaceWidth || y > kCospaceHeight || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
-	{
+    //引数の値がおかしい場合
+    if (x < 0 || y < 0 || x > kCospaceWidth || y > kCospaceHeight || wide_decide_x < 0 || wide_decide_y < 0 || wide_judge_arrived < 0)
+    {
+        printf("GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+        //fprintf(errfile, "%d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+        //fprintf(logfile, " %d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+        return 0;
+    }
 
-		printf("GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-		//fprintf(errfile, "%d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-		//fprintf(logfile, " %d GoToPosition(): 引数が(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-		return 0;
-	}
+    //absolute_x,yの値が、x, yの値からずれている場合
+    if (absolute_x == -1 || !(PLUSMINUS(absolute_x, x, wide_decide_x) && PLUSMINUS(absolute_y, y, wide_decide_y)))
+    {
+        int i = 0;
+        do
+        {
+            if (i > 5)
+            {
+                absolute_x = x;
+                absolute_y = y;
+                printf("warming GoToPosition(): absolute_x, absolute_yが決まりません\n");
+                printf("(x, y, wide_x, wide_y, wide_arrive) = (%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
+                break;
+            }
+            absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
+            absolute_y = y - wide_decide_y + (rand() + 1) % (wide_decide_y * 2 + 1);
+            i++;
+        } while (absolute_x < 10 || absolute_x > kCospaceWidth - 10 || absolute_y < 10 || absolute_y > kCospaceHeight - 10);
+        //same_operate = 0;
+    }
 
-	//absolute_x,yの値が、x, yの値からずれている場合
-	if (absolute_x == -1 || !(PLUSMINUS(absolute_x, x, wide_decide_x) && PLUSMINUS(absolute_y, y, wide_decide_y)))
-	{
-		int i = 0;
-		do
-		{
-			if (i > 5)
-			{
-				absolute_x = x;
-				absolute_y = y;
-				printf("warming GoToPosition(): absolute_x, absolute_yが決まりません\n");
-				printf("(x, y, wide_x, wide_y, wide_arrive) = (%d, %d, %d, %d, %d)\n", x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-				break;
-			}
-			absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
-			absolute_y = y - wide_decide_y + (rand() + 1) % (wide_decide_y * 2 + 1);
-			i++;
-		} while (absolute_x < 10 || absolute_x > kCospaceWidth - 10 || absolute_y < 10 || absolute_y > kCospaceHeight - 10);
-		//same_operate = 0;
-	}
+    if (absolute_distance <= -1)
+    {
+        absolute_distance = static_cast<int>(sqrt(pow(absolute_x - log_x, 2) + pow(absolute_y - log_y, 2))) + 40;
+    }
 
-	if (absolute_distance <= -1)
-	{
-		absolute_distance = (int)sqrt(pow(absolute_x - log_x, 2) + pow(absolute_y - log_y, 2)) + 40;
-	}
+    if (absolute_distance < same_operate)
+    {
+        printf("(%d, %d) arrive because too many same_operate\n", x, y);
+        absolute_x = -1;
+        absolute_y = -1;
+        same_operate = -1;
+        absolute_distance = -1;
+        if (PositionX == -1)
+        {
+            log_x = x;
+            log_y = y;
+        }
+        return 1;
+    }
 
-	if (absolute_distance < same_operate)
-	{
-		printf("(%d, %d) arrive because too many same_operate\n", x, y);
-		absolute_x = -1;
-		absolute_y = -1;
-		same_operate = -1;
-		absolute_distance = -1;
-		if (PositionX == -1)
-		{
-			log_x = x;
-			log_y = y;
-		}
-		return 1;
-	}
+    int temp_x = WhereIsColorSensor();
+    int temp_y = temp_x / 1000;
+    temp_x -= temp_y * 1000;
+    if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
+    {
+        printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
+        LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
+        absolute_x = -1;
+        absolute_y = -1;
+        same_operate = -1;
+        absolute_distance = -1;
+        return 1;
+    }
 
-	int temp_x = WhereIsColorSensor();
-	int temp_y = temp_x / 1000;
-	temp_x -= temp_y * 1000;
-	if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
-	{
-		printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
-		LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
-		absolute_x = -1;
-		absolute_y = -1;
-		same_operate = -1;
-		absolute_distance = -1;
-		return 1;
-	}
+    LOG_MESSAGE("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
+    x = absolute_x;
+    y = absolute_y;
+    x = x - temp_x;
+    y = y - temp_y;
+    LOG_MESSAGE("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
+    double angle = atan2(y, x);
+    angle = angle * 180 / 3.14;
+    int angle_int = static_cast<int>(angle);
+    angle_int -= 90;
+    if (angle_int < 0)
+    {
+        angle_int += 360;
+    }
+    LOG_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
+    GoToAngle(angle_int, static_cast<int>(sqrt(x * x + y * y)));
+
+    if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
+    {
+        same_operate++;
+    }
+    else
+    {
+        same_operate = 0;
+    }
+    repeated_num_log = getRepeatedNum();
+    return 0;
 }
 
 // 	logMessage("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
@@ -2447,408 +1595,408 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 {
     LOG_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
     angle = angle - Compass;
-	angle %= 360;
-	if (angle > 180)
-	{
-		angle -= 360;
-	}
-	if (angle < -180)
-	{
-		angle += 360;
-	}
+    angle %= 360;
+    if (angle > 180)
+    {
+        angle -= 360;
+    }
+    if (angle < -180)
+    {
+        angle += 360;
+    }
 
-	int classification = obstacle(10, 12, 10);
-	if (log_superobj_num > 0)
-	{
-		classification = obstacle(5, 7, 5);
-	}
+    int classification = obstacle(10, 12, 10);
+    if (log_superobj_num > 0)
+    {
+        classification = obstacle(5, 7, 5);
+    }
 
-	// double magnification = 0.3;
-	int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-	if (short_front < 0)
-		short_front = 0;
-	if (short_front > 5)
-		short_front = 5;
-	if (short_right < 0)
-		short_right = 0;
-	if (short_right > 5)
-		short_right = 5;
-	if (short_left < 0)
-		short_left = 0;
-	if (short_left > 5)
-		short_left = 5;
-	switch (classification)
-	{
-	case 0:
-		classification = obstacle(30, 40, 30);
-		if (log_superobj_num > 0)
-		{
-			classification = obstacle(15, 20, 15);
-		}
-		if (classification == 1 && angle > 0 && angle < 90)
-		{ //left
-			motor(5, short_left);
-		}
-		else if (classification == 2 && abs(angle) < 30)
-		{ //front
-			if (angle < 0)
-			{
-				motor(5, short_front);
-			}
-			else
-			{
-				motor(short_front, 5);
-			}
-		}
-		else if (classification == 3 && angle > -30 && angle < 90)
-		{ //left & front
-			motor(5, (short_left < short_front) ? (short_left) : (short_right));
-		}
-		else if (classification == 4 && angle < 0 && angle > -90)
-		{ //right
-			motor(short_right, 5);
-		}
-		else if (classification == 5 && abs(angle) > 30)
-		{ //left & right
-			if (abs(angle) < 150)
-			{
-				motor(5, 5);
-			}
-			else
-			{
-				if (angle < 0)
-				{
-					motor(3, -4);
-				}
-				else
-				{
-					motor(-4, 3);
-				}
-				// Duration = 5;
-			}
-		}
-		else if (classification == 6 && angle < 30 && angle > -90)
-		{ //front & right
-			motor((short_right < short_front) ? (short_right) : (short_right), 5);
-		}
-		else if (classification == 7)
-		{ //all
-			if (angle < 0)
-			{
-				motor(5, short_front);
-			}
-			else
-			{
-				motor(short_front, 5);
-			}
-		}
-		else
-		{
-			if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 800)
-			{
-				printf("log_superobj_num > 0 %d\n", angle);
-				if (abs(angle) < 30)
-				{
-					if (distance < 5)
-					{
-						motor(-5, -5);
-					}
-					else
-					{
-						motor(5, 5);
-					}
-				}
-				else if (abs(angle) < 100)
-				{
-					if (angle < 0)
-					{
-						motor(3, -1);
-					}
-					else
-					{
-						motor(-1, 3);
-					}
-				}
-				else if (abs(angle) < 120)
-				{
-					if (angle < 0)
-					{
-						motor(-3, -5);
-					}
-					else
-					{
-						motor(-5, -3);
-					}
-				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(3, -5);
-					}
-					else
-					{
-						motor(-5, 3);
-					}
-				}
-			}
-			else if (IsOnSwampland())
-			{
-				if (abs(angle) < 30)
-				{
-					motor(5, 5);
-				}
-				else if (abs(angle) < 90)
-				{
-					if (angle < 0)
-					{
-						motor(5, 1);
-					}
-					else
-					{
-						motor(1, 5);
-					}
-				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(5, -5);
-					}
-					else
-					{
-						motor(-5, 5);
-					}
-				}
-				Duration = 5;
-			}
-			else if (isNearTheFloor(MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
-			{
+    // double magnification = 0.3;
+    int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+    int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+    int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+    if (short_front < 0)
+        short_front = 0;
+    if (short_front > 5)
+        short_front = 5;
+    if (short_right < 0)
+        short_right = 0;
+    if (short_right > 5)
+        short_right = 5;
+    if (short_left < 0)
+        short_left = 0;
+    if (short_left > 5)
+        short_left = 5;
+    switch (classification)
+    {
+    case 0:
+        classification = obstacle(30, 40, 30);
+        if (log_superobj_num > 0)
+        {
+            classification = obstacle(15, 20, 15);
+        }
+        if (classification == 1 && angle > 0 && angle < 90)
+        { //left
+            motor(5, short_left);
+        }
+        else if (classification == 2 && abs(angle) < 30)
+        { //front
+            if (angle < 0)
+            {
+                motor(5, short_front);
+            }
+            else
+            {
+                motor(short_front, 5);
+            }
+        }
+        else if (classification == 3 && angle > -30 && angle < 90)
+        { //left & front
+            motor(5, (short_left < short_front) ? (short_left) : (short_right));
+        }
+        else if (classification == 4 && angle < 0 && angle > -90)
+        { //right
+            motor(short_right, 5);
+        }
+        else if (classification == 5 && abs(angle) > 30)
+        { //left & right
+            if (abs(angle) < 150)
+            {
+                motor(5, 5);
+            }
+            else
+            {
+                if (angle < 0)
+                {
+                    motor(3, -4);
+                }
+                else
+                {
+                    motor(-4, 3);
+                }
+                // Duration = 5;
+            }
+        }
+        else if (classification == 6 && angle < 30 && angle > -90)
+        { //front & right
+            motor((short_right < short_front) ? (short_right) : (short_right), 5);
+        }
+        else if (classification == 7)
+        { //all
+            if (angle < 0)
+            {
+                motor(5, short_front);
+            }
+            else
+            {
+                motor(short_front, 5);
+            }
+        }
+        else
+        {
+            if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 800)
+            {
+                printf("log_superobj_num > 0 %d\n", angle);
+                if (abs(angle) < 30)
+                {
+                    if (distance < 5)
+                    {
+                        motor(-5, -5);
+                    }
+                    else
+                    {
+                        motor(5, 5);
+                    }
+                }
+                else if (abs(angle) < 100)
+                {
+                    if (angle < 0)
+                    {
+                        motor(3, -1);
+                    }
+                    else
+                    {
+                        motor(-1, 3);
+                    }
+                }
+                else if (abs(angle) < 120)
+                {
+                    if (angle < 0)
+                    {
+                        motor(-3, -5);
+                    }
+                    else
+                    {
+                        motor(-5, -3);
+                    }
+                }
+                else
+                {
+                    if (angle < 0)
+                    {
+                        motor(3, -5);
+                    }
+                    else
+                    {
+                        motor(-5, 3);
+                    }
+                }
+            }
+            else if (IsOnSwampland())
+            {
+                if (abs(angle) < 30)
+                {
+                    motor(5, 5);
+                }
+                else if (abs(angle) < 90)
+                {
+                    if (angle < 0)
+                    {
+                        motor(5, 1);
+                    }
+                    else
+                    {
+                        motor(1, 5);
+                    }
+                }
+                else
+                {
+                    if (angle < 0)
+                    {
+                        motor(5, -5);
+                    }
+                    else
+                    {
+                        motor(-5, 5);
+                    }
+                }
+                Duration = 5;
+            }
+            else if (isNearTheFloor(MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
+            {
                 LOG_MESSAGE("near yellow or unknown", MODE_DEBUG);
                 if (abs(angle) < 10)
-				{
-					motor(3, 3);
-				}
-				else if (abs(angle) < 30)
-				{
-					if (angle < 0)
-					{
-						motor(4, 3);
-					}
-					else
-					{
-						motor(3, 4);
-					}
-				}
-				else if (abs(angle) < 80 && LoadedObjects != 6)
-				{
-					if (angle < 0)
-					{
-						motor(3, 1);
-					}
-					else
-					{
-						motor(1, 3);
-					}
-				}
-				else if (abs(angle) < 120)
-				{
-					if (angle < 0)
-					{
-						motor(2, -3);
-					}
-					else
-					{
-						motor(-3, 2);
-					}
-				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(3, -4);
-					}
-					else
-					{
-						motor(-4, 3);
-					}
-				}
-			}
-			// else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
-			// {
-			// 	if (abs(angle) < 10)
-			// 	{
-			// 		if (rand() % 4)
-			// 		{
-			// 			motor(4, 4);
-			// 		}
-			// 		else
-			// 		{
-			// 			motor(5, 5);
-			// 		}
-			// 	}
-			// 	else if (abs(angle) < 80)
-			// 	{
-			// 		if (angle < 0)
-			// 		{
-			// 			motor(5, 2);
-			// 		}
-			// 		else
-			// 		{
-			// 			motor(2, 5);
-			// 		}
-			// 	}
-			// 	else if (abs(angle) < 120)
-			// 	{
-			// 		if (angle < 0)
-			// 		{
-			// 			motor(5, 0);
-			// 		}
-			// 		else
-			// 		{
-			// 			motor(0, 5);
-			// 		}
-			// 	}
-			// 	else
-			// 	{
-			// 		if (angle < 0)
-			// 		{
-			// 			motor(2, -3);
-			// 		}
-			// 		else
-			// 		{
-			// 			motor(-3, 2);
-			// 		}
-			// 	}
-			// }
-			else
-			{
-				// printf("angle = %d\n", angle);
-				if (abs(angle) < 20)
-				{
-					if (distance < 20)
-					{
-						if (angle < 0)
-						{
-							motor(3, 2);
-						}
-						else
-						{
-							motor(2, 3);
-						}
-					}
-					else
-					{
+                {
+                    motor(3, 3);
+                }
+                else if (abs(angle) < 30)
+                {
+                    if (angle < 0)
+                    {
+                        motor(4, 3);
+                    }
+                    else
+                    {
+                        motor(3, 4);
+                    }
+                }
+                else if (abs(angle) < 80 && LoadedObjects != 6)
+                {
+                    if (angle < 0)
+                    {
+                        motor(3, 1);
+                    }
+                    else
+                    {
+                        motor(1, 3);
+                    }
+                }
+                else if (abs(angle) < 120)
+                {
+                    if (angle < 0)
+                    {
+                        motor(2, -3);
+                    }
+                    else
+                    {
+                        motor(-3, 2);
+                    }
+                }
+                else
+                {
+                    if (angle < 0)
+                    {
+                        motor(3, -4);
+                    }
+                    else
+                    {
+                        motor(-4, 3);
+                    }
+                }
+            }
+            // else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
+            // {
+            // 	if (abs(angle) < 10)
+            // 	{
+            // 		if (rand() % 4)
+            // 		{
+            // 			motor(4, 4);
+            // 		}
+            // 		else
+            // 		{
+            // 			motor(5, 5);
+            // 		}
+            // 	}
+            // 	else if (abs(angle) < 80)
+            // 	{
+            // 		if (angle < 0)
+            // 		{
+            // 			motor(5, 2);
+            // 		}
+            // 		else
+            // 		{
+            // 			motor(2, 5);
+            // 		}
+            // 	}
+            // 	else if (abs(angle) < 120)
+            // 	{
+            // 		if (angle < 0)
+            // 		{
+            // 			motor(5, 0);
+            // 		}
+            // 		else
+            // 		{
+            // 			motor(0, 5);
+            // 		}
+            // 	}
+            // 	else
+            // 	{
+            // 		if (angle < 0)
+            // 		{
+            // 			motor(2, -3);
+            // 		}
+            // 		else
+            // 		{
+            // 			motor(-3, 2);
+            // 		}
+            // 	}
+            // }
+            else
+            {
+                // printf("angle = %d\n", angle);
+                if (abs(angle) < 20)
+                {
+                    if (distance < 20)
+                    {
+                        if (angle < 0)
+                        {
+                            motor(3, 2);
+                        }
+                        else
+                        {
+                            motor(2, 3);
+                        }
+                    }
+                    else
+                    {
                         motor(5, 5);
-					}
-				}
-				else if (abs(angle) < 60)
-				{
-					if (angle < 0)
-					{
-						motor(5, 3);
-					}
-					else
-					{
-						motor(3, 5);
-					}
-				}
-				else if (abs(angle) < 120)
-				{
-					if (angle < 0)
-					{
-						motor(5, 2);
-					}
-					else
-					{
-						motor(2, 5);
-					}
-				}
-				else if (distance < 20)
-				{
-					if (angle < 0)
-					{
-						motor(0, -3);
-					}
-					else
-					{
-						motor(-3, 0);
-					}
-				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(4, -5);
-					}
-					else
-					{
-						motor(-5, 4);
-					}
-					// Duration = 3;
-				}
-			}
-		}
-		break;
-	case 1: //left
-		motor(-2, -3);
-		break;
-	case 2: //front
-		if (US_Left < US_Right)
-		{
-			motor(-1, -3);
-		}
-		else
-		{
-			motor(-3, -1);
-		}
-		break;
-	case 3: //left front
-		motor(-2, -3);
-		break;
-	case 4: //right
-		motor(-3, -2);
-		break;
-	case 5: //left right
-		motor(-3, -3);
-		break;
-	case 6: //front right
-		if (CurGame == 0)
-		{
-			motor(3, 3);
-		}
-		else
-		{
-			motor(-2, -3);
-		}
-		break;
-	case 7: //left front right
-		motor(-3, -3);
-		break;
-	default:
-		break;
-	}
-	// if(IsOnSwampland()) {
-	// 	int max_absolute_value = abs(WheelLeft);
-	// 	if(max_absolute_value < abs(WheelRight)) {
-	// 		max_absolute_value = abs(WheelRight);
-	// 	}
-	// 	if(max_absolute_value < 5) {
-	// 		if(WheelLeft < 0) {
-	// 			WheelLeft -= 5 - max_absolute_value;
-	// 		}
-	// 		else {
-	// 			WheelLeft += 5 - max_absolute_value;
-	// 		}
-	// 		if(WheelRight < 0) {
-	// 			WheelRight -= 5 - max_absolute_value;
-	// 		}
-	// 		else {
-	// 			WheelRight += 5 - max_absolute_value;
-	// 		}
-	// 	}
-	// }
+                    }
+                }
+                else if (abs(angle) < 60)
+                {
+                    if (angle < 0)
+                    {
+                        motor(5, 3);
+                    }
+                    else
+                    {
+                        motor(3, 5);
+                    }
+                }
+                else if (abs(angle) < 120)
+                {
+                    if (angle < 0)
+                    {
+                        motor(5, 2);
+                    }
+                    else
+                    {
+                        motor(2, 5);
+                    }
+                }
+                else if (distance < 20)
+                {
+                    if (angle < 0)
+                    {
+                        motor(0, -3);
+                    }
+                    else
+                    {
+                        motor(-3, 0);
+                    }
+                }
+                else
+                {
+                    if (angle < 0)
+                    {
+                        motor(4, -5);
+                    }
+                    else
+                    {
+                        motor(-5, 4);
+                    }
+                    // Duration = 3;
+                }
+            }
+        }
+        break;
+    case 1: //left
+        motor(-2, -3);
+        break;
+    case 2: //front
+        if (US_Left < US_Right)
+        {
+            motor(-1, -3);
+        }
+        else
+        {
+            motor(-3, -1);
+        }
+        break;
+    case 3: //left front
+        motor(-2, -3);
+        break;
+    case 4: //right
+        motor(-3, -2);
+        break;
+    case 5: //left right
+        motor(-3, -3);
+        break;
+    case 6: //front right
+        if (CurGame == 0)
+        {
+            motor(3, 3);
+        }
+        else
+        {
+            motor(-2, -3);
+        }
+        break;
+    case 7: //left front right
+        motor(-3, -3);
+        break;
+    default:
+        break;
+    }
+    // if(IsOnSwampland()) {
+    // 	int max_absolute_value = abs(WheelLeft);
+    // 	if(max_absolute_value < abs(WheelRight)) {
+    // 		max_absolute_value = abs(WheelRight);
+    // 	}
+    // 	if(max_absolute_value < 5) {
+    // 		if(WheelLeft < 0) {
+    // 			WheelLeft -= 5 - max_absolute_value;
+    // 		}
+    // 		else {
+    // 			WheelLeft += 5 - max_absolute_value;
+    // 		}
+    // 		if(WheelRight < 0) {
+    // 			WheelRight -= 5 - max_absolute_value;
+    // 		}
+    // 		else {
+    // 			WheelRight += 5 - max_absolute_value;
+    // 		}
+    // 	}
+    // }
     LOG_MESSAGE(FUNCNAME + "(): end with motor(" + to_string(WheelLeft) + "," + to_string(WheelRight) + ")", MODE_VERBOSE);
 }
