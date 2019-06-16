@@ -15,13 +15,15 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 10;
+    const static int kCM2DotScale = 2;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
 
     const int kBorderSameObjNum = 2;
     const int kFindObjDuration = 45;
+    const int kProcessingNumOfOneThread = 30;
+    const int kThreadNum = static_cast<int>((kDotHeight + kProcessingNumOfOneThread - 1) / kProcessingNumOfOneThread);
 
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     long same_time, super_sameoperate;
@@ -33,17 +35,17 @@ private:
 
     enum MapInfo
     {
-        MAP_YELLOW = -3,
-        MAP_WALL = -2,
-        MAP_SWAMPLAND = -1,
-        MAP_UNKNOWN = 0,
-        MAP_WHITE = 1,
-        MAP_DEPOSIT = 2,
-        MAP_SUPER_AREA = 3
+        MAP_YELLOW = -3,    // カラーセンサーの値によって決まる
+        MAP_WALL = -2,      // 超音波センサの値によってきまる
+        MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
+        MAP_UNKNOWN = 0,    // 不明な場合
+        MAP_WHITE = 1,      // カラーセンサーの値によって決まる
+        MAP_DEPOSIT = 2,    // カラーセンサーの値によって決まる
+        MAP_SUPER_AREA = 3  // カラーセンサーの値によって決まる
     };
 
-    // 0:床情報 1:red 2:cyan 3:black
-    char map[4][kDotHeight][kDotWidth];
+    // 0:床情報 1:red 2:cyan 3:black 4:arrived_times
+    char map[5][kDotHeight][kDotWidth];
 
     int log_x, log_y, log_compass;
     long robot_dot_positions[3][2];

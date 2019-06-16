@@ -172,64 +172,64 @@ void AutoStrategy::loop()
             int y[2] = {robot_dot_positions[1][1], calculated_position[i][1] + robot_dot_positions[1][1]};
             LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + to_string(i) + " pos: " + to_string(x[i] * kCM2DotScale) + "," + to_string(y[1] * kCM2DotScale), MODE_VERBOSE);
 
-            // 0 < 1にする
-            if (x[0] > x[1])
-            {
-                // x[0]とx[1]を入れ替え
-                int temp = x[0];
-                x[0] = x[1];
-                x[1] = temp;
-            }
-            if (y[0] > y[1])
-            {
-                // y[0]とy[1]を入れ替え
-                int temp = y[0];
-                y[0] = y[1];
-                y[1] = temp;
-            }
+            // // 0 < 1にする
+            // if (x[0] > x[1])
+            // {
+            //     // x[0]とx[1]を入れ替え
+            //     int temp = x[0];
+            //     x[0] = x[1];
+            //     x[1] = temp;
+            // }
+            // if (y[0] > y[1])
+            // {
+            //     // y[0]とy[1]を入れ替え
+            //     int temp = y[0];
+            //     y[0] = y[1];
+            //     y[1] = temp;
+            // }
 
-            // 傾き
-            float tilt;
-            if (calculated_position[i][0] == 0)
-            {
-                tilt = 1000000000;
-            }
-            else
-            {
-                tilt = fabs(static_cast<float>(calculated_position[i][1] / calculated_position[i][0]));
-            }
+            // // 傾き
+            // float tilt;
+            // if (calculated_position[i][0] == 0)
+            // {
+            //     tilt = 1000000000;
+            // }
+            // else
+            // {
+            //     tilt = fabs(static_cast<float>(calculated_position[i][1] / calculated_position[i][0]));
+            // }
 
-            // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
-            // ただし、x[0]とx[1]はMAP_WHITEを代入しない
-            // x[0]かx[1]のうちどちらかは壁である
-            // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
-            for (int xi = x[0] + 1; xi < x[1]; xi++)
-            {
-                if (xi < 0)
-                {
-                    continue;
-                }
-                if (xi >= kDotWidth)
-                {
-                    break;
-                }
-                for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
-                {
-                    if (yj < 0)
-                    {
-                        continue;
-                    }
-                    if (yj >= kDotHeight)
-                    {
-                        break;
-                    }
-                    if (map[0][yj][xi] == MAP_UNKNOWN || map[0][yj][xi] == MAP_WALL)
-                    {
-                        map[0][yj][xi] = MAP_WHITE;
-                        LOG_MESSAGE(FUNCNAME + "(): set here as White space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
-                    }
-                }
-            }
+            // // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
+            // // ただし、x[0]とx[1]はMAP_WHITEを代入しない
+            // // x[0]かx[1]のうちどちらかは壁である
+            // // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
+            // for (int xi = x[0] + 1; xi < x[1]; xi++)
+            // {
+            //     if (xi < 0)
+            //     {
+            //         continue;
+            //     }
+            //     if (xi >= kDotWidth)
+            //     {
+            //         break;
+            //     }
+            //     for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
+            //     {
+            //         if (yj < 0)
+            //         {
+            //             continue;
+            //         }
+            //         if (yj >= kDotHeight)
+            //         {
+            //             break;
+            //         }
+            //         if (map[0][yj][xi] == MAP_UNKNOWN) //)
+            //         {
+            //             map[0][yj][xi] = MAP_WHITE;
+            //             LOG_MESSAGE(FUNCNAME + "(): set here as White space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
+            //         }
+            //     }
+            // }
             calculated_position[i][0] += log_x / kCM2DotScale;
             calculated_position[i][1] += log_y / kCM2DotScale;
 
@@ -245,13 +245,119 @@ void AutoStrategy::loop()
             if (map[0][calculated_position[i][1]][calculated_position[i][0]] == MAP_UNKNOWN)
             {
                 map[0][calculated_position[i][1]][calculated_position[i][0]] = MAP_WALL;
+                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_position[i][0] * kCM2DotScale) + "," + to_string(calculated_position[i][1] * kCM2DotScale), MODE_VERBOSE);
             }
         }
     }
 
-    GoToAngle(120, 100);
+    // スレッドを使って、整形
+    {
+        int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
+        int end_len = start_len + kProcessingNumOfOneThread;
+        if (end_len > kDotHeight)
+        {
+            end_len = kDotHeight;
+        }
+        for (int yi = start_len; yi < end_len; ++yi)
+        {
+            if (yi < 0 || yi >= kDotHeight)
+            {
+                ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
+            }
+            // 上下または左右のドットの種類が同じ場合、そのドットの種類を上下のドットに合わせる
+            if (yi != 0 && yi != kDotHeight - 1)
+            {
+                // xj == 0の場合 上下の比較のみおこなう
+                char temp_map_color = map[0][yi - 1][0];
+                if (temp_map_color == map[0][yi + 1][0])
+                {
+                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
+                    {
+                        map[0][yi][0] = temp_map_color;
+                    }
+                }
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
+                {
+                    // 左右の比較
+                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
+                    {
+                        if (map[0][yi][xj + 1] != static_cast<char>(MAP_UNKNOWN))
+                        {
+                            map[0][yi][xj] = map[0][yi][xj + 1];
+                        }
+                    }
+                    // 上下の比較
+                    else if (map[0][yi - 1][xj] == map[0][yi + 1][xj])
+                    {
+                        if (map[0][yi + 1][xj] != static_cast<char>(MAP_UNKNOWN))
+                        {
+                            map[0][yi][xj] = map[0][yi + 1][xj];
+                        }
+                    }
+                }
+                // xj == kDotWidth - 1 の場合、上下の比較のみ行う
+                temp_map_color = map[0][yi - 1][kDotWidth - 1];
+                if (temp_map_color == map[0][yi + 1][kDotWidth - 1])
+                {
+                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
+                    {
+                        map[0][yi][kDotWidth - 1] = temp_map_color;
+                    }
+                }
+            }
+            else
+            {
+                // 左右の比較しか行わない
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
+                {
+                    // 左右の比較
+                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
+                    {
+                        if (map[0][yi][xj + 1] != MAP_UNKNOWN)
+                        {
+                            map[0][yi][xj] = map[0][yi][xj + 1];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (getRepeatedNum() == 120 * 1000 / 60)
+    {
+        cout << "output!" << endl;
+        rep(i, 5)
+        {
+            rep(yi, kDotHeight)
+            {
+                rep(xj, kDotWidth)
+                {
+                    logErrorMessage.outputData("out.txt", to_string(map[i][kDotHeight - 1 - yi][xj]));
+                }
+                logErrorMessage.outputData("out.txt", "\n");
+            }
+            logErrorMessage.outputData("out.txt", "\n");
+            logErrorMessage.outputData("out.txt", "\n");
+        }
+        cout << "output! finished" << endl;
+    }
+
+    int margin = 20;
+    if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
+    {
+        GoToPosition(180, 135, 100, 100, 10);
+    }
+    else if (obstacle(20, 20, 20))
+    {
+        motor(-3, 3);
+    }
+    else
+    {
+        motor(3, 3);
+    }
 
     pt.print("AutoStrategy loop time :");
+    cout << endl;
 }
 
 void AutoStrategy::CheckNowDot()
@@ -494,1071 +600,6 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
     repeated_num_log = getRepeatedNum();
     return 0;
 }
-
-// 	logMessage("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
-// 	x = absolute_x;
-// 	y = absolute_y;
-// 	x = x - temp_x;
-// 	y = y - temp_y;
-// 	logMessage("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
-// 	double angle = atan2(y, x);
-// 	angle = angle * 180 / 3.14;
-// 	int angle_int = (int)angle;
-// 	angle_int -= 90;
-// 	if (angle_int < 0)
-// 	{
-// 		angle_int += 360;
-// 	}
-// 	logMessage("angle " + to_string(angle_int), MODE_NORMAL);
-// 	GoToAngle(angle_int, sqrt(x * x + y * y));
-
-// 	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
-// 	{
-// 		same_operate++;
-// 	}
-// 	else
-// 	{
-// 		same_operate = 0;
-// 	}
-// 	repeated_num_log = getRepeatedNum();
-
-// 	return 0;
-// }
-
-// void Game1_Hikaru::InputDotInformation(void)
-// {
-// 	// rep(hi, kDotHeightNum)
-// 	// {
-// 	// 	rep(wj, kDotWidthNum)
-// 	// 	{
-// 	// 		cout << map_output_data[hi][wj];
-// 	// 	}
-// 	// 	cout << endl;
-// 	// }
-// 	// cout << endl;
-// 	int map_position_color_data[kDotWidthNum][kDotHeightNum];
-// 	for (int i = 0; i < kDotWidthNum; i++)
-// 	{
-// 		for (int j = 0; j < kDotHeightNum; j++)
-// 		{
-// 			switch (map_output_data[kDotHeightNum - j - 1][i])
-// 			{
-// 			case 0: //white
-// 				map_position_color_data[i][j] = POINT_WHITE;
-// 				break;
-// 			case 1: //yellow
-// 				map_position_color_data[i][j] = POINT_YELLOW;
-// 				break;
-// 			case 2: //wall
-// 				map_position_color_data[i][j] = POINT_WALL;
-// 				break;
-// 			case 3: //swampland
-// 				map_position_color_data[i][j] = POINT_SWAMPLAND;
-// 				break;
-// 			case 4: //deposit
-// 				map_position_color_data[i][j] = POINT_DEPOSIT;
-// 				break;
-// 			case 5: // super area
-// 				map_position_color_data[i][j] = POINT_SUPERAREA;
-// 				break;
-// 			default:
-// 				map_position_color_data[i][j] = POINT_WHITE;
-// 				break;
-// 			}
-// 		}
-// 	}
-
-// 	for (long i = 0; i < kMaxDotNum; i++)
-// 	{
-// 		//I use id of dot
-// 		//id = y * 36(= 360 / kSize) + x;
-// 		//x and y are 360 / kSize and 270 / kSize
-// 		//kSize may be 10
-
-// 		int x, y;
-// 		//kDotWidthNum = 360 / kSize
-// 		y = i / kDotWidthNum;
-// 		x = i - y * kDotWidthNum;
-
-// 		dot[i].id = i;
-// 		//x position. if x = 0, center of dot is 0 * 10(=kSize) + 5(=kSize / 2)
-// 		dot[i].x = x * kSize + kSize / 2;
-// 		dot[i].y = y * kSize + kSize / 2;
-// 		//the wide of dot
-// 		dot[i].wide = kSize;
-// 		//printf("(%d, %d, %d, %d)\n", x, y, dot[i].x, dot[i].y);
-
-// 		//point means what's this dot belongs?
-// 		//For example, this dot belongs yellow.
-// 		//this map_position_color_data is defined at 60 lines upper(may be)
-// 		dot[i].point = map_position_color_data[x][y];
-// 		// dot[i].point = 1;
-// 		dot[i].color = map_position_color_data[x][y];
-// 		dot[i].red = red_data[kDotHeightNum - y - 1][x];
-// 		// if (dot[i].red == 0 && dot[i].color == POINT_WHITE)
-// 		// {
-// 		// 	dot[i].cyan = 1;
-// 		// 	dot[i].black = 1;
-// 		// }
-// 		dot[i].cyan = cyan_data[kDotHeightNum - y - 1][x];
-// 		dot[i].black = black_data[kDotHeightNum - y - 1][x];
-
-// 		//these are for dijkstra
-// 		// dot[i].done = -1;
-// 		// dot[i].from = -1;
-// 		// dot[i].cost = -1;
-// 	}
-
-// 	//set values of cost
-// 	for (long i = 0; i < kMaxDotNum; i++)
-// 	{
-// 		int y = i / kDotWidthNum;
-// 		int x = i - y * kDotWidthNum;
-// 		dot[i].edge_num = 0;
-// 		for (int j = 0; j < 9; j++)
-// 		{
-// 			// if (j % 2 == 0) {
-// 			// 	continue;
-// 			// }
-// 			if (j == 4)
-// 			{
-// 				continue;
-// 			}
-// 			int temp_x, temp_y;
-// 			temp_y = j / 3;
-// 			temp_x = j - temp_y * 3;
-// 			temp_x += x - 1;
-// 			temp_y += y - 1;
-// 			int target_id = temp_y * kDotWidthNum + temp_x;
-// 			if (temp_x < 0 || temp_x >= kDotWidthNum || temp_y < 0 || temp_y >= kDotHeightNum)
-// 			{
-// 				continue;
-// 			}
-// 			dot[i].edge_to[dot[i].edge_num] = target_id;
-// 			//yellow or wall
-// 			if (dot[i].point <= POINT_WALL || dot[target_id].point <= POINT_WALL)
-// 			{
-// 				// dot[i].edge_cost[dot[i].edge_num] = -1;
-// 				dot[i].edge_num--;
-// 			}
-// 			//swampland
-// 			else if (dot[i].point == POINT_SWAMPLAND || dot[target_id].point == POINT_SWAMPLAND)
-// 			{
-// 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
-// 			}
-// 			//マップの端
-// 			else if (x == 0 || y == 0 || x == kDotWidthNum - 1 || y == kDotHeightNum - 1 || temp_x == 0 || temp_y == 0 || temp_x == kDotWidthNum - 1 || temp_y == kDotHeightNum - 1)
-// 			{
-// 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
-// 			}
-// 			else
-// 			{
-// 				//others
-// 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) / 2;
-// 			}
-// 			if (j % 2 == 0 && dot[i].edge_num >= 0 && dot[i].point != POINT_SWAMPLAND && dot[target_id].point != POINT_SWAMPLAND)
-// 			{
-// 				dot[i].edge_cost[dot[i].edge_num] = dot[i].edge_cost[dot[i].edge_num] * 1.4;
-// 			}
-// 			dot[i].edge_num++;
-// 		}
-// 	}
-// 	// for (int hi = kDotHeightNum - 1; hi >= 0; hi--)
-// 	// {
-// 	// 	rep(wj, kDotWidthNum)
-// 	// 	{
-// 	// 		switch (dot[hi * kDotWidthNum + wj].point)
-// 	// 		{
-// 	// 		case POINT_YELLOW:
-// 	// 			cout << "$";
-// 	// 			break;
-// 	// 		case POINT_WALL:
-// 	// 			cout << "#";
-// 	// 			break;
-// 	// 		case POINT_DEPOSIT:
-// 	// 			cout << "@";
-// 	// 			break;
-// 	// 		case POINT_SUPERAREA:
-// 	// 			cout << "^";
-// 	// 			break;
-// 	// 		case POINT_SWAMPLAND:
-// 	// 			cout << "|";
-// 	// 			break;
-// 	// 		default:
-// 	// 			if (dot[hi * kDotWidthNum + wj].black == 1)
-// 	// 			{
-// 	// 				cout << "B";
-// 	// 			}
-// 	// 			else if (dot[hi * kDotWidthNum + wj].cyan == 1)
-// 	// 			{
-// 	// 				cout << "C";
-// 	// 			}
-// 	// 			else if (dot[hi * kDotWidthNum + wj].red == 1)
-// 	// 			{
-// 	// 				cout << "R";
-// 	// 			}
-// 	// 			else
-// 	// 			{
-// 	// 				cout << " ";
-// 	// 			}
-// 	// 			break;
-// 	// 		}
-// 	// 	}
-// 	// 	cout << endl;
-// 	// }
-// 	// cout << endl;
-// }
-
-// void Game1_Hikaru::Dijkstra()
-// {
-// 	//fprintf(logfile, " %d Start Dijkstra()\n", getRepeatedNum());
-// 	for (int i = 0; i < kMaxDotNum; i++)
-// 	{
-// 		dot[i].id = i;
-// 		dot[i].cost = -1;
-// 		// dot[i].distance_from_start = -1;
-// 		dot[i].done = -1;
-// 		dot[i].from = -1;
-// 	}
-
-// 	int now_node_id = now_dot_id;
-
-// 	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
-// 	{
-// 		errorMessage(FUNC_NAME + "(); now dot id value is " + to_string(now_dot_id), MODE_NORMAL);
-// 		return;
-// 	}
-// 	dot[now_node_id].cost = 0;
-// 	dot[now_node_id].from = now_node_id;
-
-// 	struct Dot investigating_node;
-
-// 	// int number = 0;
-// 	while (true)
-// 	{
-// 		// number++;
-// 		//investigating_nodeを初期化
-// 		investigating_node.done = 0;
-// 		for (int i = 0; i < kMaxDotNum; i++)
-// 		{
-// 			//if done is 0, it means already
-// 			if (dot[i].done == 0 || dot[i].cost < 0)
-// 			{
-// 				continue;
-// 			}
-
-// 			// if (dot[i].point < -1 || (dot[i].point < 0 && option == 0)) {
-// 			// 	continue;
-// 			// }
-
-// 			//If the dot is yellow or wall
-// 			if (dot[i].point < POINT_SWAMPLAND)
-// 			{
-// 				continue;
-// 			}
-
-// 			//未代入の場合
-// 			if (investigating_node.done == 0)
-// 			{
-// 				investigating_node = dot[i];
-// 				continue;
-// 			}
-
-// 			//新しいドットのコストが小さい場合
-// 			if (dot[i].cost < investigating_node.cost)
-// 			{
-// 				investigating_node = dot[i];
-// 			}
-// 		}
-
-// 		//新しいノードの場合
-// 		if (investigating_node.done == 0)
-// 		{
-// 			break;
-// 		}
-
-// 		dot[investigating_node.id].done = 0;
-
-// 		for (int i = 0; i < investigating_node.edge_num; i++)
-// 		{
-// 			int target_id = investigating_node.edge_to[i];
-// 			if (target_id < 0 || target_id >= kMaxDotNum)
-// 			{
-// 				continue;
-// 			}
-
-// 			if (dot[target_id].done == 0)
-// 			{
-// 				continue;
-// 			}
-
-// 			//If target_dot is yellow or wall
-// 			if (dot[target_id].point < POINT_SWAMPLAND)
-// 			{
-// 				continue;
-// 			}
-
-// 			int remember_from = dot[target_id].from;
-// 			dot[target_id].from = investigating_node.id;
-// 			int target_curved_times = HowManyCurved(target_id);
-// 			int target_cost = investigating_node.cost + investigating_node.edge_cost[i];
-// 			target_cost += target_curved_times * 10;
-// 			if (LoadedObjects == 6)
-// 			{
-// 			}
-// 			else
-// 			{
-// 				target_cost += dot[target_id].arrived_times * 10;
-// 			}
-
-// 			// if (dot[target_id].point < -1) {
-// 			// 	// if (option == 0) {
-// 			// 		continue;
-// 			// 	// }
-// 			// }
-// 			double k = 0.5;
-// 			if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
-// 			{
-// 				target_cost *= k;
-// 			}
-// 			if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
-// 			{
-// 				target_cost *= k;
-// 			}
-// 			if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
-// 			{
-// 				target_cost *= k;
-// 			}
-
-// 			if (target_cost <= 0)
-// 			{
-// 				target_cost = 1;
-// 			}
-
-// 			if (dot[target_id].cost < 0 || target_cost < dot[target_id].cost)
-// 			{
-// 				dot[target_id].cost = target_cost;
-// 				// dot[target_id].distance_from_start = investigating_node.distance_from_start + investigating_node.edge_cost[i];
-// 				dot[target_id].from = investigating_node.id;
-// 			}
-// 			else
-// 			{
-// 				dot[target_id].from = remember_from;
-// 			}
-// 		}
-// 	}
-
-// 	/*
-// 	for (int j = kDotHeightNum - 1; j >= 0; j--)
-// 	{
-// 		for (int i = 0; i < kDotWidthNum; i++)
-// 		{
-// 			int id = j * kDotWidthNum + i;
-// 			int prev_y = dot[id].from / kDotWidthNum;
-// 			int prev_x = dot[id].from - prev_y * kDotWidthNum;
-// 			if (dot[id].point < POINT_SWAMPLAND)
-// 			{
-// 				printf("＃");
-// 			}
-// 			else if (dot[i].from == -1)
-// 			{
-// 				printf("＊");
-// 			}
-// 			else if (j - prev_y == 1)
-// 			{
-// 				if (i - prev_x == 1)
-// 				{
-// 					printf("↗");
-// 				}
-// 				else if (i - prev_x == 0)
-// 				{
-// 					printf("↑");
-// 				}
-// 				else if (i - prev_x == -1)
-// 				{
-// 					printf("↖");
-// 				}
-// 				else
-// 				{
-// 					printf("%2d", i - prev_x);
-// 				}
-// 			}
-// 			else if (j - prev_y == 0)
-// 			{
-// 				if (i - prev_x == 1)
-// 				{
-// 					printf("->");
-// 				}
-// 				else if (i - prev_x == 0)
-// 				{
-// 					printf("@ ");
-// 				}
-// 				else if (i - prev_x == -1)
-// 				{
-// 					printf("<-");
-// 				}
-// 				else
-// 				{
-// 					printf("%2d", i - prev_x);
-// 				}
-// 			}
-// 			else if (j - prev_y == -1)
-// 			{
-// 				if (i - prev_x == 1)
-// 				{
-// 					printf("↘");
-// 				}
-// 				else if (i - prev_x == 0)
-// 				{
-// 					printf("↓");
-// 				}
-// 				else if (i - prev_x == -1)
-// 				{
-// 					printf("↙");
-// 				}
-// 				else
-// 				{
-// 					printf("%2d", i - prev_x);
-// 				}
-// 			}
-// 			else
-// 			{
-// 				printf("%2d", j - prev_y);
-// 			}
-// 		}
-// 		printf("\n");
-// 	}*/
-// }
-
-// void Game1_Hikaru::Astar(void)
-// {
-// 	// initializing
-// 	rep(i, kMaxDotNum)
-// 	{
-// 		dot_from[i] = -1;
-// 		dot_cost[i] = 0;
-// 		dot_estimated_cost[i] = 0;
-// 		dot_status[i] = 0;
-// 	}
-// }
-
-// int Game1_Hikaru::GoToDot(int x, int y)
-// {
-// 	// printf("%d %d\n", x * kSize, y * kSize);
-// 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
-
-// 	//fprintf(logfile, " %d Start GoToDot(%d, %d)\n", getRepeatedNum(), x, y);
-// 	if (PositionX == -1 && (PLUSMINUS(log_x, x * kSize, kSize) && PLUSMINUS(log_y, y * kSize, kSize)))
-// 	{
-// 		//fprintf(logfile, " %d End GoToDot() with returning 1 because I am in PLA and it's near target(%d, %d)\n", getRepeatedNum(), x, y);
-// 		logMessage(FUNC_NAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")");
-// 		GoToPosition(x, y, 10, 10, 5);
-// 		return 1;
-// 	}
-// 	// char map_data_to_show[kMaxDotNum];
-// 	// for (int i = 0; i < kMaxDotNum; i++)
-// 	// {
-// 	// 	if (dot[i].point <= POINT_WALL)
-// 	// 	{
-// 	// 		map_data_to_show[i] = '*';
-// 	// 	}
-// 	// 	else
-// 	// 	{
-// 	// 		map_data_to_show[i] = ' ';
-// 	// 	}
-// 	// }
-
-// 	//If the node I want to go will be go out
-// 	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
-// 	{
-// 		logMessage(FUNC_NAME + "(): (x, y) is (" + to_string(x) + ", " + to_string(y) + "and strange", MODE_NORMAL);
-// 		//fprintf(errfile, "%d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
-// 		//fprintf(logfile, " %d GoToDot(): (x, y) is (%d, %d) and strange\n", getRepeatedNum(), x, y);
-// 	}
-
-// 	if (prev_now_dot_id != now_dot_id || prev_x != x || prev_y != y)
-// 	{
-// 		Dijkstra();
-// 	}
-// 	prev_now_dot_id = now_dot_id;
-// 	prev_x = x;
-// 	prev_y = y;
-
-// 	// printf("from %d %d to %d %d\n", now_dot_id - (int)(now_dot_id / kDotWidthNum) * kDotWidthNum, now_dot_id / kDotWidthNum, x, y);
-
-// 	int goal_dot = y * kDotWidthNum + x;
-
-// 	if (goal_dot < 0 || goal_dot >= kMaxDotNum)
-// 	{
-// 		logMessage("strainge(x, y)", MODE_NORMAL);
-// 		return 0;
-// 	}
-
-// 	int temp = goal_dot;
-// 	// map_data_to_show[goal_dot] = 'T';
-// 	int i = 0;
-
-// 	while (dot[temp].from != now_dot_id && i < 200)
-// 	{
-// 		// int go_x, go_y;
-// 		// go_y = temp / kDotWidthNum;
-// 		// go_x = temp - (int)go_y * kDotWidthNum;
-// 		temp = dot[temp].from;
-// 		// map_data_to_show[temp] = '#';
-// 		// printf("%d\n", dot[temp].point);
-// 		i++;
-// 		if (temp < 0 || temp >= kMaxDotNum)
-// 		{
-// 			logMessage("temp = " + to_string(temp) + "is strange. I will continue", MODE_NORMAL);
-// 			GoToPosition(x * kSize, y * kSize, 5, 5, 5);
-// 			return 0;
-// 		}
-// 	}
-// 	if (i == 200)
-// 	{
-// 		printf("\n\n\niの値が200ですByGoToNode()\n\n\n\n");
-// 		logMessage(FUNC_NAME + "(): iの値が200です", MODE_NORMAL);
-// 	}
-
-// 	// map_data_to_show[now_dot_id] = '@';
-
-// 	int next_x, next_y;
-// 	next_y = temp / kDotWidthNum;
-// 	next_x = temp - next_y * kDotWidthNum;
-
-// 	int now_y = now_dot_id / kDotWidthNum;
-// 	int now_x = now_dot_id - now_y * kDotWidthNum;
-
-// 	int distance = 20;
-// 	if (next_x < now_x)
-// 	{
-// 		if (next_y < now_y)
-// 		{
-// 			GoToAngle(135, distance);
-// 		}
-// 		else if (next_y == now_y)
-// 		{
-// 			GoToAngle(90, distance);
-// 		}
-// 		else
-// 		{
-// 			GoToAngle(45, distance);
-// 		}
-// 	}
-// 	else if (next_x == now_x)
-// 	{
-// 		if (next_y < now_y)
-// 		{
-// 			GoToAngle(180, distance);
-// 		}
-// 		else if (next_y == now_y)
-// 		{
-// 			GoToPosition(log_x - 3 + rand() % 6, log_y - 3 + rand() % 6, 6, 6, 3);
-// 			return 1;
-// 		}
-// 		else
-// 		{
-// 			GoToAngle(0, distance);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		if (next_y <
-// 			now_y)
-// 		{
-// 			GoToAngle(225, distance);
-// 		}
-// 		else if (next_y == now_y)
-// 		{
-// 			GoToAngle(270, distance);
-// 		}
-// 		else
-// 		{
-// 			GoToAngle(315, distance);
-// 		}
-// 	}
-// 	// system("cls");
-
-// 	// for (int i = 0; i < kDotWidthNum + 2; i++)
-// 	// {
-// 	// 	printf("|");
-// 	// }
-// 	// printf("\n");
-// 	// for (int i = kDotHeightNum - 1; i >= 0; i--)
-// 	// {
-// 	// 	printf("|");
-// 	// 	for (int j = 0; j < kDotWidthNum; j++)
-// 	// 	{
-// 	// 		int id = i * kDotWidthNum + j;
-// 	// 		printf("%c", map_data_to_show[id]);
-// 	// 	}
-// 	// 	printf("|");
-// 	// 	printf("\n");
-// 	// }
-// 	// for (int i = 0; i < kDotWidthNum + 2; i++)
-// 	// {
-// 	// 	printf("|");
-// 	// }
-// 	// printf("\n");
-// 	//fprintf(logfile, " %d End GoToDot()\n", getRepeatedNum());
-// 	return 0;
-// }
-
-// int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
-// {
-// 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
-// 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
-
-// 	static int prev_x = -1;
-// 	static int prev_y = -1;
-// 	static int target_x = -1;
-// 	static int target_y = -1;
-// 	static int same_target = 0;
-// 	static int same_target_border = 0;
-// 	if (x != prev_x || y != prev_y)
-// 	{
-// 		logMessage("changed dots", MODE_NORMAL);
-// 		same_target = 0;
-// 		prev_x = x;
-// 		prev_y = y;
-// 		//0:left bottom corner 1:right bottom corner 2:right bottom corner
-// 		int corner_x[2], corner_y[2];
-// 		corner_x[0] = (x - wide_decide_x) / kSize;
-// 		corner_y[0] = (y - wide_decide_y) / kSize;
-// 		corner_x[1] = (x + wide_decide_x) / kSize;
-// 		corner_y[1] = (y + wide_decide_y) / kSize;
-
-// 		for (int i = 0; i < 2; i++)
-// 		{
-// 			if (corner_x[i] < 0)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
-// 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
-// 				corner_x[i] = 0;
-// 			}
-// 			if (corner_x[i] >= kDotWidthNum)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
-// 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
-// 				corner_x[i] = kDotWidthNum - 1;
-// 			}
-// 			if (corner_y[i] < 0)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
-// 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
-// 				corner_y[i] = 0;
-// 			}
-// 			if (corner_y[i] >= kDotHeightNum)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
-// 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
-// 				corner_y[i] = kDotHeightNum - 1;
-// 			}
-// 		}
-
-// 		int min = 100000, id = -1;
-// 		// n回に1回移動する
-// 		int option = rnd() % 5;
-// 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
-// 		{
-// 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
-// 			{
-// 				int investigating_dot_id = j * kDotWidthNum + i;
-// 				if (i <= 0 || i >= kDotWidthNum - 1 || j <= 0 || j >= kDotHeightNum - 1)
-// 				{
-// 					continue;
-// 				}
-
-// 				//yellow or wall or deposit
-// 				if (dot[investigating_dot_id].point < POINT_DEPOSIT)
-// 				{
-// 					continue;
-// 				}
-
-// 				int costs = dot[investigating_dot_id].arrived_times * 100 + rand() % 10;
-// 				if (option)
-// 				{
-// 					// 移動しないとき
-// 					int k = 20;
-// 					costs += pow(abs(i * kSize - log_x) - k, 2) * 100 - pow(abs(j * kSize - log_y) - k, 2) * 100;
-// 				}
-// 				else
-// 				{
-// 					// 移動するとき
-// 					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
-// 				}
-// 				// for (int i = 0; i < 100000; i++) {
-// 				// 	// for (int j = 0; j < 1000000; j++) {
-// 				// 		// for (int k = 0; k < 100000; k++) {
-// 				// 		// }
-// 				// 	// }
-// 				// }
-// 				if (costs < min)
-// 				{
-// 					min = costs;
-// 					id = investigating_dot_id;
-// 				}
-// 			}
-// 		}
-// 		if (id == -1)
-// 		{
-// 			//fprintf(stdout, "%d GoToDots(): There is no dot that can go target(%d %d) log(%d %d) eme %d\n", getRepeatedNum(), target_x, target_y, log_x, log_y, now_dot_id);
-// 			// //fprintf(logfile, " %d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
-// 			// //fprintf(stdout, "%d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
-// 			target_x = x / kSize;
-// 			target_y = y / kSize;
-// 		}
-// 		else
-// 		{
-// 			target_y = id / kDotWidthNum;
-// 			target_x = id - target_y * kDotWidthNum;
-// 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
-// 		}
-
-// 		same_target_border = sqrt(pow(log_x - target_x * kSize, 2) + pow(log_y - target_y * kSize, 2));
-// 		same_target_border *= 2;
-// 		same_target_border += 30;
-
-// 		// int i = 0;
-// 		// do {
-// 		// 	i++;
-// 		// 	if(i > 20) {
-// 		// 		printf("%d GoToDots(): can not decide target\n", getRepeatedNum());
-// 		// 		//fprintf(errfile, "%d GoToDots(): Can not decide target\n", getRepeatedNum());
-// 		// 		//fprintf(logfile, " %d GoToDots(): Can not decide target\n", getRepeatedNum());
-// 		// 		target_x = x;
-// 		// 		target_y = y;
-// 		// 		target_x /= kSize;
-// 		// 		target_y /= kSize;
-// 		// 		break;
-// 		// 	}
-// 		// 	target_x = x - wide_decide_x + rand() % (wide_decide_x * 2 + 1);
-// 		// 	target_y = y - wide_decide_y + rand() % (wide_decide_y * 2 + 1);
-// 		// 	target_x /= kSize;
-// 		// 	target_y /= kSize;
-// 		// 	if(target_x <= 0) {
-// 		// 		target_x = 1;
-// 		// 	}
-// 		// 	if(target_x >= kDotWidthNum - 1) {
-// 		// 		target_x = kDotWidthNum - 2;
-// 		// 	}
-// 		// 	if(target_y <= 0) {
-// 		// 		target_y = 1;
-// 		// 	}
-// 		// 	if(target_y >= kDotHeightNum - 1) {
-// 		// 		target_y = kDotHeightNum - 2;
-// 		// 	}
-// 		// } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
-// 	}
-// 	same_target++;
-// 	// printf("%d %d\n", same_target, same_target_border);
-// 	if (GoToDot(target_x, target_y) || same_target > same_target_border)
-// 	{
-// 		prev_x = -1;
-// 		same_target = 0;
-// 		//fprintf(logfile, " %d End GoToDots() with returning 1\n", getRepeatedNum());
-// 		return 1;
-// 	}
-// 	else
-// 	{
-// 		//fprintf(logfile, " %d End GoToDots() with returning 0\n", getRepeatedNum());
-// 		return 0;
-// 	}
-// }
-
-// int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color)
-// {
-// 	//fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
-// 	// printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
-// 	static int prev_x = -1;
-// 	static int prev_y = -1;
-// 	static int prev_color = -1000;
-// 	static int target_x = -1;
-// 	static int target_y = -1;
-// 	static int same_target = 0;
-// 	static int same_target_border = 0;
-// 	if (x != prev_x || y != prev_y || color != prev_color)
-// 	{
-// 		logMessage("changed dots", MODE_NORMAL);
-// 		same_target = 0;
-// 		prev_x = x;
-// 		prev_y = y;
-// 		//0:left bottom corner 1:right bottom corner 2:right bottom corner
-// 		int corner_x[2], corner_y[2];
-// 		corner_x[0] = (x - wide_decide_x) / kSize;
-// 		corner_y[0] = (y - wide_decide_y) / kSize;
-// 		corner_x[1] = (x + wide_decide_x) / kSize;
-// 		corner_y[1] = (y + wide_decide_y) / kSize;
-
-// 		for (int i = 0; i < 2; i++)
-// 		{
-// 			if (corner_x[i] < 0)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
-// 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
-// 				corner_x[i] = 0;
-// 			}
-// 			if (corner_x[i] >= kDotWidthNum)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
-// 				//fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
-// 				corner_x[i] = kDotWidthNum - 1;
-// 			}
-// 			if (corner_y[i] < 0)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
-// 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
-// 				corner_y[i] = 0;
-// 			}
-// 			if (corner_y[i] >= kDotHeightNum)
-// 			{
-// 				//fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
-// 				//fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
-// 				corner_y[i] = kDotHeightNum - 1;
-// 			}
-// 		}
-
-// 		int min = 100000, id = -1;
-// 		// n回に1回移動する
-// 		int option = rnd() % 3;
-// 		for (int i = corner_x[0]; i <= corner_x[1]; i++)
-// 		{
-// 			for (int j = corner_y[0]; j <= corner_y[1]; j++)
-// 			{
-// 				int investigating_dot_id = j * kDotWidthNum + i;
-// 				if (i <= 0 || i >= kDotWidthNum - 1 || j <= 0 || j >= kDotHeightNum - 1)
-// 				{
-// 					continue;
-// 				}
-// 				//yellow or wall or deposit
-// 				if (dot[investigating_dot_id].point < POINT_DEPOSIT)
-// 				{
-// 					continue;
-// 				}
-// 				if (color == POINT_RED)
-// 				{
-// 					if (dot[investigating_dot_id].red != 1)
-// 					{
-// 						continue;
-// 					}
-// 				}
-// 				else if (color == POINT_CYAN)
-// 				{
-// 					if (dot[investigating_dot_id].cyan != 1)
-// 					{
-// 						continue;
-// 					}
-// 				}
-// 				else if (color == POINT_BLACK)
-// 				{
-// 					if (dot[investigating_dot_id].black != 1)
-// 					{
-// 						continue;
-// 					}
-// 				}
-// 				else if (color == POINT_DEPOSIT)
-// 				{
-// 					if (dot[investigating_dot_id].point != POINT_DEPOSIT)
-// 					{
-// 						continue;
-// 					}
-// 				}
-
-// 				int costs = dot[investigating_dot_id].arrived_times * 100 + rnd() % 10;
-
-// 				if (option)
-// 				{
-// 					// 移動しないとき
-// 					int k = 20;
-// 					costs += pow(abs(i * kSize - log_x) - k, 2) / 10 + pow(abs(j * kSize - log_y) - k, 2) / 10;
-// 				}
-// 				else
-// 				{
-// 					// 移動するとき
-// 					costs -= pow(i * kSize - log_x, 2) / 100 - pow(j * kSize - log_y, 2) / 100;
-// 				}
-// 				if (color == POINT_DEPOSIT)
-// 				{
-// 					costs = pow(i * kSize - log_x, 2) + pow(j * kSize - log_y, 2);
-// 				}
-// 				// cout << "position cost " << pow(i * kSize - log_x, 2) / 100 + pow(j * kSize - log_y, 2) / 100 << " arrived cost " << dot[investigating_dot_id].arrived_times * 100 << endl;
-// 				// for (int i = 0; i < 100000; i++) {
-// 				// 	// for (int j = 0; j < 1000000; j++) {
-// 				// 		// for (int k = 0; k < 100000; k++) {
-// 				// 		// }
-// 				// 	// }
-// 				// }
-// 				if (costs < min)
-// 				{
-// 					min = costs;
-// 					id = investigating_dot_id;
-// 				}
-// 			}
-// 		}
-// 		if (id == -1)
-// 		{
-// 			//fprintf(errfile, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
-// 			//fprintf(logfile, " %d GoToDots(): There is no dot that can go\n", getRepeatedNum());
-// 			//fprintf(stdout, "%d GoInDots(): There is no dot that can go\n", getRepeatedNum());
-// 			target_x = x / kSize;
-// 			target_y = y / kSize;
-// 		}
-// 		else
-// 		{
-// 			target_y = id / kDotWidthNum;
-// 			target_x = id - target_y * kDotWidthNum;
-// 			logMessage("target(" + to_string(target_x) + ", " + to_string(target_y), MODE_NORMAL);
-// 			//fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
-// 		}
-
-// 		same_target_border = sqrt(pow(log_x - target_x * kSize, 2) + pow(log_y - target_y * kSize, 2));
-// 		same_target_border *= 2;
-// 		same_target_border += 30;
-
-// 		// int i = 0;
-// 		// do {
-// 		// 	i++;
-// 		// 	if(i > 20) {
-// 		// 		printf("%d GoToDots(): can not decide target\n", getRepeatedNum());
-// 		// 		//fprintf(errfile, "%d GoToDots(): Can not decide target\n", getRepeatedNum());
-// 		// 		//fprintf(logfile, " %d GoToDots(): Can not decide target\n", getRepeatedNum());
-// 		// 		target_x = x;
-// 		// 		target_y = y;
-// 		// 		target_x /= kSize;
-// 		// 		target_y /= kSize;
-// 		// 		break;
-// 		// 	}
-// 		// 	target_x = x - wide_decide_x + rand() % (wide_decide_x * 2 + 1);
-// 		// 	target_y = y - wide_decide_y + rand() % (wide_decide_y * 2 + 1);
-// 		// 	target_x /= kSize;
-// 		// 	target_y /= kSize;
-// 		// 	if(target_x <= 0) {
-// 		// 		target_x = 1;
-// 		// 	}
-// 		// 	if(target_x >= kDotWidthNum - 1) {
-// 		// 		target_x = kDotWidthNum - 2;
-// 		// 	}
-// 		// 	if(target_y <= 0) {
-// 		// 		target_y = 1;
-// 		// 	}
-// 		// 	if(target_y >= kDotHeightNum - 1) {
-// 		// 		target_y = kDotHeightNum - 2;
-// 		// 	}
-// 		// } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
-// 	}
-
-// 	prev_x = x;
-// 	prev_y = y;
-// 	prev_color = color;
-
-// 	same_target++;
-// 	// printf("%d\n", same_target);
-// 	// printf("%d %d\n", same_target, same_target_border);
-// 	logMessage("target_x, y " + to_string(target_x * kSize) + " " + to_string(target_y * kSize), MODE_NORMAL);
-// 	if (GoToDot(target_x, target_y) || same_target > same_target_border)
-// 	{
-// 		prev_x = -1;
-// 		same_target = 0;
-// 		//fprintf(logfile, " %d End GoToDots() with returning 1\n", getRepeatedNum());
-// 		return 1;
-// 	}
-// 	else
-// 	{
-// 		//fprintf(logfile, " %d End GoToDots() with returning 0\n", getRepeatedNum());
-// 		return 0;
-// 	}
-// }
-
-// int Game1_Hikaru::HowManyCurved(int id)
-// {
-// 	/*
-//     道の長さ * 10 + 曲がった回数 * 20 + (Object < 6 のとき) Objectのとれる試算
-//     */
-// 	int route[kMaxDotNum];
-// 	//曲がった回数
-// 	int curved_times = 0;
-// 	//道の長さ
-// 	int distance_way = -1;
-// 	route[0] = id;
-// 	// printf("id is %d now is %d \n", id, now_dot_id);
-// 	for (int i = 1; i < kMaxDotNum; i++)
-// 	{
-// 		if (route[i - 1] < 0 || route[i - 1] > kMaxDotNum)
-// 		{
-// 			//fprintf(errfile, " %d HowManyCurved() route[%d - 1] = %d is strange\n", getRepeatedNum(), i, route[i - 1]);
-// 			distance_way = i + 1;
-// 			break;
-// 		}
-// 		route[i] = dot[route[i - 1]].from;
-// 		// printf("%d route[%d] = dot[route[%d - 1] = %d] = %d %d\n", distance_way, i, i, route[i - 1], dot[route[i - 1]].from, route[i]);
-// 		//routeの最後の2つには-1を入れることにしている <- 嘘
-// 		if (route[i] == now_dot_id)
-// 		{
-// 			distance_way = i + 1;
-// 			break;
-// 		}
-
-// 		//dotの数を超えた場合
-// 		if (route[i] >= kMaxDotNum || route[i] < 0)
-// 		{
-// 			//fprintf(errfile, "%d HowManyCurved(): route[%d]の値が%dでおかしい\n", getRepeatedNum(), i, route[i]);
-// 			//fprintf(logfile, "%d HowManyCurved(): route[%d]の値が%dでおかしい\n", getRepeatedNum(), i, route[i]);
-// 			distance_way = i;
-// 			break;
-// 		}
-// 	}
-// 	// printf("distance_way = %d\n", distance_way);
-// 	int x[kMaxDotNum], y[kMaxDotNum], direction[kMaxDotNum];
-// 	//directionは、左上=0で、右に行くごとに+1、下に行くごとに+3される
-// 	if (distance_way >= kMaxDotNum)
-// 	{
-// 		//fprintf(logfile, " %d Warming HowManyCurved(): routeの要素数が%dで kMaxDotNum を超えている\n", getRepeatedNum(), distance_way);
-// 		//fprintf(errfile, "%d Warming HowManyCurved(): routeの要素数が%dで kMaxDotNum を超えている\n", getRepeatedNum(), distance_way);
-// 		distance_way = kMaxDotNum - 2;
-// 	}
-// 	y[0] = route[0] / kDotWidthNum;
-// 	x[0] = route[0] - y[0] * kDotWidthNum;
-// 	direction[0] = -1;
-// 	for (int i = 1; i < distance_way; i++)
-// 	{
-// 		y[i] = route[i] / kDotWidthNum;
-// 		x[i] = route[i] - y[i] * kDotWidthNum;
-// 		switch (x[i] - x[i - 1])
-// 		{
-// 		case -1:
-// 			direction[i] = 0;
-// 			break;
-// 		case 0:
-// 			direction[i] = 1;
-// 			break;
-// 		case 1:
-// 			direction[i] = 2;
-// 			break;
-// 		default:
-// 			//fprintf(errfile, "%d HowManyCurved(): x[%d] = %d - x[%d - 1] = %dの値が%dでおかしい\n", getRepeatedNum(), i, x[i], i, x[i] - x[i - 1], x[i - 1]);
-// 			//fprintf(logfile, " %d HowManyCurved(): x[%d] = %d - x[%d - 1] = %dの値が%dでおかしい\n", getRepeatedNum(), i, x[i], i, x[i] - x[i - 1], x[i - 1]);
-// 			direction[i] = 5;
-// 			break;
-// 		}
-// 		if (y[i] - y[i - 1] == 0)
-// 		{
-// 			direction[i] += 3;
-// 		}
-// 		else if (y[i] - y[i - 1] > 0)
-// 		{
-// 			//nothing
-// 		}
-// 		else
-// 		{
-// 			direction[i] += 6;
-// 		}
-// 		if (direction[i] != direction[i - 1])
-// 		{
-// 			curved_times++;
-// 		}
-// 	}
-// 	return curved_times;
-// }
 
 int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radius)
 {
@@ -2000,3 +1041,165 @@ void AutoStrategy::GoToAngle(int angle, int distance)
     // }
     LOG_MESSAGE(FUNCNAME + "(): end with motor(" + to_string(WheelLeft) + "," + to_string(WheelRight) + ")", MODE_VERBOSE);
 }
+/*
+int AutoStrategy::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+{
+    //fprintf(logfile, " %d Start GoToDots(%d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y);
+    // printf("GoToDots(): %d %d %d %d\n", x, y, wide_decide_x, wide_decide_y);
+
+    static int prev_x = -1;
+    static int prev_y = -1;
+    static int target_x = -1;
+    static int target_y = -1;
+    static int local_same_target = 0;
+    static int same_target_border = 0;
+    if (x != prev_x || y != prev_y)
+    {
+        LOG_MESSAGE("changed dots", MODE_NORMAL);
+        local_same_target = 0;
+        prev_x = x;
+        prev_y = y;
+        //0:left bottom corner 1:right bottom corner 2:right bottom corner
+        int corner_x[2], corner_y[2];
+        corner_x[0] = (x - wide_decide_x) / kCM2DotScale;
+        corner_y[0] = (y - wide_decide_y) / kCM2DotScale;
+        corner_x[1] = (x + wide_decide_x) / kCM2DotScale;
+        corner_y[1] = (y + wide_decide_y) / kCM2DotScale;
+
+        for (int i = 0; i < 2; i++)
+        {
+            if (corner_x[i] < 0)
+            {
+                //fprintf(errfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
+                //fprintf(logfile, " %d GoToDots() corner_x[%d] is %d < 0\n", getRepeatedNum(), i, corner_x[i]);
+                corner_x[i] = 0;
+            }
+            if (corner_x[i] >= kDotWidth)
+            {
+                //fprintf(errfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+                //fprintf(logfile, " %d GoToDots() corner_x[%d] is %d >= %d\n", getRepeatedNum(), i, corner_x[i], kDotWidthNum);
+                corner_x[i] = kDotWidth - 1;
+            }
+            if (corner_y[i] < 0)
+            {
+                //fprintf(errfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
+                //fprintf(logfile, " %d GoToDots() corner_y[%d] is %d < 0\n", getRepeatedNum(), i, corner_y[i]);
+                corner_y[i] = 0;
+            }
+            if (corner_y[i] >= kDotHeight)
+            {
+                //fprintf(errfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+                //fprintf(logfile, " %d GoToDots() corner_y[%d] is %d >= %d\n", getRepeatedNum(), i, corner_y[i], kDotHeightNum);
+                corner_y[i] = kDotHeight - 1;
+            }
+        }
+
+        int min = 100000, id = -1;
+        // n回に1回移動する
+        int option = rnd() % 5;
+        for (int i = corner_x[0]; i <= corner_x[1]; i++)
+        {
+            for (int j = corner_y[0]; j <= corner_y[1]; j++)
+            {
+                int investigating_dot_id = j * kDotHeight + i;
+                if (i <= 0 || i >= kDotWidth - 1 || j <= 0 || j >= kDotHeight - 1)
+                {
+                    continue;
+                }
+
+                //yellow or wall or deposit
+                if (map[0][j][i] < MAP_YELLOW)
+                {
+                    continue;
+                }
+
+                int costs = static_cast<int>(map[4][j][i] * 100 + rand() % 10);
+                if (option)
+                {
+                    // 移動しないとき
+                    int k = 20;
+                    costs += static_cast<int>(pow(abs(i * kCM2DotScale - log_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - log_y) - k, 2) * 100);
+                }
+                else
+                {
+                    // 移動するとき
+                    costs -= static_cast<int>(pow(i * kCM2DotScale - log_x, 2) / 100 - pow(j * kCM2DotScale - log_y, 2) / 100);
+                }
+                // for (int i = 0; i < 100000; i++) {
+                // 	// for (int j = 0; j < 1000000; j++) {
+                // 		// for (int k = 0; k < 100000; k++) {
+                // 		// }
+                // 	// }
+                // }
+                if (costs < min)
+                {
+                    min = costs;
+                    id = investigating_dot_id;
+                }
+            }
+        }
+        if (id == -1)
+        {
+            //fprintf(stdout, "%d GoToDots(): There is no dot that can go target(%d %d) log(%d %d) eme %d\n", getRepeatedNum(), target_x, target_y, log_x, log_y, now_dot_id);
+            // //fprintf(logfile, " %d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
+            // //fprintf(stdout, "%d GoToDots(): There is no dot that can go log(%d %d) eme %d\n", getRepeatedNum());
+            target_x = x / kCM2DotScale;
+            target_y = y / kCM2DotScale;
+        }
+        else
+        {
+            target_y = id / kDotWidth;
+            target_x = id - target_y * kDotWidth;
+            //fprintf(logfile, " %d decide target as (%d, %d)\n", getRepeatedNum(), target_x, target_y);
+        }
+
+        same_target_border = static_cast<int>(sqrt(pow(log_x - target_x * kCM2DotScale, 2) + pow(log_y - target_y * kCM2DotScale, 2)));
+        same_target_border *= 2;
+        same_target_border += 30;
+
+        // int i = 0;
+        // do {
+        // 	i++;
+        // 	if(i > 20) {
+        // 		printf("%d GoToDots(): can not decide target\n", getRepeatedNum());
+        // 		//fprintf(errfile, "%d GoToDots(): Can not decide target\n", getRepeatedNum());
+        // 		//fprintf(logfile, " %d GoToDots(): Can not decide target\n", getRepeatedNum());
+        // 		target_x = x;
+        // 		target_y = y;
+        // 		target_x /= kSize;
+        // 		target_y /= kSize;
+        // 		break;
+        // 	}
+        // 	target_x = x - wide_decide_x + rand() % (wide_decide_x * 2 + 1);
+        // 	target_y = y - wide_decide_y + rand() % (wide_decide_y * 2 + 1);
+        // 	target_x /= kSize;
+        // 	target_y /= kSize;
+        // 	if(target_x <= 0) {
+        // 		target_x = 1;
+        // 	}
+        // 	if(target_x >= kDotWidthNum - 1) {
+        // 		target_x = kDotWidthNum - 2;
+        // 	}
+        // 	if(target_y <= 0) {
+        // 		target_y = 1;
+        // 	}
+        // 	if(target_y >= kDotHeightNum - 1) {
+        // 		target_y = kDotHeightNum - 2;
+        // 	}
+        // } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
+    }
+    local_same_target++;
+    // printf("%d %d\n", local_same_target, same_target_border);
+    if (GoToDot(target_x, target_y) || local_same_target > same_target_border)
+    {
+        prev_x = -1;
+        local_same_target = 0;
+        //fprintf(logfile, " %d End GoToDots() with returning 1\n", getRepeatedNum());
+        return 1;
+    }
+    else
+    {
+        //fprintf(logfile, " %d End GoToDots() with returning 0\n", getRepeatedNum());
+        return 0;
+    }
+}*/
