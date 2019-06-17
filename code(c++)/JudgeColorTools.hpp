@@ -13,13 +13,14 @@ extern int object_box[3][2];
 extern int gray_zone[3][2];
 extern int sp_obj[3][2];
 extern int purple_line[3][2];
+extern int white_zone[3][2];
 
 int ColorJudgeLeft(int col[3][2]);
 int ColorJudgeRight(int col[3][2]);
 int EitherColorJudge(int col[3][2]);
 int BothColorJudge(int col[3][2]);
 
-// ï ÉoÅ[ÉWÉáÉì
+// Âà•„Éê„Éº„Ç∏„Éß„É≥
 void InputColorInformation(void);
 int IsOnYellowLine(void);
 int IsOnRedObj(void);
@@ -29,5 +30,6 @@ int IsOnSuperObj(void);
 int IsOnBlueFloor(void);
 int IsOnDepositArea(void);
 int IsOnSwampland(void);
+int IsOnWhiteArea(void);
 
 #endif // !JUDGE_COLOR_TOOLS

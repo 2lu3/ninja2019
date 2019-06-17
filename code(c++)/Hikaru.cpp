@@ -9,9 +9,9 @@ todo : 回転するときに、カラーセンサが沼地に入ってしまう�
 
 #define IF if
 #define LOG_MESSAGE(MESSAGE, OPTION) \
-    IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
+	IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
-    IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
+	IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
 #define POINT_BLACK 20
 #define POINT_RED 10
@@ -23,11 +23,6 @@ todo : 回転するときに、カラーセンサが沼地に入ってしまう�
 #define POINT_WALL -2
 #define POINT_YELLOW -3
 
-#define RED_LOADED_ID 0
-#define CYAN_LOADED_ID 1
-#define BLACK_LOADED_ID 2
-#define SUPER_LOADED_ID 3
-
 #define FUNC_NAME getFuncName(__FUNCTION__)
 
 using namespace std;
@@ -38,9 +33,9 @@ void Game0_Hikaru::setup(void)
 
 	UserGame0::setup();
 
-    logErrorMessage.delErrorFile();
-    logErrorMessage.delLogFile();
-    InputColorInformation();
+	logErrorMessage.delErrorFile();
+	logErrorMessage.delLogFile();
+	InputColorInformation();
 
 	double seconds = pt.end();
 	LOG_MESSAGE("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_NORMAL);
@@ -278,7 +273,7 @@ void Game0_Hikaru::loop(void)
 		resetLoadedObjects();
 		CurGame = 1;
 		break;
-    case TO_DEPOSIT: // world 1 only
+	case TO_DEPOSIT: // world 1 only
 	default:
 		ERROR_MESSAGE("action is " + to_string(static_cast<int>(getAction())), MODE_NORMAL);
 		break;
@@ -637,8 +632,8 @@ long Game1_Hikaru::WhereIsColorSensor(void)
 		log_y = kCospaceHeight / 2;
 	}
 	x = log_x + static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
-    y = log_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
-    //fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
+	y = log_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
+	//fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 	if (x < 0)
 	{
 		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
@@ -1193,12 +1188,12 @@ void Game1_Hikaru::Dijkstra()
 			double k = 0.5;
 			if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
 			{
-                target_cost = static_cast<int>(k * target_cost);
-            }
+				target_cost = static_cast<int>(k * target_cost);
+			}
 			if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
 			{
-                target_cost = static_cast<int>(k * target_cost);
-            }
+				target_cost = static_cast<int>(k * target_cost);
+			}
 			if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
 			{
 				target_cost = static_cast<int>(k * target_cost);

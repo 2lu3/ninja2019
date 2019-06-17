@@ -15,14 +15,14 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 2;
+    const static int kCM2DotScale = 5;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
 
     const int kBorderSameObjNum = 2;
     const int kFindObjDuration = 45;
-    const int kProcessingNumOfOneThread = 30;
+    const int kProcessingNumOfOneThread = 10;
     const int kThreadNum = static_cast<int>((kDotHeight + kProcessingNumOfOneThread - 1) / kProcessingNumOfOneThread);
 
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];

@@ -9,10 +9,10 @@
 #define FUNCNAME getFuncName(__FUNCTION__)
 
 // red cyan black super
-#define RED_LOADED_ID 0
-#define CYAN_LOADED_ID 1
-#define BLACK_LOADED_ID 2
-#define SUPER_LOADED_ID 3
+#define RED_LOADED_ID 1
+#define CYAN_LOADED_ID 2
+#define BLACK_LOADED_ID 3
+#define SUPER_LOADED_ID 0
 extern int loaded_objects[4];
 
 #include "CospaceSettings.hpp"

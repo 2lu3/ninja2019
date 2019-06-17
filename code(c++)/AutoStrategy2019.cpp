@@ -10,12 +10,23 @@ using namespace std;
 
 AutoStrategy::~AutoStrategy()
 {
+    rep(i, static_cast<int>(extent<decltype(map), 0>::value))
+    {
+        rep(j, static_cast<int>(extent<decltype(map), 1>::value))
+        {
+            rep(k, static_cast<int>(extent<decltype(map), 2>::value))
+            {
+                map[i][j][k] = 0;
+            }
+        }
+    }
 }
 
 AutoStrategy::AutoStrategy()
 {
     pt.start();
-    setRunMode(MODE_NORMAL);
+    // setRunMode(MODE_NORMAL);
+    setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
@@ -26,8 +37,15 @@ void AutoStrategy::setup()
 {
     pt.start();
     UserGame1::setup();
+
     logErrorMessage.delErrorFile();
     logErrorMessage.delLogFile();
+    logErrorMessage.delOutFile("out.txt");
+    rep(i, static_cast<int>(extent<decltype(loaded_objects), 0>::value))
+    {
+        loaded_objects[i] = 4;
+    }
+
     cout << "run mode : " << static_cast<int>(getRunMode()) << endl;
     pt.print("AutoStrategy::setup() :");
 }
@@ -145,15 +163,69 @@ void AutoStrategy::loop()
                 LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
             }
         }
+        if (IsOnWhiteArea())
+        {
+            if (ColorJudgeLeft(white_zone))
+            {
+                map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_WHITE;
+                LOG_MESSAGE("white area " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            }
+            if (ColorJudgeRight(white_zone))
+            {
+                map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_WHITE;
+                LOG_MESSAGE("white area " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            }
+        }
+        if (IsOnBlackObj())
+        {
+            if (ColorJudgeLeft(black_obj))
+            {
+                map[BLACK_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+                LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            }
+            if (ColorJudgeRight(black_obj))
+            {
+                map[BLACK_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                LOG_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            }
+        }
+        if (IsOnCyanObj())
+        {
+            if (ColorJudgeLeft(cyan_obj))
+            {
+                map[CYAN_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+                LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            }
+            if (ColorJudgeRight(cyan_obj))
+            {
+                map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            }
+        }
+        if (IsOnRedObj())
+        {
+            if (ColorJudgeLeft(red_obj))
+            {
+                map[RED_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+                LOG_MESSAGE("red obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            }
+            if (ColorJudgeRight(red_obj))
+            {
+                map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            }
+        }
     }
 
     // 壁の位置を計算
     {
-        int difference_us_position[2] = {10, 9};
+        // 0: left & right 1: front
+        int difference_us_position[2] = {9, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
         LOG_MESSAGE(FUNCNAME + "()" + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
         int angles[3] = {40, 0, -40};
-        int calculated_position[3][2];
+        int calculated_relative_coordinate[3][2];
+        int calculated_absolute_dot_position[3][2];
         for (int i = 0; i < 3; i++)
         {
             angles[i] += Compass + 90;
@@ -164,76 +236,81 @@ void AutoStrategy::loop()
             }
             us_sensors[i] += difference_us_position[i % 2];
             // 壁の位置とロボットの相対座標
-            calculated_position[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i] / kCM2DotScale);
-            calculated_position[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i] / kCM2DotScale);
+            calculated_relative_coordinate[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i]);
+            calculated_relative_coordinate[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i]);
 
-            // 壁の位置とロボットそれぞれの絶対座標
-            int x[2] = {robot_dot_positions[1][0], calculated_position[i][0] + robot_dot_positions[1][0]};
-            int y[2] = {robot_dot_positions[1][1], calculated_position[i][1] + robot_dot_positions[1][1]};
-            LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + to_string(i) + " pos: " + to_string(x[i] * kCM2DotScale) + "," + to_string(y[1] * kCM2DotScale), MODE_VERBOSE);
+            // ドット上での壁の絶対座標
+            calculated_absolute_dot_position[i][0] = static_cast<int>((log_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
+            calculated_absolute_dot_position[i][1] = static_cast<int>((log_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
+            // x[0], y[0] -> x[1], y[1]までMAP_WALLをMAP_WHITEに変更する
+            // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
+            int x[2] = {
+                robot_dot_positions[1][0], static_cast<int>((log_x + calculated_relative_coordinate[i][0] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
+            int y[2] = {
+                robot_dot_positions[1][1], static_cast<int>((log_y + calculated_relative_coordinate[i][1] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
+            LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + to_string(i) + " pos: " + to_string(log_x + calculated_relative_coordinate[i][0]) + "," + to_string(log_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+            // cout << "us " << cos(angles[i] * M_PI / 180) * us_sensors[i] + log_x << " " << sin(angles[i] * M_PI / 180) * us_sensors[i] + log_y << endl;
 
-            // // 0 < 1にする
-            // if (x[0] > x[1])
-            // {
-            //     // x[0]とx[1]を入れ替え
-            //     int temp = x[0];
-            //     x[0] = x[1];
-            //     x[1] = temp;
-            // }
-            // if (y[0] > y[1])
-            // {
-            //     // y[0]とy[1]を入れ替え
-            //     int temp = y[0];
-            //     y[0] = y[1];
-            //     y[1] = temp;
-            // }
+            // 0 < 1にする
+            if (x[0] > x[1])
+            {
+                // x[0]とx[1]を入れ替え
+                int temp = x[0];
+                x[0] = x[1];
+                x[1] = temp;
+            }
+            if (y[0] > y[1])
+            {
+                // y[0]とy[1]を入れ替え
+                int temp = y[0];
+                y[0] = y[1];
+                y[1] = temp;
+            }
 
-            // // 傾き
-            // float tilt;
-            // if (calculated_position[i][0] == 0)
-            // {
-            //     tilt = 1000000000;
-            // }
-            // else
-            // {
-            //     tilt = fabs(static_cast<float>(calculated_position[i][1] / calculated_position[i][0]));
-            // }
+            // 傾き
+            float tilt;
+            if (calculated_relative_coordinate[i][0] == 0)
+            {
+                tilt = 1000000000;
+            }
+            else
+            {
+                tilt = fabs(static_cast<float>(calculated_relative_coordinate[i][1] / calculated_relative_coordinate[i][0]));
+            }
 
-            // // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
-            // // ただし、x[0]とx[1]はMAP_WHITEを代入しない
-            // // x[0]かx[1]のうちどちらかは壁である
-            // // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
-            // for (int xi = x[0] + 1; xi < x[1]; xi++)
-            // {
-            //     if (xi < 0)
-            //     {
-            //         continue;
-            //     }
-            //     if (xi >= kDotWidth)
-            //     {
-            //         break;
-            //     }
-            //     for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
-            //     {
-            //         if (yj < 0)
-            //         {
-            //             continue;
-            //         }
-            //         if (yj >= kDotHeight)
-            //         {
-            //             break;
-            //         }
-            //         if (map[0][yj][xi] == MAP_UNKNOWN) //)
-            //         {
-            //             map[0][yj][xi] = MAP_WHITE;
-            //             LOG_MESSAGE(FUNCNAME + "(): set here as White space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
-            //         }
-            //     }
-            // }
-            calculated_position[i][0] += log_x / kCM2DotScale;
-            calculated_position[i][1] += log_y / kCM2DotScale;
+            // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
+            // ただし、x[0]とx[1]はMAP_WHITEを代入しない
+            // x[0]かx[1]のうちどちらかは壁である
+            // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
+            for (int xi = x[0] + 1; xi < x[1]; xi++)
+            {
+                if (xi < 0)
+                {
+                    continue;
+                }
+                if (xi >= kDotWidth)
+                {
+                    break;
+                }
+                for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
+                {
+                    if (yj < 0)
+                    {
+                        continue;
+                    }
+                    if (yj >= kDotHeight)
+                    {
+                        break;
+                    }
+                    if (map[0][yj][xi] == MAP_WALL)
+                    {
+                        map[0][yj][xi] = MAP_UNKNOWN;
+                        LOG_MESSAGE(FUNCNAME + "(): set here as unknow space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
+                    }
+                }
+            }
 
-            if (calculated_position[i][0] < 0 || calculated_position[i][0] >= kDotWidth || calculated_position[i][1] < 0 || calculated_position[i][1] >= kDotHeight)
+            if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
             {
                 continue;
             }
@@ -242,15 +319,16 @@ void AutoStrategy::loop()
             {
                 continue;
             }
-            if (map[0][calculated_position[i][1]][calculated_position[i][0]] == MAP_UNKNOWN)
+            if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
             {
-                map[0][calculated_position[i][1]][calculated_position[i][0]] = MAP_WALL;
-                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_position[i][0] * kCM2DotScale) + "," + to_string(calculated_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
             }
         }
     }
 
     // スレッドを使って、整形
+
     {
         int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
         int end_len = start_len + kProcessingNumOfOneThread;
@@ -264,9 +342,124 @@ void AutoStrategy::loop()
             {
                 ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
             }
-            // 上下または左右のドットの種類が同じ場合、そのドットの種類を上下のドットに合わせる
             if (yi != 0 && yi != kDotHeight - 1)
             {
+                char color_id[20];
+                char color_num[20];
+                int color_pointer = 0; // 最大値18(=20-2)
+                int color_pointer_limit = 18;
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
+                {
+                    color_pointer = 0;
+                    // そのドットの周りで一番多い床の色を探す
+                    for (int y = yi - 1; y <= yi + 1; ++y)
+                    {
+                        for (int x = xj - 1; x <= xj + 1; ++x)
+                        {
+                            if (map[0][y][x] == static_cast<char>(MAP_UNKNOWN))
+                            {
+                                continue;
+                            }
+                            color_id[color_pointer] = map[0][y][x];
+                            rep(i, color_pointer + 1)
+                            {
+                                if (color_id[i] == map[0][y][x])
+                                {
+                                    if (i == color_pointer)
+                                    {
+                                        // 新しい色を追加
+                                        if (color_pointer < color_pointer_limit)
+                                        {
+                                            color_id[color_pointer] = map[0][y][x];
+                                            color_num[color_pointer] = 1;
+                                            color_pointer++;
+                                        }
+                                        else
+                                        {
+                                            ERROR_MESSAGE(FUNCNAME + "(): error; To fix the floor map, the array num is over " + to_string(color_pointer_limit), MODE_NORMAL);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // 色の数を++
+                                        color_num[i]++;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    char max_num = 0, max_id = -1;
+                    rep(i, color_pointer)
+                    {
+                        if (color_num[i] > max_num)
+                        {
+                            max_num = color_num[i];
+                            max_id = color_id[i];
+                        }
+                    }
+
+                    if (max_id == -1)
+                    {
+                        // ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
+                        continue;
+                    }
+
+                    if (max_num >= 5)
+                    {
+                        map[0][yi][xj] = max_id;
+                    }
+                    // else if (max_num == 3)
+                    // {
+                    //     // 64128256
+                    //     //  8 16 32
+                    //     //  1  2  4
+                    //     int sum = 0;
+                    //     for (int y = yi - 1; y <= yi + 1; ++y)
+                    //     {
+                    //         for (int x = xj - 1; x <= xj + 1; ++x)
+                    //         {
+                    //             if (map[0][y][x] == max_id && (x != 0 || y != 0))
+                    //             {
+                    //                 sum += static_cast<int>(pow(2, (yi - y + 1) * 3 + (xj - x + 1)));
+                    //             }
+                    //         }
+                    //     }
+                    //     if (sum != 1 + 8 + 64 && sum != 1 + 2 + 4 && sum != 4 + 32 + 256 && sum != 64 + 128 + 256)
+                    //     {
+                    //         // 一列になっていないので、変更する
+                    //         map[0][yi][xj] = static_cast<char>(max_id);
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     int pos_x, pos_y, flag = 0;
+                    //     for (int y = yi - 1; y <= yi + 1; ++y)
+                    //     {
+                    //         for (int x = xj - 1; x <= xj + 1; ++x)
+                    //         {
+                    //             if (map[0][y][x] == max_id)
+                    //             {
+                    //                 if (flag == 0)
+                    //                 {
+                    //                     pos_x = x;
+                    //                     pos_y = y;
+                    //                 }
+                    //                 else
+                    //                 {
+                    //                     if (pos_x != x && pos_y != y)
+                    //                     {
+                    //                         // 縦横が重なっていないので、変更する
+                    //                         map[0][yi][xj] = static_cast<char>(max_id);
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                }
+
                 // xj == 0の場合 上下の比較のみおこなう
                 char temp_map_color = map[0][yi - 1][0];
                 if (temp_map_color == map[0][yi + 1][0])
@@ -278,6 +471,7 @@ void AutoStrategy::loop()
                 }
                 for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
+
                     // 左右の比較
                     if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
                     {
@@ -323,9 +517,10 @@ void AutoStrategy::loop()
         }
     }
 
-    if (getRepeatedNum() == 120 * 1000 / 60)
+    if (getRepeatedNum() == 60 * 1000 / 60)
     {
         cout << "output!" << endl;
+        logErrorMessage.outputData("out.txt", "\n");
         rep(i, 5)
         {
             rep(yi, kDotHeight)
@@ -339,6 +534,7 @@ void AutoStrategy::loop()
             logErrorMessage.outputData("out.txt", "\n");
             logErrorMessage.outputData("out.txt", "\n");
         }
+        logErrorMessage.outputData("out.txt", "\n");
         cout << "output! finished" << endl;
     }
 
@@ -357,7 +553,6 @@ void AutoStrategy::loop()
     }
 
     pt.print("AutoStrategy loop time :");
-    cout << endl;
 }
 
 void AutoStrategy::CheckNowDot()

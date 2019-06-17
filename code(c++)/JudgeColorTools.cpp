@@ -9,6 +9,7 @@ int object_box[3][2] = {{204, 235}, {130, 148}, {0, 0}};
 int gray_zone[3][2] = {{130, 160}, {140, 165}, {185, 210}};
 int sp_obj[3][2] = {{200, 255}, {0, 60}, {200, 255}};
 int purple_line[3][2] = {{150, 180}, {80, 100}, {180, 220}};
+int white_zone[3][2] = {{204, 235}, {217, 248}, {255, 255}};
 
 int ColorJudgeLeft(int col[3][2])
 {
@@ -36,6 +37,7 @@ int BothColorJudge(int col[3][2])
 #define COLOR_BLUE_FLOOR 5
 #define COLOR_DEPOSIT 6
 #define COLOR_SWAMPLAND 7
+#define COLOR_WHITE 8
 int color_world2[COLOR_TYPE_NUMBER][6];
 int ColorInformationInputer(int num, int col[3][2])
 {
@@ -70,6 +72,7 @@ void InputColorInformation(void)
 	ColorInformationInputer(COLOR_BLUE_FLOOR, blue_zone);
 	ColorInformationInputer(COLOR_DEPOSIT, object_box);
 	ColorInformationInputer(COLOR_SWAMPLAND, gray_zone);
+	ColorInformationInputer(COLOR_WHITE, white_zone);
 	logErrorMessage.logMessage("End InputColorInformation\n", MODE_VERBOSE);
 }
 
@@ -122,4 +125,8 @@ int IsOnDepositArea(void)
 int IsOnSwampland(void)
 {
 	return IsOnStuff(COLOR_SWAMPLAND);
+}
+int IsOnWhiteArea(void)
+{
+	return IsOnStuff(COLOR_WHITE);
 }

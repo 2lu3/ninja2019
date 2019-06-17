@@ -12,10 +12,6 @@
 #define POINT_WALL -2
 #define POINT_YELLOW -3
 
-#define RED_LOADED_ID 0
-#define CYAN_LOADED_ID 1
-#define BLACK_LOADED_ID 2
-#define SUPER_LOADED_ID 3
 
 #define COSPACE_WIDTH 360
 #define COSPACE_HEIGHT 270
