@@ -39,16 +39,25 @@ private:
         MAP_WALL = -2,      // 超音波センサの値によってきまる
         MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
         MAP_UNKNOWN = 0,    // 不明な場合
-        MAP_WHITE = 1,      // カラーセンサーの値によって決まる
-        MAP_DEPOSIT = 2,    // カラーセンサーの値によって決まる
-        MAP_SUPER_AREA = 3  // カラーセンサーの値によって決まる
+        MAP_UNKNOWN_NOT_WALL = 1,
+        MAP_WHITE = 2,     // カラーセンサーの値によって決まる
+        MAP_DEPOSIT = 3,   // カラーセンサーの値によって決まる
+        MAP_SUPER_AREA = 4 // カラーセンサーの値によって決まる
     };
 
-    // 0:床情報 1:red 2:cyan 3:black 4:arrived_times
-    char map[5][kDotHeight][kDotWidth];
+    // 0:床情報 1:red 2:cyan 3:black
+    char map[4][kDotHeight][kDotWidth];
+    int map_arrived_times[kDotHeight][kDotWidth];
+    int map_from[kDotHeight][kDotWidth];
+    int map_cost[kDotHeight][kDotWidth];
+    int map_status[kDotHeight][kDotWidth];
 
-    int log_x, log_y, log_compass;
+    int log_x,
+        log_y,
+        log_compass;
     long robot_dot_positions[3][2];
+
+    long now_dot_id;
 
     void CheckNowDot();
     void GoToAngle(int angle, int distance);
@@ -63,6 +72,7 @@ private:
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
     int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
+    void autoSearch(float parameter);
 };
 
 #endif //!AUTO_STRATEGY_HPP
