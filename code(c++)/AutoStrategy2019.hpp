@@ -46,7 +46,7 @@ private:
     };
 
     // 0:床情報 1:red 2:cyan 3:black
-    char map[4][kDotHeight][kDotWidth];
+    int map[4][kDotHeight][kDotWidth];
     int map_arrived_times[kDotHeight][kDotWidth];
     int map_from[kDotHeight][kDotWidth];
     int map_cost[kDotHeight][kDotWidth];

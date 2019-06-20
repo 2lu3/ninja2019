@@ -106,7 +106,7 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                map[4][y][x] += 2;
+                map[4][y][x] = map[4][y][x] + 2;
             }
         }
     }
@@ -347,7 +347,7 @@ void AutoStrategy::loop()
             }
             if (yi != 0 && yi != kDotHeight - 1)
             {
-                char color_id[20];
+                int color_id[20];
                 char color_num[20];
                 int color_pointer = 0; // 最大値18(=20-2)
                 int color_pointer_limit = 18;
@@ -393,7 +393,7 @@ void AutoStrategy::loop()
                         }
                     }
 
-                    char max_num = 0, max_id = -1;
+                    int max_num = 0, max_id = -1;
                     rep(i, color_pointer)
                     {
                         if (color_num[i] > max_num)
@@ -464,7 +464,7 @@ void AutoStrategy::loop()
                 }
 
                 // xj == 0の場合 上下の比較のみおこなう
-                char temp_map_color = map[0][yi - 1][0];
+                int temp_map_color = map[0][yi - 1][0];
                 if (temp_map_color == map[0][yi + 1][0])
                 {
                     if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
@@ -541,19 +541,20 @@ void AutoStrategy::loop()
         cout << "output! finished" << endl;
     }
 
-    int margin = 20;
-    if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
-    {
-        GoToPosition(180, 135, 100, 100, 10);
-    }
-    else if (obstacle(20, 20, 20))
-    {
-        motor(-3, 3);
-    }
-    else
-    {
-        motor(3, 3);
-    }
+    // int margin = 20;
+    // if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
+    // {
+    //     GoToPosition(180, 135, 100, 100, 10);
+    // }
+    // else if (obstacle(20, 20, 20))
+    // {
+    //     motor(-3, 3);
+    // }
+    // else
+    // {
+    //     motor(3, 3);
+    // }
+    autoSearch(0);
 
     pt.print("AutoStrategy loop time :");
 }
@@ -1380,7 +1381,8 @@ int AutoStrategy::GoToDot(int x, int y)
     return 1;
 }
 
-int AutoStrategy::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+int AutoStrategy::
+    GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
     LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
 
@@ -1442,7 +1444,7 @@ int AutoStrategy::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
                     continue;
                 }
 
-                int costs = static_cast<int>(map[4][j][i] * 100 + rand() % 10);
+                int costs = static_cast<int>(map[3][j][i] * 100 + rand() % 10);
                 if (option)
                 {
                     // 移動しないとき
@@ -1494,7 +1496,11 @@ int AutoStrategy::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 
 void AutoStrategy::autoSearch(float parameter)
 {
-    GoToDots(180, 135, 180, 135);
+    if (parameter < 10)
+    {
+
+        GoToDots(180, 135, 180, 135);
+    }
 }
 
 void AutoStrategy::Dijkstra(void)
