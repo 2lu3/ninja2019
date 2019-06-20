@@ -28,7 +28,7 @@ AutoStrategy::AutoStrategy()
     // setRunMode(MODE_NORMAL);
     setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
-    setIsOutputLogMessage2Console(false);
+    setIsOutputLogMessage2Console(true);
     setIsOutputErrorMessage2Console(true);
     pt.print("AutoStrategy::AutoStrategy() :");
 }
@@ -38,6 +38,7 @@ void AutoStrategy::setup()
     pt.start();
     UserGame1::setup();
 
+    system("chcp 65001");
     logErrorMessage.delErrorFile();
     logErrorMessage.delLogFile();
     logErrorMessage.delOutFile("out.txt");
@@ -222,6 +223,7 @@ void AutoStrategy::loop()
 
     // 壁の位置を計算
     {
+        LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始");
         // 0: left & right 1: front
         int difference_us_position[2] = {9, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
@@ -285,8 +287,9 @@ void AutoStrategy::loop()
             // ただし、x[0]とx[1]はMAP_WHITEを代入しない
             // x[0]かx[1]のうちどちらかは壁である
             // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
-            for (int xi = x[0] + 1; xi < x[1]; xi++)
+            for (int xi = x[0] + 1; xi < x[1]; ++xi)
             {
+                LOG_MESSAGE(FUNCNAME + "()" +)
                 if (xi < 0)
                 {
                     continue;
@@ -295,7 +298,7 @@ void AutoStrategy::loop()
                 {
                     break;
                 }
-                for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; yj++)
+                for (int yj = static_cast<int>(static_cast<float>(xi - x[0]) * tilt) + y[0]; static_cast<float>(yj - y[0]) <= static_cast<float>(xi - x[0] + 1) * tilt; ++yj)
                 {
                     if (yj < 0)
                     {
@@ -331,8 +334,8 @@ void AutoStrategy::loop()
     }
 
     // スレッドを使って、整形
-
     {
+        LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
         int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
         int end_len = start_len + kProcessingNumOfOneThread;
         if (end_len > kDotHeight)
@@ -518,6 +521,7 @@ void AutoStrategy::loop()
                 }
             }
         }
+        LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
     }
 
     if (getRepeatedNum() == 60 * 1000 / 60)
@@ -1427,7 +1431,8 @@ int AutoStrategy::
 
         int min = 100000, id = -1;
         // n回に1回移動する
-        int option = rnd() % 5;
+        // int option = rnd() % 5;
+        int option = 1;
         for (int i = corner_x[0]; i <= corner_x[1]; i++)
         {
             for (int j = corner_y[0]; j <= corner_y[1]; j++)
@@ -1444,11 +1449,11 @@ int AutoStrategy::
                     continue;
                 }
 
-                int costs = static_cast<int>(map[3][j][i] * 100 + rand() % 10);
+                int costs = static_cast<int>(map_arrived_times[j][i] * 100 + rand() % 10);
                 if (option)
                 {
                     // 移動しないとき
-                    int k = 20;
+                    int k = 30;
                     costs += static_cast<int>(pow(abs(i * kCM2DotScale - log_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - log_y) - k, 2) * 100);
                 }
                 else
@@ -1479,12 +1484,13 @@ int AutoStrategy::
         same_target_border += 30;
     }
     local_same_target++;
-    // printf("%d %d\n", local_same_target, same_target_border);
+
+    LOG_MESSAGE(FUNCNAME + "(): calculated best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_DEBUG);
+
     if (GoToDot(target_x, target_y) || local_same_target > same_target_border)
     {
         prev_x = -1;
         local_same_target = 0;
-        //fprintf(logfile, " %d End GoToDots() with returning 1\n", getRepeatedNum());
         return 1;
     }
     else
@@ -1498,7 +1504,6 @@ void AutoStrategy::autoSearch(float parameter)
 {
     if (parameter < 10)
     {
-
         GoToDots(180, 135, 180, 135);
     }
 }
