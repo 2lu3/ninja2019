@@ -261,14 +261,14 @@ void AutoStrategy::loop()
             {
                 if (0 <= x[0] && x[0] < kDotWidth)
                 {
+                    int y_start = y[0], y_end = y[1];
                     // 上から変更しようと、下から変更しようと変わらない
                     if (y[0] > y[1])
                     {
-                        int temp = y[0];
-                        y[0] = y[1];
-                        y[1] = temp;
+                        y_start = y[1];
+                        y_end = y[0];
                     }
-                    for (long yi = y[0]; yi <= y[1]; ++yi)
+                    for (int yi = y_start; yi <= y_end; ++yi)
                     {
                         if (yi < 0)
                         {
@@ -287,25 +287,25 @@ void AutoStrategy::loop()
                 }
             }
             // x[0]<x[1]の場合、x[1]<x[0]の場合、両方ともtiltは、正常な傾きを表す
-            float tilt = (y[1] - y[0]) / (x[1] - x[0]);
+            float tilt = static_cast<float>(y[1] - y[0]) / static_cast<float>(x[1] - x[0]);
             // x[0]>x[1]は、入れ替えるだけ
-            long x_start = x[0], x_end = x[1];
+            int x_start = x[0], x_end = x[1];
             if (x[0] < x[1])
             {
                 x_start = x[1];
                 x_end = x[0];
             }
-            for (long xi = x_start; xi < x_end; ++xi)
+            for (int xi = x_start; xi < x_end; ++xi)
             {
-                long y_start = x_start + static_cast<int>(tilt * (xi - x_start));
-                long y_end = x_start + static_cast<int>(floor(tilt * (xi + 1 - x_start)));
+                int y_start = x_start + static_cast<int>(tilt * static_cast<float>(xi - x_start));
+                int y_end = x_start + static_cast<int>(floor(tilt * (static_cast<float>(xi + 1 - x_start))));
                 if (y_start > y_end)
                 {
                     int temp = y_start;
                     y_start = y_end;
                     y_end = temp;
                 }
-                for (long yj = y_start; yj <= y_end; ++yj)
+                for (int yj = y_start; yj <= y_end; ++yj)
                 {
                     if (yj < 0)
                     {
@@ -398,237 +398,237 @@ void AutoStrategy::loop()
         //     map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
         //     LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
         // }
+        // }
     }
-}
 
-// スレッドを使って、整形
-{
-    LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
-    int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
-    int end_len = start_len + kProcessingNumOfOneThread;
-    if (end_len > kDotHeight)
+    // スレッドを使って、整形
     {
-        end_len = kDotHeight;
-    }
-    for (int yi = start_len; yi < end_len; ++yi)
-    {
-        if (yi < 0 || yi >= kDotHeight)
+        LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
+        int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
+        int end_len = start_len + kProcessingNumOfOneThread;
+        if (end_len > kDotHeight)
         {
-            ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
+            end_len = kDotHeight;
         }
-        if (yi != 0 && yi != kDotHeight - 1)
+        for (int yi = start_len; yi < end_len; ++yi)
         {
-            int color_id[20];
-            char color_num[20];
-            int color_pointer = 0; // 最大値18(=20-2)
-            int color_pointer_limit = 18;
-            for (int xj = 1; xj < kDotWidth - 1; ++xj)
+            if (yi < 0 || yi >= kDotHeight)
             {
-                color_pointer = 0;
-                // そのドットの周りで一番多い床の色を探す
-                for (int y = yi - 1; y <= yi + 1; ++y)
+                ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
+            }
+            if (yi != 0 && yi != kDotHeight - 1)
+            {
+                int color_id[20];
+                char color_num[20];
+                int color_pointer = 0; // 最大値18(=20-2)
+                int color_pointer_limit = 18;
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
-                    for (int x = xj - 1; x <= xj + 1; ++x)
+                    color_pointer = 0;
+                    // そのドットの周りで一番多い床の色を探す
+                    for (int y = yi - 1; y <= yi + 1; ++y)
                     {
-                        if (map[0][y][x] == static_cast<char>(MAP_UNKNOWN))
+                        for (int x = xj - 1; x <= xj + 1; ++x)
                         {
-                            continue;
-                        }
-                        color_id[color_pointer] = map[0][y][x];
-                        rep(i, color_pointer + 1)
-                        {
-                            if (color_id[i] == map[0][y][x])
+                            if (map[0][y][x] == static_cast<char>(MAP_UNKNOWN))
                             {
-                                if (i == color_pointer)
+                                continue;
+                            }
+                            color_id[color_pointer] = map[0][y][x];
+                            rep(i, color_pointer + 1)
+                            {
+                                if (color_id[i] == map[0][y][x])
                                 {
-                                    // 新しい色を追加
-                                    if (color_pointer < color_pointer_limit)
+                                    if (i == color_pointer)
                                     {
-                                        color_id[color_pointer] = map[0][y][x];
-                                        color_num[color_pointer] = 1;
-                                        color_pointer++;
+                                        // 新しい色を追加
+                                        if (color_pointer < color_pointer_limit)
+                                        {
+                                            color_id[color_pointer] = map[0][y][x];
+                                            color_num[color_pointer] = 1;
+                                            color_pointer++;
+                                        }
+                                        else
+                                        {
+                                            ERROR_MESSAGE(FUNCNAME + "(): error; To fix the floor map, the array num is over " + to_string(color_pointer_limit), MODE_NORMAL);
+                                        }
                                     }
                                     else
                                     {
-                                        ERROR_MESSAGE(FUNCNAME + "(): error; To fix the floor map, the array num is over " + to_string(color_pointer_limit), MODE_NORMAL);
+                                        // 色の数を++
+                                        color_num[i]++;
                                     }
+                                    break;
                                 }
-                                else
-                                {
-                                    // 色の数を++
-                                    color_num[i]++;
-                                }
-                                break;
                             }
                         }
                     }
+
+                    int max_num = 0, max_id = -1;
+                    rep(i, color_pointer)
+                    {
+                        if (color_num[i] > max_num)
+                        {
+                            max_num = color_num[i];
+                            max_id = color_id[i];
+                        }
+                    }
+
+                    if (max_id == -1)
+                    {
+                        // ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
+                        continue;
+                    }
+
+                    if (max_num >= 5)
+                    {
+                        map[0][yi][xj] = max_id;
+                    }
+                    // else if (max_num == 3)
+                    // {
+                    //     // 64128256
+                    //     //  8 16 32
+                    //     //  1  2  4
+                    //     int sum = 0;
+                    //     for (int y = yi - 1; y <= yi + 1; ++y)
+                    //     {
+                    //         for (int x = xj - 1; x <= xj + 1; ++x)
+                    //         {
+                    //             if (map[0][y][x] == max_id && (x != 0 || y != 0))
+                    //             {
+                    //                 sum += static_cast<int>(pow(2, (yi - y + 1) * 3 + (xj - x + 1)));
+                    //             }
+                    //         }
+                    //     }
+                    //     if (sum != 1 + 8 + 64 && sum != 1 + 2 + 4 && sum != 4 + 32 + 256 && sum != 64 + 128 + 256)
+                    //     {
+                    //         // 一列になっていないので、変更する
+                    //         map[0][yi][xj] = static_cast<char>(max_id);
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     int pos_x, pos_y, flag = 0;
+                    //     for (int y = yi - 1; y <= yi + 1; ++y)
+                    //     {
+                    //         for (int x = xj - 1; x <= xj + 1; ++x)
+                    //         {
+                    //             if (map[0][y][x] == max_id)
+                    //             {
+                    //                 if (flag == 0)
+                    //                 {
+                    //                     pos_x = x;
+                    //                     pos_y = y;
+                    //                 }
+                    //                 else
+                    //                 {
+                    //                     if (pos_x != x && pos_y != y)
+                    //                     {
+                    //                         // 縦横が重なっていないので、変更する
+                    //                         map[0][yi][xj] = static_cast<char>(max_id);
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
 
-                int max_num = 0, max_id = -1;
-                rep(i, color_pointer)
+                // xj == 0の場合 上下の比較のみおこなう
+                int temp_map_color = map[0][yi - 1][0];
+                if (temp_map_color == map[0][yi + 1][0])
                 {
-                    if (color_num[i] > max_num)
+                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
                     {
-                        max_num = color_num[i];
-                        max_id = color_id[i];
+                        map[0][yi][0] = temp_map_color;
                     }
                 }
-
-                if (max_id == -1)
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
-                    // ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
-                    continue;
-                }
 
-                if (max_num >= 5)
-                {
-                    map[0][yi][xj] = max_id;
-                }
-                // else if (max_num == 3)
-                // {
-                //     // 64128256
-                //     //  8 16 32
-                //     //  1  2  4
-                //     int sum = 0;
-                //     for (int y = yi - 1; y <= yi + 1; ++y)
-                //     {
-                //         for (int x = xj - 1; x <= xj + 1; ++x)
-                //         {
-                //             if (map[0][y][x] == max_id && (x != 0 || y != 0))
-                //             {
-                //                 sum += static_cast<int>(pow(2, (yi - y + 1) * 3 + (xj - x + 1)));
-                //             }
-                //         }
-                //     }
-                //     if (sum != 1 + 8 + 64 && sum != 1 + 2 + 4 && sum != 4 + 32 + 256 && sum != 64 + 128 + 256)
-                //     {
-                //         // 一列になっていないので、変更する
-                //         map[0][yi][xj] = static_cast<char>(max_id);
-                //     }
-                // }
-                // else
-                // {
-                //     int pos_x, pos_y, flag = 0;
-                //     for (int y = yi - 1; y <= yi + 1; ++y)
-                //     {
-                //         for (int x = xj - 1; x <= xj + 1; ++x)
-                //         {
-                //             if (map[0][y][x] == max_id)
-                //             {
-                //                 if (flag == 0)
-                //                 {
-                //                     pos_x = x;
-                //                     pos_y = y;
-                //                 }
-                //                 else
-                //                 {
-                //                     if (pos_x != x && pos_y != y)
-                //                     {
-                //                         // 縦横が重なっていないので、変更する
-                //                         map[0][yi][xj] = static_cast<char>(max_id);
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-            }
-
-            // xj == 0の場合 上下の比較のみおこなう
-            int temp_map_color = map[0][yi - 1][0];
-            if (temp_map_color == map[0][yi + 1][0])
-            {
-                if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
-                {
-                    map[0][yi][0] = temp_map_color;
-                }
-            }
-            for (int xj = 1; xj < kDotWidth - 1; ++xj)
-            {
-
-                // 左右の比較
-                if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
-                {
-                    if (map[0][yi][xj + 1] != static_cast<char>(MAP_UNKNOWN))
+                    // 左右の比較
+                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
                     {
-                        map[0][yi][xj] = map[0][yi][xj + 1];
+                        if (map[0][yi][xj + 1] != static_cast<char>(MAP_UNKNOWN))
+                        {
+                            map[0][yi][xj] = map[0][yi][xj + 1];
+                        }
+                    }
+                    // 上下の比較
+                    else if (map[0][yi - 1][xj] == map[0][yi + 1][xj])
+                    {
+                        if (map[0][yi + 1][xj] != static_cast<char>(MAP_UNKNOWN))
+                        {
+                            map[0][yi][xj] = map[0][yi + 1][xj];
+                        }
                     }
                 }
-                // 上下の比較
-                else if (map[0][yi - 1][xj] == map[0][yi + 1][xj])
+                // xj == kDotWidth - 1 の場合、上下の比較のみ行う
+                temp_map_color = map[0][yi - 1][kDotWidth - 1];
+                if (temp_map_color == map[0][yi + 1][kDotWidth - 1])
                 {
-                    if (map[0][yi + 1][xj] != static_cast<char>(MAP_UNKNOWN))
+                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
                     {
-                        map[0][yi][xj] = map[0][yi + 1][xj];
+                        map[0][yi][kDotWidth - 1] = temp_map_color;
                     }
                 }
             }
-            // xj == kDotWidth - 1 の場合、上下の比較のみ行う
-            temp_map_color = map[0][yi - 1][kDotWidth - 1];
-            if (temp_map_color == map[0][yi + 1][kDotWidth - 1])
+            else
             {
-                if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
+                // 左右の比較しか行わない
+                for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
-                    map[0][yi][kDotWidth - 1] = temp_map_color;
+                    // 左右の比較
+                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
+                    {
+                        if (map[0][yi][xj + 1] != MAP_UNKNOWN)
+                        {
+                            map[0][yi][xj] = map[0][yi][xj + 1];
+                        }
+                    }
                 }
             }
         }
-        else
-        {
-            // 左右の比較しか行わない
-            for (int xj = 1; xj < kDotWidth - 1; ++xj)
-            {
-                // 左右の比較
-                if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
-                {
-                    if (map[0][yi][xj + 1] != MAP_UNKNOWN)
-                    {
-                        map[0][yi][xj] = map[0][yi][xj + 1];
-                    }
-                }
-            }
-        }
+        LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
     }
-    LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
-}
 
-if (getRepeatedNum() == 60 * 1000 / 60)
-{
-    cout << "output!" << endl;
-    logErrorMessage.outputData("out.txt", "\n");
-    rep(i, 5)
+    if (getRepeatedNum() == 60 * 1000 / 60)
     {
-        rep(yi, kDotHeight)
+        cout << "output!" << endl;
+        logErrorMessage.outputData("out.txt", "\n");
+        rep(i, 5)
         {
-            rep(xj, kDotWidth)
+            rep(yi, kDotHeight)
             {
-                logErrorMessage.outputData("out.txt", to_string(map[i][kDotHeight - 1 - yi][xj]));
+                rep(xj, kDotWidth)
+                {
+                    logErrorMessage.outputData("out.txt", to_string(map[i][kDotHeight - 1 - yi][xj]));
+                }
+                logErrorMessage.outputData("out.txt", "\n");
             }
+            logErrorMessage.outputData("out.txt", "\n");
             logErrorMessage.outputData("out.txt", "\n");
         }
         logErrorMessage.outputData("out.txt", "\n");
-        logErrorMessage.outputData("out.txt", "\n");
+        cout << "output! finished" << endl;
     }
-    logErrorMessage.outputData("out.txt", "\n");
-    cout << "output! finished" << endl;
-}
 
-// int margin = 20;
-// if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
-// {
-//     GoToPosition(180, 135, 100, 100, 10);
-// }
-// else if (obstacle(20, 20, 20))
-// {
-//     motor(-3, 3);
-// }
-// else
-// {
-//     motor(3, 3);
-// }
-autoSearch(0);
+    // int margin = 20;
+    // if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
+    // {
+    //     GoToPosition(180, 135, 100, 100, 10);
+    // }
+    // else if (obstacle(20, 20, 20))
+    // {
+    //     motor(-3, 3);
+    // }
+    // else
+    // {
+    //     motor(3, 3);
+    // }
+    autoSearch(0);
 
-pt.print("AutoStrategy loop time :");
+    pt.print("AutoStrategy loop time :");
 }
 
 void AutoStrategy::CheckNowDot()
