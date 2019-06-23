@@ -615,7 +615,8 @@ void AutoStrategy::loop()
         cout << "output! finished" << endl;
     }
 
-    autoSearch(0);
+    // autoSearch(0);
+    GoToDot(200 / kCM2DotScale, 150 / kCM2DotScale);
 
     pt.print("AutoStrategy loop time :");
 }
@@ -1347,7 +1348,7 @@ int AutoStrategy::GoToDot(int x, int y)
     //If the node I want to go will be go out
     if (x < 1 || x >= kDotWidth - 1 || y < 1 || y >= kDotHeight - 1)
     {
-        ERROR_MESSAGE(FUNCNAME + "(): (x, y) is (" + to_string(x) + ", " + to_string(y) + "and strange", MODE_NORMAL);
+        ERROR_MESSAGE(FUNCNAME + "(): (x, y) is (" + to_string(x) + ", " + to_string(y) + ") and strange", MODE_NORMAL);
     }
     if (x < 0)
     {
@@ -1494,7 +1495,7 @@ int AutoStrategy::
         {
             rep(xj, kDotWidth)
             {
-                cost = static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
+                cost = abs(yi - robot_dot_positions[1][1]) + abs(xj - robot_dot_positions[1][0]);
                 if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
                 {
                     cost -= 1000;
@@ -1863,41 +1864,41 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                     {
                         continue;
                     }
-                    int cost = kCM2DotScale * 10000;
+                    int cost = kCM2DotScale;
                     // cost += map_arrived_times[y][x] * 10;
 
-                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
-                    {
-                        cost *= 100000;
-                    }
-                    if (map[0][y][x] == MAP_SWAMPLAND)
-                    {
-                        cost *= 1000;
-                    }
-                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
-                    {
-                        if (Time < 60)
-                        {
-                            cost /= 100;
-                            // cost -= 100;
-                        }
-                        else
-                        {
-                            cost /= 2;
-                        }
-                    }
-                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
+                    // if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
+                    // {
+                    //     cost *= 100000;
+                    // }
+                    // if (map[0][y][x] == MAP_SWAMPLAND)
+                    // {
+                    //     cost *= 1000;
+                    // }
+                    // if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
+                    // {
+                    //     if (Time < 60)
+                    //     {
+                    //         cost /= 100;
+                    //         // cost -= 100;
+                    //     }
+                    //     else
+                    //     {
+                    //         cost /= 2;
+                    //     }
+                    // }
+                    // if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                    // {
+                    //     cost /= 10;
+                    // }
+                    // if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                    // {
+                    //     cost /= 10;
+                    // }
+                    // if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                    // {
+                    //     cost /= 10;
+                    // }
                     if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
                     {
                         map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
@@ -1911,12 +1912,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
     }
 
-    cout << endl
-         << endl
-         << endl
-         << "num " << i << endl
-         << endl
-         << endl;
+    cout << "num " << i << endl;
     // 出力
     int max_value = -100;
     rep(yi, kDotHeight)
