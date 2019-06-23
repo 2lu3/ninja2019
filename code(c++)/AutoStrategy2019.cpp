@@ -1373,7 +1373,8 @@ int AutoStrategy::GoToDot(int x, int y)
 
     if (prev_now_dot_id != now_dot_id || prev_x != x || prev_y != y)
     {
-        Dijkstra();
+        // Dijkstra();
+        Astar(x, y);
     }
     prev_now_dot_id = now_dot_id;
     prev_x = x;
@@ -1482,7 +1483,7 @@ int AutoStrategy::
     if (x != prev_x || y != prev_y)
     {
         LOG_MESSAGE(FUNCNAME + "(): changed dots", MODE_NORMAL);
-        Dijkstra();
+        // Dijkstra();
         int max_value = 0;
         int max_pos[2] = {-1, -1};
         int min_value = INT_MAX;
@@ -1493,14 +1494,10 @@ int AutoStrategy::
         {
             rep(xj, kDotWidth)
             {
-                if (Time < 60)
+                cost = static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
+                if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
                 {
-
-                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
-                }
-                else
-                {
-                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k)));
+                    cost -= 1000;
                 }
 
                 cost = map_cost[yi][xj];
@@ -1939,28 +1936,28 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         return;
     }
 
-    for (long yi = kDotHeight - 1; yi >= 0; --yi)
-    {
-        rep(xj, kDotWidth)
-        {
-            switch (map[0][yi][xj])
-            {
-            case MAP_YELLOW:
-            case MAP_WALL:
-                printf("*");
-                break;
-            default:
-                if (map_cost[yi][xj] < 0)
-                {
-                    printf("'");
-                }
-                else
-                {
-                    printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
-                }
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
+    // for (long yi = kDotHeight - 1; yi >= 0; --yi)
+    // {
+    //     rep(xj, kDotWidth)
+    //     {
+    //         switch (map[0][yi][xj])
+    //         {
+    //         case MAP_YELLOW:
+    //         case MAP_WALL:
+    //             printf("*");
+    //             break;
+    //         default:
+    //             if (map_cost[yi][xj] < 0)
+    //             {
+    //                 printf("'");
+    //             }
+    //             else
+    //             {
+    //                 printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+    //             }
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
 }
