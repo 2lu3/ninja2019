@@ -1827,8 +1827,10 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = robot_dot_positions[1][1];
     map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
 
+    long i = 0;
     while (true)
     {
+        i++;
         int investigating_dot_x = -1, investigating_dot_y = -1;
 
         rep(yi, kDotHeight)
@@ -1848,7 +1850,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         // goalに到着したとき
-        if (map_from[goal_y][goal_x] != -1)
+        if (map_from[goal_y][goal_x][0] != -1)
         {
             break;
         }
@@ -1911,6 +1913,13 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
             }
         }
     }
+
+    cout << endl
+         << endl
+         << endl
+         << "num " << i << endl
+         << endl
+         << endl;
     // 出力
     int max_value = -100;
     rep(yi, kDotHeight)
@@ -1930,21 +1939,28 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         return;
     }
 
-    // for (long yi = kDotHeight - 1; yi >= 0; --yi)
-    // {
-    //     rep(xj, kDotWidth)
-    //     {
-    //         switch (map[0][yi][xj])
-    //         {
-    //         case MAP_YELLOW:
-    //         case MAP_WALL:
-    //             printf("*");
-    //             break;
-    //         default:
-    //             printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
+    for (long yi = kDotHeight - 1; yi >= 0; --yi)
+    {
+        rep(xj, kDotWidth)
+        {
+            switch (map[0][yi][xj])
+            {
+            case MAP_YELLOW:
+            case MAP_WALL:
+                printf("*");
+                break;
+            default:
+                if (map_cost[yi][xj] < 0)
+                {
+                    printf("'");
+                }
+                else
+                {
+                    printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+                }
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
