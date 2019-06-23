@@ -2,6 +2,7 @@ import glob
 import subprocess
 import os
 import sys
+import winsound
 
 # is_debug = True
 is_debug = False
@@ -19,6 +20,7 @@ out_path = 'outcospace'
 out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 
 optimisation_level = 0
+
 
 
 def main():
@@ -83,8 +85,8 @@ def main():
     subprocess.run(command, shell=True)
     print("finished")
     sys.stdout.flush()
-    if sys.argv[0].find('.exe') != -1:
-        subprocess.run("pause", shell=True)
+    # if sys.argv[0].find('.exe') != -1:
+    #     subprocess.run("pause", shell=True)
 
 
 

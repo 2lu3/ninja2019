@@ -20,6 +20,7 @@ UserGame0::~UserGame0()
 void UserGame0::setup(void)
 {
 	InputColorInformation();
+	resetRepeatedNum();
 }
 
 void UserGame0::loop(void)
@@ -50,6 +51,7 @@ UserGame1::~UserGame1()
 void UserGame1::setup(void)
 {
 	InputColorInformation();
+	resetRepeatedNum();
 }
 
 void UserGame1::loop(void)

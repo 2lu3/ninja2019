@@ -1,0 +1,134 @@
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
+import os
+import time
+from datetime import timedelta
+import subprocess
+from datetime import datetime
+import winsound
+from mutagen.mp3 import MP3 as mp3
+import pygame
+
+target_dir_expectations = ["./../code(c++)/", "./code(c++)/", "./../code/", "./code/"]
+target_dir = None
+
+command_path_expectations = ["./../cplus.exe", "./cplus.exe"]
+command_path = None
+
+music_path_expectations = ["./music/", "./../music/"]
+music_path = None
+
+
+out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
+out_cospace_path = None
+
+command = None
+
+prev_saved_time = None
+
+prev_dll_changed_time = None
+
+class ChangeHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        filepath = event.src_path
+        filename = os.path.basename(filepath)
+        print('%sができました' % filename)
+
+    def on_modified(self, event):
+        global prev_saved_time, prev_dll_changed_time
+        filepath = event.src_path
+        filename = os.path.basename(filepath)
+        if prev_saved_time is not None and datetime.now() + timedelta(seconds=-20) <= prev_saved_time:
+            return
+        prev_saved_time = datetime.now()
+        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end = ' ')
+        print('%sが変更されました' % filename)
+        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end = ' ')
+        target_filenames = [".cpp", ".hpp", ".c", ".h"]
+        for target_filename in target_filenames:
+            if target_filename in filename:
+                print("コンパイルスタート")
+                subprocess.run(command, shell=True)
+
+                if prev_dll_changed_time is None or os.stat(out_cospace_path + "Ninja.dll").st_mtime != prev_dll_changed_time:
+                    prev_dll_changed_time = os.stat(out_cospace_path + "Ninja.dll").st_mtime
+                    print("コンパイル成功")
+                    try:
+                        winsound.Beep(1000, 800)
+                    except RuntimeError:
+                        print("Runtime Error")
+
+                else:
+                    print("コンパイル失敗")
+
+                    filename = music_path + "error.mp3"#再生したいmp3ファイル
+                    pygame.mixer.init()
+                    pygame.mixer.music.load(filename) #音源を読み込み
+                    mp3_length = mp3(filename).info.length #音源の長さ取得
+                    pygame.mixer.music.play(1) #再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
+                    time.sleep(mp3_length + 0.25) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
+                    pygame.mixer.music.stop() #音源の長さ待ったら再生停止
+                break
+
+    def on_deleted(self, event):
+        filepath = event.src_path
+        filename = os.path.basename(filepath)
+        print("%sを削除しました" % filename)
+
+
+def main():
+    global target_dir, command_path, command, out_cospace_path, music_path
+    for investigating_target_dir in target_dir_expectations:
+        if os.path.isdir(investigating_target_dir):
+            target_dir = investigating_target_dir
+            print("target dir : " + target_dir)
+            break
+
+    if target_dir is None:
+        print("Error : there is no target dir")
+        return
+
+    for investigating_cospace_path in out_cospace_path_expectations:
+        if os.path.isdir(investigating_cospace_path):
+            out_cospace_path = investigating_cospace_path
+            print("cospace dir : " + out_cospace_path)
+            break
+
+    if out_cospace_path is None:
+        print("Error : no cospace path")
+        return
+
+    for investigating_command_path in command_path_expectations:
+        if os.path.isfile(investigating_command_path):
+            command_path = investigating_command_path
+            print("command path : " + command_path)
+            break
+
+    if command_path is None:
+        print("Error : there is no command")
+        return
+
+    for investigating_music_path in music_path_expectations:
+        if os.path.isdir(investigating_music_path):
+            music_path = investigating_music_path
+            print("music path : " + music_path)
+            break
+
+    if music_path is None:
+        print("Error : there is no music folder")
+        return
+
+    command = "\"" + command_path + "\""
+
+    while 1:
+        event_handler = ChangeHandler()
+        observer = Observer()
+        observer.schedule(event_handler, target_dir, recursive=True)
+        observer.start()
+        while True:
+            time.sleep(0.1)
+
+
+if __name__ == '__main__':
+    main()

@@ -3,6 +3,7 @@
 
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
+#include <climits>
 
 class AutoStrategy : public UserGame1
 {
@@ -48,8 +49,9 @@ private:
     // 0:床情報 1:red 2:cyan 3:black
     int map[4][kDotHeight][kDotWidth];
     int map_arrived_times[kDotHeight][kDotWidth];
-    int map_from[kDotHeight][kDotWidth];
+    int map_from[kDotHeight][kDotWidth][2];
     int map_cost[kDotHeight][kDotWidth];
+
     int map_status[kDotHeight][kDotWidth];
 
     int log_x,
