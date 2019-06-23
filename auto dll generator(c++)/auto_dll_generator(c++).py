@@ -48,11 +48,17 @@ class ChangeHandler(FileSystemEventHandler):
         target_filenames = [".cpp", ".hpp", ".c", ".h"]
         for target_filename in target_filenames:
             if target_filename in filename:
+                try:
+                    winsound.Beep(3000, 200)
+                except RuntimeError:
+                    print("Runtime Error")
                 print("コンパイルスタート")
                 subprocess.run(command, shell=True)
 
                 if prev_dll_changed_time is None or os.stat(out_cospace_path + "Ninja.dll").st_mtime != prev_dll_changed_time:
+                    subprocess.run("strip --strip-unneeded " + "\"" + out_cospace_path + "Ninja.dll\"")
                     prev_dll_changed_time = os.stat(out_cospace_path + "Ninja.dll").st_mtime
+                    print(prev_dll_changed_time)
                     print("コンパイル成功")
                     try:
                         winsound.Beep(1000, 800)
@@ -67,7 +73,7 @@ class ChangeHandler(FileSystemEventHandler):
                     pygame.mixer.music.load(filename) #音源を読み込み
                     mp3_length = mp3(filename).info.length #音源の長さ取得
                     pygame.mixer.music.play(1) #再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
-                    time.sleep(mp3_length + 0.25) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
+                    time.sleep(1) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
                     pygame.mixer.music.stop() #音源の長さ待ったら再生停止
                 break
 
@@ -98,6 +104,7 @@ def main():
     if out_cospace_path is None:
         print("Error : no cospace path")
         return
+    prev_dll_changed_time = os.stat(out_cospace_path + "Ninja.dll").st_mtime
 
     for investigating_command_path in command_path_expectations:
         if os.path.isfile(investigating_command_path):
@@ -119,7 +126,7 @@ def main():
         print("Error : there is no music folder")
         return
 
-    command = "\"" + command_path + "\""
+    command = "\"" + command_path + "\"" + " --no-strip"
 
     while 1:
         event_handler = ChangeHandler()

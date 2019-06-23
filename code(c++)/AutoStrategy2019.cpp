@@ -323,6 +323,21 @@ void AutoStrategy::loop()
                     }
                 }
             }
+
+            if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
+            {
+                continue;
+            }
+            // 壁はないので、MAP_WALLを登録する必要がない
+            if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
+            {
+                continue;
+            }
+            if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
+            {
+                map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+            }
         }
 
         // // 0 < 1にする
@@ -385,20 +400,6 @@ void AutoStrategy::loop()
         //     }
         // }
 
-        // if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
-        // {
-        //     continue;
-        // }
-        // // 壁はないので、MAP_WALLを登録する必要がない
-        // if (us_sensors[i] == kUSLimit + difference_us_position[i % 2])
-        // {
-        //     continue;
-        // }
-        // if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
-        // {
-        //     map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
-        //     LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
-        // }
         // }
     }
 
@@ -614,19 +615,6 @@ void AutoStrategy::loop()
         cout << "output! finished" << endl;
     }
 
-    // int margin = 20;
-    // if (log_x < margin || log_x >= kCospaceWidth - margin || log_y < margin || log_y >= kCospaceHeight - margin)
-    // {
-    //     GoToPosition(180, 135, 100, 100, 10);
-    // }
-    // else if (obstacle(20, 20, 20))
-    // {
-    //     motor(-3, 3);
-    // }
-    // else
-    // {
-    //     motor(3, 3);
-    // }
     autoSearch(0);
 
     pt.print("AutoStrategy loop time :");
@@ -1494,89 +1482,154 @@ int AutoStrategy::
     if (x != prev_x || y != prev_y)
     {
         LOG_MESSAGE(FUNCNAME + "(): changed dots", MODE_NORMAL);
-        local_same_target = 0;
-        prev_x = x;
-        prev_y = y;
-        //0:left bottom corner 1:right bottom corner 2:right bottom corner
-        int corner_x[2], corner_y[2];
-        corner_x[0] = (x - wide_decide_x) / kCM2DotScale;
-        corner_y[0] = (y - wide_decide_y) / kCM2DotScale;
-        corner_x[1] = (x + wide_decide_x) / kCM2DotScale;
-        corner_y[1] = (y + wide_decide_y) / kCM2DotScale;
-
-        for (int i = 0; i < 2; i++)
+        Dijkstra();
+        int max_value = 0;
+        int max_pos[2] = {-1, -1};
+        int min_value = INT_MAX;
+        int min_pos[2] = {-1, -1};
+        int cost;
+        float k = 2;
+        rep(yi, kDotHeight)
         {
-            if (corner_x[i] < 0)
+            rep(xj, kDotWidth)
             {
-                corner_x[i] = 0;
-            }
-            if (corner_x[i] >= kDotWidth)
-            {
-                corner_x[i] = kDotWidth - 1;
-            }
-            if (corner_y[i] < 0)
-            {
-                corner_y[i] = 0;
-            }
-            if (corner_y[i] >= kDotHeight)
-            {
-                corner_y[i] = kDotHeight - 1;
-            }
-        }
-
-        int min = 100000, id = -1;
-        // n回に1回移動する
-        // int option = rnd() % 5;
-        int option = 1;
-        for (int i = corner_x[0]; i <= corner_x[1]; i++)
-        {
-            for (int j = corner_y[0]; j <= corner_y[1]; j++)
-            {
-                int investigating_dot_id = j * kDotHeight + i;
-                if (i <= 0 || i >= kDotWidth - 1 || j <= 0 || j >= kDotHeight - 1)
+                if (Time < 60)
                 {
-                    continue;
-                }
-
-                //yellow or wall or deposit
-                if (map[0][j][i] == MAP_YELLOW || map[0][j][i] == MAP_WALL || map[0][j][i] == MAP_DEPOSIT)
-                {
-                    continue;
-                }
-
-                int costs = static_cast<int>(map_arrived_times[j][i] * 100 + rand() % 10);
-                if (option)
-                {
-                    // 移動しないとき
-                    int k = 30;
-                    costs += static_cast<int>(pow(abs(i * kCM2DotScale - log_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - log_y) - k, 2) * 100);
+                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
                 }
                 else
                 {
-                    // 移動するとき
-                    costs -= static_cast<int>(pow(i * kCM2DotScale - log_x, 2) / 100 - pow(j * kCM2DotScale - log_y, 2) / 100);
+                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k)));
                 }
-                if (costs < min)
+
+                cost = map_cost[yi][xj];
+                if (max_value < cost)
                 {
-                    min = costs;
-                    id = investigating_dot_id;
+                    max_value = cost;
+                    max_pos[0] = xj;
+                    max_pos[1] = yi;
+                }
+                if (cost < min_value)
+                {
+                    min_value = cost;
+                    min_pos[0] = xj;
+                    min_pos[1] = yi;
                 }
             }
         }
-        if (id == -1)
-        {
-            target_x = x / kCM2DotScale;
-            target_y = y / kCM2DotScale;
-        }
-        else
-        {
-            target_y = id / kDotWidth;
-            target_x = id - target_y * kDotWidth;
-        }
+        target_x = min_pos[0];
+        target_y = min_pos[1];
+        // for (long yi = kDotHeight - 1; yi >= 0; --yi)
+        // {
+        //     rep(xj, kDotWidth)
+        //     {
+        //         if (min_pos[0] == xj && min_pos[1] == yi)
+        //         {
+        //             printf("m");
+        //             continue;
+        //         }
+        //         if (xj == robot_dot_positions[1][0] && yi == robot_dot_positions[1][1])
+        //         {
+        //             printf("#");
+        //             continue;
+        //         }
+        //         switch (map[0][yi][xj])
+        //         {
+        //         case MAP_YELLOW:
+        //         case MAP_WALL:
+        //             printf("*");
+        //             break;
+        //         default:
+        //             printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+        //         }
+        //     }
+        //     printf("\n");
+        // }
+        // printf("\n");
 
-        same_target_border = static_cast<int>(sqrt(pow(log_x - target_x * kCM2DotScale, 2) + pow(log_y - target_y * kCM2DotScale, 2)));
-        same_target_border *= 2;
-        same_target_border += 30;
+        // local_same_target = 0;
+        // prev_x = x;
+        // prev_y = y;
+        // //0:left bottom corner 1:right bottom corner 2:right bottom corner
+        // int corner_x[2], corner_y[2];
+        // corner_x[0] = (x - wide_decide_x) / kCM2DotScale;
+        // corner_y[0] = (y - wide_decide_y) / kCM2DotScale;
+        // corner_x[1] = (x + wide_decide_x) / kCM2DotScale;
+        // corner_y[1] = (y + wide_decide_y) / kCM2DotScale;
+
+        // for (int i = 0; i < 2; i++)
+        // {
+        //     if (corner_x[i] < 0)
+        //     {
+        //         corner_x[i] = 0;
+        //     }
+        //     if (corner_x[i] >= kDotWidth)
+        //     {
+        //         corner_x[i] = kDotWidth - 1;
+        //     }
+        //     if (corner_y[i] < 0)
+        //     {
+        //         corner_y[i] = 0;
+        //     }
+        //     if (corner_y[i] >= kDotHeight)
+        //     {
+        //         corner_y[i] = kDotHeight - 1;
+        //     }
+        // }
+
+        // int min = 100000, id = -1;
+        // // n回に1回移動する
+        // // int option = rnd() % 5;
+        // int option = 1;
+        // for (int i = corner_x[0]; i <= corner_x[1]; i++)
+        // {
+        //     for (int j = corner_y[0]; j <= corner_y[1]; j++)
+        //     {
+        //         int investigating_dot_id = j * kDotHeight + i;
+        //         if (i <= 0 || i >= kDotWidth - 1 || j <= 0 || j >= kDotHeight - 1)
+        //         {
+        //             continue;
+        //         }
+
+        //         //yellow or wall or deposit
+        //         if (map[0][j][i] == MAP_YELLOW || map[0][j][i] == MAP_WALL || map[0][j][i] == MAP_DEPOSIT)
+        //         {
+        //             continue;
+        //         }
+
+        //         int costs = static_cast<int>(map_arrived_times[j][i] * 100 + rand() % 10);
+        //         if (option)
+        //         {
+        //             // 移動しないとき
+        //             int k = 30;
+        //             costs += static_cast<int>(pow(abs(i * kCM2DotScale - log_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - log_y) - k, 2) * 100);
+        //         }
+        //         else
+        //         {
+        //             // 移動するとき
+        //             costs -= static_cast<int>(pow(i * kCM2DotScale - log_x, 2) / 100 - pow(j * kCM2DotScale - log_y, 2) / 100);
+        //         }
+        //         if (costs < min)
+        //         {
+        //             min = costs;
+        //             id = investigating_dot_id;
+        //         }
+        //     }
+        // }
+        // if (id == -1)
+        // {
+        //     target_x = x / kCM2DotScale;
+        //     target_y = y / kCM2DotScale;
+        // }
+        // else
+        // {
+        //     target_y = id / kDotWidth;
+        //     target_x = id - target_y * kDotWidth;
+        // }
+
+        // same_target_border = static_cast<int>(sqrt(pow(log_x - target_x * kCM2DotScale, 2) + pow(log_y - target_y * kCM2DotScale, 2)));
+        // same_target_border *= 2;
+        // same_target_border += 30;
     }
     local_same_target++;
 
@@ -1664,7 +1717,8 @@ void AutoStrategy::Dijkstra(void)
                     {
                         continue;
                     }
-                    int cost = kCM2DotScale * 1000;
+                    int cost = kCM2DotScale * 10000;
+                    // cost += map_arrived_times[y][x] * 10;
 
                     if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
                     {
@@ -1678,7 +1732,8 @@ void AutoStrategy::Dijkstra(void)
                     {
                         if (Time < 60)
                         {
-                            cost /= 10;
+                            cost /= 100;
+                            // cost -= 100;
                         }
                         else
                         {
@@ -1687,15 +1742,15 @@ void AutoStrategy::Dijkstra(void)
                     }
                     if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
                     {
-                        cost /= 2;
+                        cost /= 10;
                     }
                     if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
                     {
-                        cost /= 2;
+                        cost /= 10;
                     }
                     if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
                     {
-                        cost /= 2;
+                        cost /= 10;
                     }
                     if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
                     {
@@ -1727,20 +1782,168 @@ void AutoStrategy::Dijkstra(void)
         return;
     }
 
-    for (long yi = kDotHeight - 1; yi >= 0; --yi)
+    // for (long yi = kDotHeight - 1; yi >= 0; --yi)
+    // {
+    //     rep(xj, kDotWidth)
+    //     {
+    //         switch (map[0][yi][xj])
+    //         {
+    //         case MAP_YELLOW:
+    //         case MAP_WALL:
+    //             printf("*");
+    //             break;
+    //         default:
+    //             printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
+}
+
+void AutoStrategy::Astar(int goal_x, int goal_y)
+{
+    // 初期化
+    rep(i, kDotHeight)
+    {
+        rep(j, kDotWidth)
+        {
+            map_from[i][j][0] = -1;
+            map_from[i][j][1] = -1;
+            map_cost[i][j] = -1;
+            map_status[i][j] = 0;
+            map_total_cost[i][j] = -1;
+        }
+    }
+
+    if (robot_dot_positions[1][0] < 0 || robot_dot_positions[1][0] >= kDotWidth || robot_dot_positions[1][1] < 0 || robot_dot_positions[1][1] >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
+    }
+
+    map_cost[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
+    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][0] = robot_dot_positions[1][0];
+    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = robot_dot_positions[1][1];
+    map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
+
+    while (true)
+    {
+        int investigating_dot_x = -1, investigating_dot_y = -1;
+
+        rep(yi, kDotHeight)
+        {
+            rep(xj, kDotWidth)
+            {
+                if (map_status[yi][xj] != 1)
+                {
+                    continue;
+                }
+                if (investigating_dot_x == -1 || map_total_cost[yi][xj] < map_total_cost[investigating_dot_y][investigating_dot_x] || (map_total_cost[yi][xj] == map_total_cost[investigating_dot_y][investigating_dot_x] && map_cost[yi][xj] < map_cost[investigating_dot_y][investigating_dot_x]))
+                {
+                    investigating_dot_x = xj;
+                    investigating_dot_y = yi;
+                }
+            }
+        }
+
+        // goalに到着したとき
+        if (map_from[goal_y][goal_x] != -1)
+        {
+            break;
+        }
+
+        map_status[investigating_dot_y][investigating_dot_x] = 2;
+        for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
+        {
+            for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
+            {
+                if (0 <= x && x < kDotWidth && 0 <= y && y < kDotHeight)
+                {
+                    if (map_status[y][x] == 2)
+                    {
+                        continue;
+                    }
+                    int cost = kCM2DotScale * 10000;
+                    // cost += map_arrived_times[y][x] * 10;
+
+                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
+                    {
+                        cost *= 100000;
+                    }
+                    if (map[0][y][x] == MAP_SWAMPLAND)
+                    {
+                        cost *= 1000;
+                    }
+                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
+                    {
+                        if (Time < 60)
+                        {
+                            cost /= 100;
+                            // cost -= 100;
+                        }
+                        else
+                        {
+                            cost /= 2;
+                        }
+                    }
+                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
+                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
+                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
+                    if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
+                    {
+                        map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
+                        map_total_cost[y][x] = map_cost[y][x] + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale;
+                        map_from[y][x][0] = investigating_dot_x;
+                        map_from[y][x][1] = investigating_dot_y;
+                        map_status[y][x] = 1;
+                    }
+                }
+            }
+        }
+    }
+    // 出力
+    int max_value = -100;
+    rep(yi, kDotHeight)
     {
         rep(xj, kDotWidth)
         {
-            switch(map[0][yi][xj]) {
-                case MAP_YELLOW:
-                case MAP_WALL:
-                    printf("*");
-                    break;
-                default:
-                    printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+            if (map_cost[yi][xj] > max_value)
+            {
+                max_value = map_cost[yi][xj];
             }
         }
-        printf("\n");
     }
-    printf("\n");
+    LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
+    if (max_value == 0)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
+        return;
+    }
+
+    // for (long yi = kDotHeight - 1; yi >= 0; --yi)
+    // {
+    //     rep(xj, kDotWidth)
+    //     {
+    //         switch (map[0][yi][xj])
+    //         {
+    //         case MAP_YELLOW:
+    //         case MAP_WALL:
+    //             printf("*");
+    //             break;
+    //         default:
+    //             printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
 }

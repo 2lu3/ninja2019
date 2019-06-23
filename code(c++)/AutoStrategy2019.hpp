@@ -16,7 +16,7 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 5;
+    const static int kCM2DotScale = 10;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
@@ -51,7 +51,7 @@ private:
     int map_arrived_times[kDotHeight][kDotWidth];
     int map_from[kDotHeight][kDotWidth][2];
     int map_cost[kDotHeight][kDotWidth];
-
+    int map_total_cost[kDotHeight][kDotWidth];
     int map_status[kDotHeight][kDotWidth];
 
     int log_x,
@@ -75,6 +75,7 @@ private:
     int HowManyCurved(int id);
     int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
+    void Astar(int x, int y);
 };
 
 #endif //!AUTO_STRATEGY_HPP
