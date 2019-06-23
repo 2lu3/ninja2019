@@ -1495,6 +1495,7 @@ int AutoStrategy::
             {
                 if (Time < 60)
                 {
+
                     map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
                 }
                 else
