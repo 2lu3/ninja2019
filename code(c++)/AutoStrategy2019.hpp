@@ -27,7 +27,7 @@ private:
 
     const int kBorderSameObjNum = 2;
     const int kFindObjDuration = 45;
-    const int kProcessingNumOfOneThread = 10;
+    const int kProcessingNumOfOneThread = 90;
     const int kThreadNum = static_cast<int>((kDotHeight + kProcessingNumOfOneThread - 1) / kProcessingNumOfOneThread);
 
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
