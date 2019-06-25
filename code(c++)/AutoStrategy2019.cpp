@@ -3,7 +3,7 @@
 
 #define TO_INT(VALUE) static_cast<int>((VALUE))
 #define IF if
-#define LOG_MESSAGE(MESSAGE, OPTION) \
+#define pos_MESSAGE(MESSAGE, OPTION) \
     IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
     IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
@@ -57,25 +57,25 @@ void AutoStrategy::loop()
 {
     pt.start();
     UserGame1::loop();
-    LOG_MESSAGE("Auto Strategy loop start", MODE_DEBUG);
+    pos_MESSAGE("Auto Strategy loop start", MODE_DEBUG);
 
     // static int same_time = 0;
     // static int prev_repeated_num = 0;
     if (PositionX != 0 || PositionY != 0)
     {
-        LOG_MESSAGE(FUNCNAME + "(): not in PLA and (x, y) is (" + to_string(PositionX) + ", " + to_string(PositionY) + ")", MODE_DEBUG);
-        log_x = PositionX;
-        log_y = PositionY;
-        log_compass = Compass;
+        pos_MESSAGE(FUNCNAME + "(): not in PLA and (x, y) is (" + to_string(PositionX) + ", " + to_string(PositionY) + ")", MODE_DEBUG);
+        pos_x = PositionX;
+        pos_y = PositionY;
+        pos_compass = Compass;
 
-        if (log_x < 0)
-            log_x = 0;
-        if (log_x >= kCospaceWidth)
-            log_x = kCospaceWidth - 1;
-        if (log_y < 0)
-            log_y = 0;
-        if (log_y >= kCospaceHeight)
-            log_y = kCospaceHeight - 1;
+        if (pos_x < 0)
+            pos_x = 0;
+        if (pos_x >= kCospaceWidth)
+            pos_x = kCospaceWidth - 1;
+        if (pos_y < 0)
+            pos_y = 0;
+        if (pos_y >= kCospaceHeight)
+            pos_y = kCospaceHeight - 1;
         CheckNowDot();
         // arrived_timesを更新
         map[4][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
@@ -103,8 +103,8 @@ void AutoStrategy::loop()
         {
             for (int hj = 0; hj < range * 2; hj++)
             {
-                int x = log_x / kCM2DotScale + wi - range;
-                int y = log_y / kCM2DotScale + hj - range;
+                int x = pos_x / kCM2DotScale + wi - range;
+                int y = pos_y / kCM2DotScale + hj - range;
                 if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
                 {
                     continue;
@@ -119,104 +119,104 @@ void AutoStrategy::loop()
         if (ColorJudgeLeft(object_box))
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_DEPOSIT;
-            LOG_MESSAGE("deposit " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
+            pos_MESSAGE("deposit " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(trap_line))
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_YELLOW;
-            LOG_MESSAGE("yellow " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
+            pos_MESSAGE("yellow " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(gray_zone))
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SWAMPLAND;
-            LOG_MESSAGE("swampland " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            pos_MESSAGE("swampland " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(blue_zone))
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SUPER_AREA;
-            LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            pos_MESSAGE("blue floor " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(black_obj))
         {
             map[BLACK_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
-            LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            pos_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(cyan_obj))
         {
             map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(red_obj))
         {
             map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(white_zone))
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_WHITE;
-            LOG_MESSAGE("white area " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            pos_MESSAGE("white area " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else
         {
             map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_WHITE;
-            LOG_MESSAGE("white area(maye be) " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            pos_MESSAGE("white area(maye be) " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
 
         if (ColorJudgeRight(object_box))
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_DEPOSIT;
-            LOG_MESSAGE("deposit " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("deposit " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(trap_line))
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_YELLOW;
-            LOG_MESSAGE(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(gray_zone))
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SWAMPLAND;
-            LOG_MESSAGE("swampland " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("swampland " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(blue_zone))
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SUPER_AREA;
-            LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("blue floor " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(black_obj))
         {
             map[BLACK_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(cyan_obj))
         {
             map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(red_obj))
         {
             map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(white_zone))
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_WHITE;
-            LOG_MESSAGE("white area " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("white area " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else
         {
             map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_WHITE;
-            LOG_MESSAGE("white area(may be) " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            pos_MESSAGE("white area(may be) " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
     }
 
     // 壁の位置を計算
     {
-        LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
+        pos_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
 
         // 0: left & right 1: front
         int difference_us_position[2] = {9, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        LOG_MESSAGE(FUNCNAME + "()" + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
+        pos_MESSAGE(FUNCNAME + "()" + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
         string us_names[3] = {"Left", "Front", "Right"};
         int angles[3] = {40, 0, -40};
         int calculated_relative_coordinate[3][2];
@@ -233,18 +233,18 @@ void AutoStrategy::loop()
             // 壁の位置とロボットの相対座標
             calculated_relative_coordinate[i][0] = TO_INT(cos(angles[i] * M_PI / 180) * us_sensors[i]);
             calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * us_sensors[i]);
-            LOG_MESSAGE(FUNCNAME + "(): calculated relative coordinate (" + to_string(calculated_relative_coordinate[i][0]) + ", " + to_string(calculated_relative_coordinate[i][1]) + ")", MODE_VERBOSE);
+            pos_MESSAGE(FUNCNAME + "(): calculated relative coordinate (" + to_string(calculated_relative_coordinate[i][0]) + ", " + to_string(calculated_relative_coordinate[i][1]) + ")", MODE_VERBOSE);
 
             // ドット上での壁の絶対座標
-            calculated_absolute_dot_position[i][0] = TO_INT((log_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
-            calculated_absolute_dot_position[i][1] = TO_INT((log_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
+            calculated_absolute_dot_position[i][0] = TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
+            calculated_absolute_dot_position[i][1] = TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
             // x[0], y[0] -> x[1], y[1]までMAP_WALLをMAP_WHITEに変更する
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
             const int x[2] = {
-                robot_dot_positions[1][0], TO_INT((log_x + calculated_relative_coordinate[i][0] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
+                robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
             const int y[2] = {
-                robot_dot_positions[1][1], TO_INT((log_y + calculated_relative_coordinate[i][1] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
-            LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(log_x + calculated_relative_coordinate[i][0]) + "," + to_string(log_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1] * 0.9 + kCM2DotScale / 2) / kCM2DotScale)};
+            pos_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(pos_x + calculated_relative_coordinate[i][0]) + "," + to_string(pos_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
 
             // (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
             if (x[0] == x[1]) // 縦方向の直線の場合
@@ -325,7 +325,7 @@ void AutoStrategy::loop()
             if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
             {
                 map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
-                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                pos_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
                 cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
             }
         }
@@ -363,7 +363,7 @@ void AutoStrategy::loop()
         // // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
         // for (int xi = x[0] + 1; xi < x[1]; ++xi)
         // {
-        //     // LOG_MESSAGE(FUNCNAME + "()")
+        //     // pos_MESSAGE(FUNCNAME + "()")
         //     if (xi < 0)
         //     {
         //         continue;
@@ -385,7 +385,7 @@ void AutoStrategy::loop()
         //         if (map[0][yj][xi] == MAP_WALL)
         //         {
         //             map[0][yj][xi] = MAP_UNKNOWN_NOT_WALL;
-        //             LOG_MESSAGE(FUNCNAME + "(): set here as unknow space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
+        //             pos_MESSAGE(FUNCNAME + "(): set here as unknow space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
         //         }
         //     }
         // }
@@ -395,7 +395,7 @@ void AutoStrategy::loop()
 
     // スレッドを使って、整形
     {
-        LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
+        pos_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
         int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
         int end_len = start_len + kProcessingNumOfOneThread;
         if (end_len > kDotHeight)
@@ -581,7 +581,7 @@ void AutoStrategy::loop()
                 }
             }
         }
-        LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
+        pos_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
     }
 
     // データの出力
@@ -622,7 +622,7 @@ void AutoStrategy::loop()
     case FIND_OBJ:
         if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
         {
-            LOG_MESSAGE("Add 1 to LoadedObjects", MODE_VERBOSE);
+            pos_MESSAGE("Add 1 to LoadedObjects", MODE_VERBOSE);
             LoadedObjects++;
         }
         LED_1 = 1;
@@ -674,13 +674,13 @@ void AutoStrategy::CheckNowDot()
     // x,yはそれぞれ左のカラーセンサ、座標センサの場所、右のカラーセンサの場所のx,y座標
     int side = 6;
     int x[3] = {
-        TO_INT(log_x + cos((Compass + 90 + 30) * M_PI / 180) * side),
-        log_x,
-        TO_INT(log_x + cos((Compass + 90 - 30) * M_PI / 180) * side)};
+        TO_INT(pos_x + cos((Compass + 90 + 30) * M_PI / 180) * side),
+        pos_x,
+        TO_INT(pos_x + cos((Compass + 90 - 30) * M_PI / 180) * side)};
     int y[3] = {
-        TO_INT(log_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
-        log_y,
-        TO_INT(log_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
+        TO_INT(pos_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
+        pos_y,
+        TO_INT(pos_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
 
     rep(i, 3)
     {
@@ -755,41 +755,41 @@ void AutoStrategy::CheckNowDot()
 
 long AutoStrategy::WhereIsMotor(void)
 {
-    LOG_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
     long x, y;
-    if (log_x < 0)
+    if (pos_x < 0)
     {
         x = 0;
     }
-    if (log_x >= kCospaceWidth)
+    if (pos_x >= kCospaceWidth)
     {
         x = kCospaceWidth - 1;
     }
-    if (log_y < 0)
+    if (pos_y < 0)
     {
         y = 0;
     }
-    if (log_y >= kCospaceHeight)
+    if (pos_y >= kCospaceHeight)
     {
         y = kCospaceHeight - 1;
     }
-    x = log_x - static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
-    y = log_y - static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
-    LOG_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
+    x = pos_x - static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
+    y = pos_y - static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
+    pos_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
     return y * 1000 + x;
 }
 
 long AutoStrategy::WhereIsColorSensor(void)
 {
-    LOG_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): start", MODE_VERBOSE);
     long x, y;
-    if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
+    if (pos_x < 0 || pos_x >= kCospaceWidth || pos_y < 0 || pos_y >= kCospaceHeight)
     {
-        log_x = kCospaceWidth / 2;
-        log_y = kCospaceHeight / 2;
+        pos_x = kCospaceWidth / 2;
+        pos_y = kCospaceHeight / 2;
     }
-    x = log_x + static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
-    y = log_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
+    x = pos_x + static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
+    y = pos_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
     //fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
     if (x < 0)
     {
@@ -811,7 +811,7 @@ long AutoStrategy::WhereIsColorSensor(void)
         //fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
         y = kCospaceHeight - 1;
     }
-    LOG_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): return " + to_string(y * 1000 + x) + " (x, y) : (" + to_string(x) + ", " + to_string(y) + ")", MODE_VERBOSE);
     return y * 1000 + x;
 }
 
@@ -864,7 +864,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 
     if (absolute_distance <= -1)
     {
-        absolute_distance = TO_INT(sqrt(pow(absolute_x - log_x, 2) + pow(absolute_y - log_y, 2))) + 40;
+        absolute_distance = TO_INT(sqrt(pow(absolute_x - pos_x, 2) + pow(absolute_y - pos_y, 2))) + 40;
     }
 
     if (absolute_distance < same_operate)
@@ -876,8 +876,8 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
         absolute_distance = -1;
         if (PositionX == -1)
         {
-            log_x = x;
-            log_y = y;
+            pos_x = x;
+            pos_y = y;
         }
         return 1;
     }
@@ -888,7 +888,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
     if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
     {
         printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
-        LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
+        pos_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
         absolute_x = -1;
         absolute_y = -1;
         same_operate = -1;
@@ -896,12 +896,12 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
         return 1;
     }
 
-    LOG_MESSAGE("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
+    pos_MESSAGE("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
     x = absolute_x;
     y = absolute_y;
     x = x - temp_x;
     y = y - temp_y;
-    LOG_MESSAGE("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
+    pos_MESSAGE("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
     double angle = atan2(y, x);
     angle = angle * 180 / 3.14;
     int angle_int = TO_INT(angle);
@@ -910,7 +910,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
     {
         angle_int += 360;
     }
-    LOG_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
+    pos_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
     GoToAngle(angle_int, TO_INT(sqrt(x * x + y * y)));
 
     if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
@@ -927,7 +927,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 
 int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radius)
 {
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(TO_INT(color)) + "," + to_string(x) + "," + to_string(y) + "," + to_string(cm_radius) + "): start", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(" + to_string(TO_INT(color)) + "," + to_string(x) + "," + to_string(y) + "," + to_string(cm_radius) + "): start", MODE_VERBOSE);
     int dot_radious = (cm_radius + kCM2DotScale - 1) / kCM2DotScale;
 
     // xi = now_x - radious ~ now_x + radious
@@ -947,18 +947,18 @@ int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radius)
             }
             if (map[0][yj][xi] == color)
             {
-                LOG_MESSAGE(FUNCNAME + "(): return 1", MODE_VERBOSE);
+                pos_MESSAGE(FUNCNAME + "(): return 1", MODE_VERBOSE);
                 return 1;
             }
         }
     }
-    LOG_MESSAGE(FUNCNAME + "(): return 0", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): return 0", MODE_VERBOSE);
     return 0;
 }
 
 void AutoStrategy::GoToAngle(int angle, int distance)
 {
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
     angle = angle - Compass;
     angle %= 360;
     if (angle > 180)
@@ -1059,7 +1059,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
         }
         else
         {
-            if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 800)
+            if (log_superobj_num > 0 && pow(pos_y - log_superobj_y[0], 2) + pow(pos_x - log_superobj_x[0], 2) < 800)
             {
                 printf("log_superobj_num > 0 %d\n", angle);
                 if (abs(angle) < 30)
@@ -1139,7 +1139,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
             }
             else if (isNearTheFloor(MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
             {
-                LOG_MESSAGE("near yellow or unknown", MODE_DEBUG);
+                pos_MESSAGE("near yellow or unknown", MODE_DEBUG);
                 if (abs(angle) < 10)
                 {
                     motor(3, 3);
@@ -1363,18 +1363,18 @@ void AutoStrategy::GoToAngle(int angle, int distance)
     // 		}
     // 	}
     // }
-    LOG_MESSAGE(FUNCNAME + "(): end with motor(" + to_string(WheelLeft) + "," + to_string(WheelRight) + ")", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): end with motor(" + to_string(WheelLeft) + "," + to_string(WheelRight) + ")", MODE_VERBOSE);
 }
 
 int AutoStrategy::GoToDot(int x, int y)
 {
     static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
 
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "): start", MODE_DEBUG);
+    pos_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "): start", MODE_DEBUG);
 
-    if (PositionX == -1 && (PLUSMINUS(log_x, x * kCM2DotScale, kCM2DotScale) && PLUSMINUS(log_y, y * kCM2DotScale, kCM2DotScale)))
+    if (PositionX == -1 && (PLUSMINUS(pos_x, x * kCM2DotScale, kCM2DotScale) && PLUSMINUS(pos_y, y * kCM2DotScale, kCM2DotScale)))
     {
-        LOG_MESSAGE(FUNCNAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
+        pos_MESSAGE(FUNCNAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         GoToPosition(x, y, 10, 10, 5);
         return 1;
     }
@@ -1456,7 +1456,7 @@ int AutoStrategy::GoToDot(int x, int y)
     if (i == 200)
     {
         printf("\n\n\niの値が200ですByGoToNode()\n\n\n\n");
-        LOG_MESSAGE(FUNCNAME + "(): iの値が200です", MODE_NORMAL);
+        pos_MESSAGE(FUNCNAME + "(): iの値が200です", MODE_NORMAL);
     }
 
     // map_data_to_show[now_dot_id] = '@';
@@ -1490,7 +1490,7 @@ int AutoStrategy::GoToDot(int x, int y)
         }
         else if (next_y == now_y)
         {
-            GoToPosition(log_x - 3 + rand() % 6, log_y - 3 + rand() % 6, 6, 6, 3);
+            GoToPosition(pos_x - 3 + rand() % 6, pos_y - 3 + rand() % 6, 6, 6, 3);
             return 1;
         }
         else
@@ -1519,7 +1519,7 @@ int AutoStrategy::GoToDot(int x, int y)
 int AutoStrategy::
     GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
-    LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
 
     static int prev_x = -1;
     static int prev_y = -1;
@@ -1529,7 +1529,7 @@ int AutoStrategy::
     static int same_target_border = 0;
     if (x != prev_x || y != prev_y)
     {
-        LOG_MESSAGE(FUNCNAME + "(): changed dots", MODE_NORMAL);
+        pos_MESSAGE(FUNCNAME + "(): changed dots", MODE_NORMAL);
         // Dijkstra();
         int max_value = 0;
         // int max_pos[2] = {-1, -1};
@@ -1655,12 +1655,12 @@ int AutoStrategy::
         //         {
         //             // 移動しないとき
         //             int k = 30;
-        //             costs += TO_INT(pow(abs(i * kCM2DotScale - log_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - log_y) - k, 2) * 100);
+        //             costs += TO_INT(pow(abs(i * kCM2DotScale - pos_x) - k, 2) * 100 - pow(abs(j * kCM2DotScale - pos_y) - k, 2) * 100);
         //         }
         //         else
         //         {
         //             // 移動するとき
-        //             costs -= TO_INT(pow(i * kCM2DotScale - log_x, 2) / 100 - pow(j * kCM2DotScale - log_y, 2) / 100);
+        //             costs -= TO_INT(pow(i * kCM2DotScale - pos_x, 2) / 100 - pow(j * kCM2DotScale - pos_y, 2) / 100);
         //         }
         //         if (costs < min)
         //         {
@@ -1680,13 +1680,13 @@ int AutoStrategy::
         //     target_x = id - target_y * kDotWidth;
         // }
 
-        // same_target_border = TO_INT(sqrt(pow(log_x - target_x * kCM2DotScale, 2) + pow(log_y - target_y * kCM2DotScale, 2)));
+        // same_target_border = TO_INT(sqrt(pow(pos_x - target_x * kCM2DotScale, 2) + pow(pos_y - target_y * kCM2DotScale, 2)));
         // same_target_border *= 2;
         // same_target_border += 30;
     }
     local_same_target++;
 
-    LOG_MESSAGE(FUNCNAME + "(): calculated best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_DEBUG);
+    pos_MESSAGE(FUNCNAME + "(): calculated best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_DEBUG);
 
     if (GoToDot(target_x, target_y) || local_same_target > same_target_border)
     {
@@ -1703,54 +1703,65 @@ int AutoStrategy::
 
 void AutoStrategy::autoSearch(float parameter)
 {
-    int score_area_map[kAreaHeight][kAreaWidth];
-    rep(ayi, kAreaHeight)
+    static int is_changed = 1;
+    static int target_x = -1, target_y = -1;
+    if (is_changed)
     {
-        rep(axj, kAreaWidth)
-        {
-            score_area_map[ayi][axj] = 0;
-        }
-    }
-    if (parameter < 10)
-    {
-        int score = 0;
-        int max_score = INT_MIN;
-        int max_score_x = -1;
-        int max_score_y = -1;
-        // 候補のエリアを選ぶ
-        rep(yi, kDotHeight)
-        {
-            rep(xj, kDotWidth)
-            {
-                if (map[0][yi][xj] == MAP_WALL || map[0][yi][xj] == MAP_YELLOW)
-                {
-                    continue;
-                }
-
-                score = 10;
-                if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
-                {
-                    score *= 2;
-                }
-                score -= map_arrived_times[yi][xj];
-                score_area_map[TO_INT(yi / kDot2AreaScale)][TO_INT(xj / kDot2AreaScale)] += score;
-            }
-        }
+        int score_area_map[kAreaHeight][kAreaWidth];
         rep(ayi, kAreaHeight)
         {
             rep(axj, kAreaWidth)
             {
-                score_area_map[ayi][axj] += abs(ayi * kCM2AreaScale - log_y) + abs(axj * kCM2AreaScale - log_x);
-                if (max_score < score_area_map[ayi][axj])
-                {
-                    max_score = score_area_map[ayi][axj];
-                    max_score_x = axj;
-                    max_score_y = ayi;
-                }
+                score_area_map[ayi][axj] = 0;
             }
         }
-        LOG_MESSAGE(FUNCNAME + "(): calculated best area (" + to_string(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ", " + to_string(max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ")", MODE_DEBUG);
-        GoToDots(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2));
+        if (parameter < 10)
+        {
+            int score = 0;
+            int max_score = INT_MIN;
+            int max_score_x = -1;
+            int max_score_y = -1;
+            // 候補のエリアを選ぶ
+            rep(yi, kDotHeight)
+            {
+                rep(xj, kDotWidth)
+                {
+                    if (map[0][yi][xj] == MAP_WALL || map[0][yi][xj] == MAP_YELLOW)
+                    {
+                        continue;
+                    }
+
+                    score = 10;
+                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    {
+                        score *= 2;
+                    }
+                    score -= map_arrived_times[yi][xj];
+                    score_area_map[TO_INT(yi / kDot2AreaScale)][TO_INT(xj / kDot2AreaScale)] += score;
+                }
+            }
+            rep(ayi, kAreaHeight)
+            {
+                rep(axj, kAreaWidth)
+                {
+                    score_area_map[ayi][axj] += abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x);
+                    if (max_score < score_area_map[ayi][axj])
+                    {
+                        max_score = score_area_map[ayi][axj];
+                        max_score_x = axj;
+                        max_score_y = ayi;
+                    }
+                }
+            }
+            target_x = max_score_x;
+            target_y = max_score_y;
+            pos_MESSAGE(FUNCNAME + "(): calculated best area (" + to_string(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ", " + to_string(max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ")", MODE_DEBUG);
+            GoToDots(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2));
+        }
+    }
+    else
+    {
+        GoToDots(target_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), target_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2));
     }
 }
 
@@ -1873,7 +1884,7 @@ void AutoStrategy::Dijkstra(void)
             }
         }
     }
-    LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
     if (max_value == 0)
     {
         ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
@@ -2024,7 +2035,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
             }
         }
     }
-    LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
+    pos_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
     if (max_value == 0)
     {
         ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);

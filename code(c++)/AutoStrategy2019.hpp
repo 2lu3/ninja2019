@@ -58,9 +58,9 @@ private:
     int map_total_cost[kDotHeight][kDotWidth];
     int map_status[kDotHeight][kDotWidth];
 
-    int log_x,
-        log_y,
-        log_compass;
+    int pos_x,
+        pos_y,
+        pos_compass;
     long robot_dot_positions[3][2];
 
     long now_dot_id;
