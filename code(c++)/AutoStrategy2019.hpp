@@ -20,6 +20,10 @@ private:
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
+    const static int kCM2AreaScale = 45;
+    const static int kDot2AreaScale = kCM2AreaScale / kCM2DotScale;
+    const static int kAreaWidth = kCospaceWidth / kCM2AreaScale;
+    const static int kAreaHeight = kCospaceHeight / kCM2AreaScale;
 
     const int kBorderSameObjNum = 2;
     const int kFindObjDuration = 45;
