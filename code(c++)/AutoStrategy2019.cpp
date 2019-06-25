@@ -1732,6 +1732,7 @@ void AutoStrategy::autoSearch(float parameter)
         {
             rep(axj, kAreaWidth)
             {
+                score_area_map[ayi][axj] += abs(ayi * kCM2AreaScale - log_y) + abs(axj * kCM2AreaScale - log_x);
                 if (max_score < score_area_map[ayi][axj])
                 {
                     max_score = score_area_map[ayi][axj];
@@ -1740,7 +1741,8 @@ void AutoStrategy::autoSearch(float parameter)
                 }
             }
         }
-        GoToDots(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale), max_score_y * kCM2AreaScale + (kCM2AreaScale), TO_INT(kCM2AreaScale), TO_INT(kCM2AreaScale));
+        LOG_MESSAGE(FUNCNAME + "(): calculated best area (" + to_string(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ", " + to_string(max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ")", MODE_DEBUG);
+        GoToDots(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2));
     }
 }
 
