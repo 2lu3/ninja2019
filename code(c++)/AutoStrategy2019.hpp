@@ -16,7 +16,7 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 1;
+    const static int kCM2DotScale = 5;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
