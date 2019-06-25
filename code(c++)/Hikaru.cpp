@@ -1362,7 +1362,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 			GoToAngle(315, distance);
 		}
 	}
-	return 1;
+	return 0;
 }
 
 int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
