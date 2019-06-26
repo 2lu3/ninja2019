@@ -359,45 +359,45 @@ void AutoStrategy::loop()
             // ドット上での壁の絶対座標
             calculated_absolute_dot_position[i][0] = TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
             calculated_absolute_dot_position[i][1] = TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
-                if (0 <= calculated_absolute_dot_position[i][0] && calculated_absolute_dot_position[i][0] kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
+            LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(pos_x + calculated_relative_coordinate[i][0]) + "," + to_string(pos_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+            if (0 <= calculated_absolute_dot_position[i][0] && calculated_absolute_dot_position[i][0] < kDotWidth && 0 <= calculated_absolute_dot_position[i][1] && calculated_absolute_dot_position[i][1] < kDotHeight)
+            {
+                // 壁はないときは、MAP_WALLを登録する必要がない
+                if (us_sensors[i] < kUSLimit + difference_us_position[i % 2])
                 {
-                    continue;
+                    if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
+                    {
+                        map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                        LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                    }
                 }
-                // 壁はないので、MAP_WALLを登録する必要がない
-                if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
-                {
-                    continue;
-                }
-                if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
-                {
-                    map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
-                    LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
-                    cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
-                }
+            }
+
             // x[0], y[0] -> x[1], y[1]までMAP_WALLをMAP_WHITEに変更する
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
             // 基本的に、実際の壁との距離から0.7倍程度にするが、kCM2DotScaleが最低2つはあけないといけない
             // 1cm先に壁がある場合、MAP_WHITEは登録しない
             const int kRange4Wall = 10;
-            int x[2], y[2];
-            x[0] = robot_dot_positions[1][0];
-            y[0] = robot_dot_positions[1][1];
-            if (abs(calculated_relative_coordinate[i][0]) * 0.3 < kRange4Wall)
-            {
-                // 壁との距離が非常に近いとき
-                if(abs(calculated_relative_coordinate[i][0]) < kRange4Wall) {
-                    continue;
-                }
-                else {
 
-                }
+            if (us_sensors[i] < kRange4Wall + difference_us_position[i % 2])
+            {
+                // MAP_WHITEは登録しない
+                LOG_MESSAGE(FUNCNAME + "(): MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
+                continue;
             }
-            const int x[2] = {
-                robot_dot_positions[1][0], TO_INT(((pos_x + (abs(calculated_relative_coordinate[i][0]) * 0.3 < kCM2DotScale * 2 ? calculated_relative_coordinate[1][0] - kCM2DotScale * 2 : calculated_relative_coordinate[i][0] * 0.7) + kCM2DotScale / 2) / kCM2DotScale))};
-            const int y[2] = {
-                robot_dot_positions[1][1], TO_INT(((pos_y + (calculated_relative_coordinate[i][1] * 0.3 < kCM2DotScale * 2 ? calculated_relative_coordinate[i][1] - kCM2DotScale * 2 : calculated_relative_coordinate[i][1] * 0.7) + kCM2DotScale / 2) / kCM2DotScale))};
-            LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(pos_x + calculated_relative_coordinate[i][0]) + "," + to_string(pos_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
-            // if()
+            if (us_sensors[i] * 0.3 < kRange4Wall)
+            {
+                calculated_relative_coordinate[i][0] = TO_INT(cos(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
+                calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
+            }
+            else
+            {
+                calculated_relative_coordinate[i][0] = TO_INT(cos(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
+                calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
+            }
+
+            const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0]) / kCM2DotScale)};
+            const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1]) / kCM2DotScale)};
 
             // (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
             if (x[0] == x[1]) // 縦方向の直線の場合
@@ -480,7 +480,6 @@ void AutoStrategy::loop()
                         }
                     }
                 }
-
             }
         }
         // // 0 < 1にする
