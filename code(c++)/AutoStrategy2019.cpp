@@ -39,6 +39,14 @@ AutoStrategy::AutoStrategy()
     logErrorMessage.delErrorFile();
     logErrorMessage.delLogFile();
     logErrorMessage.delOutFile("out.txt");
+    for (int i = -10; i < 10; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            // printf("%5lf %4lf\n", i + j * 0.1f, i_sigmoid(static_cast<float>(i + j * 0.1f), 1));
+            printf("%5lf %d\n", i + j * 0.1, i_sigmoid(i + j * 0.1, 10.0));
+        }
+    }
     pt.print("AutoStrategy::AutoStrategy() :");
 }
 
@@ -79,8 +87,8 @@ void AutoStrategy::loop()
             pos_y = kCospaceHeight - 1;
         CheckNowDot();
         // arrived_timesを更新
-        map[4][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
-        map[4][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+        map_arrived_times[robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+        map_arrived_times[robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
         // int range = 0;
         // rep(hi, range * 2 + 1)
         // {
@@ -110,7 +118,7 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                map[4][y][x] = map[4][y][x] + 2;
+                map_arrived_times[y][x] = map_arrived_times[y][x] + 2;
             }
         }
     }
@@ -141,7 +149,7 @@ void AutoStrategy::loop()
                     {
                         continue;
                     }
-                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    if (map[0][yi][xj] == MAP_UNKNOWN)
                     {
                         map[0][yi][xj] = MAP_SWAMPLAND;
                         LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
@@ -248,7 +256,7 @@ void AutoStrategy::loop()
                     {
                         continue;
                     }
-                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    if (map[0][yi][xj] == MAP_UNKNOWN)
                     {
                         map[0][yi][xj] = MAP_SWAMPLAND;
                         LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
@@ -365,9 +373,9 @@ void AutoStrategy::loop()
                 // 壁はないときは、MAP_WALLを登録する必要がない
                 if (us_sensors[i] < kUSLimit + difference_us_position[i % 2])
                 {
-                    if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
+                    // if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
                     {
-                        map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                        map[4][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]]++;
                         LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
                     }
                 }
@@ -422,10 +430,10 @@ void AutoStrategy::loop()
                         {
                             break;
                         }
-                        if (map[0][yi][x[0]] == MAP_WALL)
+                        if (map[4][yi][x[0]] > 0)
                         {
-                            map[0][yi][x[0]] = MAP_UNKNOWN_NOT_WALL;
-                            LOG_MESSAGE(FUNCNAME + "(): set here as white(not wall) " + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
+                            map[4][yi][x[0]] -= 2;
+                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
                         }
                     }
                 }
@@ -473,10 +481,10 @@ void AutoStrategy::loop()
                         {
                             break;
                         }
-                        if (map[0][yj][xi] == MAP_WALL)
+                        if (map[4][yj][xi] > 0)
                         {
-                            map[0][yj][xi] = MAP_UNKNOWN_NOT_WALL;
-                            LOG_MESSAGE(FUNCNAME + "(): set here as white(not wall) space (" + to_string(xi) + ", " + to_string(yj) + ")", MODE_VERBOSE);
+                            map[4][yj][xi] -= 2;
+                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(xi) + ", " + to_string(yj) + ")", MODE_VERBOSE);
                         }
                     }
                 }
@@ -737,7 +745,7 @@ void AutoStrategy::loop()
     }
 
     // データの出力
-    if (getRepeatedNum() == 60 * 1000 / 60)
+    if (getRepeatedNum() % (60 * 1000 / 60) == 0 && getRepeatedNum() != 0)
     {
         cout << "output!" << endl;
         logErrorMessage.outputData("out.txt", "\n");
@@ -806,10 +814,10 @@ void AutoStrategy::loop()
     {
         --Duration;
     }
-    else if (IsOnYellowLine())
+    else if (IsOnYellowLine() && LoadedObjects != 0)
     {
         setAction(YELLOW_AVOIDANCE);
-        Duration = 5;
+        Duration = 3;
     }
     else
     {
@@ -837,7 +845,6 @@ void AutoStrategy::loop()
         {
             LED_1 = 0;
         }
-        break;
         break;
     case DEPOSIT_OBJ:
         motor_no_action_change(0, 0);
@@ -918,7 +925,7 @@ void AutoStrategy::CheckNowDot()
             y[i] = kDotHeight - 1;
         }
         // そのドットが壁の場合
-        if (map[0][y[i]][x[i]] == MAP_WALL)
+        if (map[4][y[i]][x[i]] > 0)
         {
             // 近くのドットの中で、壁の中ではないドットにする
             int range = (10 + kCM2DotScale - 1) / kCM2DotScale;
@@ -933,7 +940,7 @@ void AutoStrategy::CheckNowDot()
                     {
                         continue;
                     }
-                    if (map[0][temp_y][temp_x] != MAP_WALL)
+                    if (map[4][temp_y][temp_x] <= 0)
                     {
                         if (min_value > ABS(hi) + ABS(wj))
                         {
@@ -1588,13 +1595,17 @@ int AutoStrategy::GoToDot(int x, int y)
     {
         rep(xj, kDotWidth)
         {
-            if (map[0][yi][xj] == MAP_WALL || map[0][yi][xj] == MAP_YELLOW)
+            if (map[4][yi][xj] > 0 || map[0][yi][xj] == MAP_YELLOW)
             {
                 map_data_to_show[yi * kDotWidth + xj] = '#';
             }
             else if (map[0][yi][xj] == MAP_SWAMPLAND)
             {
                 map_data_to_show[yi * kDotWidth + xj] = '$';
+            }
+            else if (map[0][yi][xj] == MAP_DEPOSIT)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = 'D';
             }
             else
             {
@@ -1843,7 +1854,7 @@ int AutoStrategy::
                 {
                     continue;
                 }
-                if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                if (map[0][yi][xj] == MAP_UNKNOWN)
                 {
                     cost -= 1000;
                 }
@@ -1938,21 +1949,67 @@ int AutoStrategy::
 
 void AutoStrategy::autoSearch(float parameter)
 {
+    // 0:通常の探索 1:Despositエリア(確定済み)に直行 2:Depositエリアを探索中
+    static int status = 0;
     static int is_changed = 1;
     static int target_x = -1, target_y = -1;
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(parameter) + "): start; status = " + to_string(status), MODE_DEBUG);
+    if (LoadedObjects >= 6 && (status != 1 && status != 2))
+    {
+        LOG_MESSAGE(FUNCNAME + "(): fully loaded; is_changed = true", MODE_VERBOSE);
+        is_changed = 1;
+    }
+    if (LoadedObjects < 6 && (status == 1 || status == 2))
+    {
+        LOG_MESSAGE(FUNCNAME + "(): not loaded objects; is_changed = true", MODE_VERBOSE);
+        is_changed = 1;
+        status = 0;
+    }
+
     if (is_changed)
     {
         is_changed = 0;
-        int score_area_map[kAreaHeight][kAreaWidth];
-        rep(ayi, kAreaHeight)
+        if (LoadedObjects >= 6)
         {
-            rep(axj, kAreaWidth)
+            int min_cost = INT_MAX;
+            target_x = -1;
+            target_y = -1;
+            rep(yi, kDotHeight)
             {
-                score_area_map[ayi][axj] = 0;
+                rep(xj, kDotWidth)
+                {
+                    if (map[0][yi][xj] == MAP_DEPOSIT)
+                    {
+                        if (abs(yi - robot_dot_positions[1][1]) + abs(xj - robot_dot_positions[1][0]) < min_cost)
+                        {
+                            target_x = xj;
+                            target_y = yi;
+                            min_cost = abs(yi - robot_dot_positions[1][1]) + abs(xj - robot_dot_positions[1][0]);
+                        }
+                    }
+                }
+            }
+            if (target_x == -1)
+            {
+                LOG_MESSAGE(FUNCNAME + "(): there is no deposit area. status = 2", MODE_VERBOSE);
+                status = 2;
+            }
+            else
+            {
+                LOG_MESSAGE(FUNCNAME + "(): I go to deposit area (" + to_string(target_x * kCM2DotScale) + ", " + to_string(target_y * kCM2DotScale) + ")", MODE_VERBOSE);
+                status = 1;
             }
         }
-        if (parameter < 10)
+        if (status != 2)
         {
+            int score_area_map[kAreaHeight][kAreaWidth];
+            rep(ayi, kAreaHeight)
+            {
+                rep(axj, kAreaWidth)
+                {
+                    score_area_map[ayi][axj] = 0;
+                }
+            }
             int score = 0;
             int max_score = INT_MIN;
             int max_score_x = -1;
@@ -1962,17 +2019,31 @@ void AutoStrategy::autoSearch(float parameter)
             {
                 rep(xj, kDotWidth)
                 {
-                    if (map[0][yi][xj] == MAP_WALL || map[0][yi][xj] == MAP_YELLOW)
+                    if (map[4][yi][xj] > 0 || map[0][yi][xj] == MAP_YELLOW)
                     {
                         continue;
                     }
 
                     score = kCM2AreaScale;
-                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    if (map[0][yi][xj] == MAP_UNKNOWN)
                     {
-                        score *= 2;
+                        switch (status)
+                        {
+                        case 0:
+                            score *= 2;
+                            score -= map_arrived_times[yi][xj];
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            score -= map_arrived_times[yi][xj];
+                            score *= 20;
+                            break;
+                        default:
+                            ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
+                            break;
+                        }
                     }
-                    score -= map_arrived_times[yi][xj];
                     score_area_map[TO_INT(yi / kDot2AreaScale)][TO_INT(xj / kDot2AreaScale)] += score;
                 }
             }
@@ -1992,7 +2063,8 @@ void AutoStrategy::autoSearch(float parameter)
             {
                 rep(axj, kAreaWidth)
                 {
-                    score_area_map[ayi][axj] += i_sigmoid(fabsf(static_cast<float>(ayi * kCM2AreaScale - pos_y)) + fabsf(static_cast<float>(axj * kCM2AreaScale - pos_x)) / static_cast<float>(max_value) * 20.0f - 10.0f, static_cast<float>(max_value) / 20.0f);
+                    double distance = fabs(static_cast<double>(ayi * kCM2AreaScale - pos_y)) + fabs(static_cast<double>(axj * kCM2AreaScale - pos_x));
+                    score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value) / 20.0);
                     if (max_score < score_area_map[ayi][axj])
                     {
                         max_score = score_area_map[ayi][axj];
@@ -2007,13 +2079,10 @@ void AutoStrategy::autoSearch(float parameter)
             GoToDots(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2));
         }
     }
-    else
+    if (GoToDots(target_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), target_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2)))
     {
-        if (GoToDots(target_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), target_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2)))
-        {
-            is_changed = 1;
-            LOG_MESSAGE(FUNCNAME + "(): is_changed true", MODE_VERBOSE);
-        }
+        is_changed = 1;
+        LOG_MESSAGE(FUNCNAME + "(): is_changed true", MODE_VERBOSE);
     }
 }
 
@@ -2081,7 +2150,7 @@ void AutoStrategy::Dijkstra(void)
                     int cost = kCM2DotScale * 10000;
                     // cost += map_arrived_times[y][x] * 10;
 
-                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
+                    if (map[0][y][x] == MAP_YELLOW || map[4][y][x] > 0)
                     {
                         cost *= 100000;
                     }
@@ -2089,7 +2158,7 @@ void AutoStrategy::Dijkstra(void)
                     {
                         cost *= 1000;
                     }
-                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
+                    if (map[0][y][x] == MAP_UNKNOWN)
                     {
                         if (Time < 60)
                         {
@@ -2227,9 +2296,22 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         continue;
                     }
                     int cost = kCM2DotScale;
+
+                    // 外に出そうな危険な範囲には行かないようにする
+                    int range = 10;
+                    // ドット1つ分と、range、大きい方を採用する
+                    if (kCM2DotScale > range)
+                    {
+                        range = kCM2DotScale;
+                    }
+                    range /= kCM2DotScale;
+                    if (x < range || x >= kDotWidth - range || y < range || y >= kDotHeight - range)
+                    {
+                        cost *= 100;
+                    }
                     cost += map_arrived_times[y][x] * 10;
 
-                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
+                    if (map[0][y][x] == MAP_YELLOW || map[4][y][x] > 0)
                     {
                         cost *= 100000;
                     }
@@ -2237,7 +2319,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                     {
                         cost *= 1000;
                     }
-                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
+                    if (map[0][y][x] == MAP_UNKNOWN)
                     {
                         if (Time < 60)
                         {
@@ -2324,19 +2406,19 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     // printf("\n");
 }
 
-float AutoStrategy::sigmoid(float gain, float value, float scale)
+double AutoStrategy::sigmoid(double gain, double value, double scale)
 {
-    return (1.0f / (1.0f + static_cast<float>(exp(static_cast<double>(-gain * value))))) * scale;
+    return (1.0 / (1.0 + exp(-gain * value))) * scale;
 }
-float AutoStrategy::sigmoid(float value, float scale)
+double AutoStrategy::sigmoid(double value, double scale)
 {
     return sigmoid(1, value, scale);
 }
-int AutoStrategy::i_sigmoid(float gain, float value, float scale)
+int AutoStrategy::i_sigmoid(double gain, double value, double scale)
 {
     return TO_INT(sigmoid(gain, value, scale));
 }
-int AutoStrategy::i_sigmoid(float value, float scale)
+int AutoStrategy::i_sigmoid(double value, double scale)
 {
     return i_sigmoid(1, value, scale);
 }

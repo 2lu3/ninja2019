@@ -41,19 +41,17 @@ private:
 
     enum MapInfo
     {
-        MAP_YELLOW = -3,    // カラーセンサーの値によって決まる
-        MAP_WALL = -2,      // 超音波センサの値によってきまる
+        MAP_YELLOW = -2,    // カラーセンサーの値によって決まる
         MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
         MAP_UNKNOWN = 0,    // 不明な場合
-        MAP_UNKNOWN_NOT_WALL = 1,
-        MAP_WHITE = 2,     // カラーセンサーの値によって決まる
-        MAP_DEPOSIT = 3,   // カラーセンサーの値によって決まる
-        MAP_SUPER_AREA = 4 // カラーセンサーの値によって決まる
+        MAP_WHITE = 1,      // カラーセンサーの値によって決まる
+        MAP_DEPOSIT = 2,    // カラーセンサーの値によって決まる
+        MAP_SUPER_AREA = 3  // カラーセンサーの値によって決まる
     };
     const static int kGuessedMapSize = 5;
 
-    // 0:床情報 1:red 2:cyan 3:black
-    int map[4][kDotHeight][kDotWidth];
+    // 0:床情報 1:red 2:cyan 3:black 4:壁情報
+    int map[5][kDotHeight][kDotWidth];
     int map_arrived_times[kDotHeight][kDotWidth];
     int map_from[kDotHeight][kDotWidth][2];
     int map_cost[kDotHeight][kDotWidth];
@@ -82,10 +80,10 @@ private:
     int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
     void Astar(int x, int y);
-    inline float sigmoid(float gain, float value, float scale);
-    inline float sigmoid(float value, float scale);
-    inline int i_sigmoid(float gain, float value, float scale);
-    inline int i_sigmoid(float value, float scale);
+    inline double sigmoid(double gain, double value, double scale);
+    inline double sigmoid(double value, double scale);
+    inline int i_sigmoid(double gain, double value, double scale);
+    inline int i_sigmoid(double value, double scale);
 };
 
 #endif //!AUTO_STRATEGY_HPP
