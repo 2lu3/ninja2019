@@ -16,11 +16,11 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kCM2DotScale = 5;
+    const static int kCM2DotScale = 10;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
     const static int kUSLimit = 186;
-    const static int kCM2AreaScale = 45;
+    const static int kCM2AreaScale = 30;
     const static int kDot2AreaScale = kCM2AreaScale / kCM2DotScale;
     const static int kAreaWidth = kCospaceWidth / kCM2AreaScale;
     const static int kAreaHeight = kCospaceHeight / kCM2AreaScale;
@@ -50,6 +50,7 @@ private:
         MAP_DEPOSIT = 3,   // カラーセンサーの値によって決まる
         MAP_SUPER_AREA = 4 // カラーセンサーの値によって決まる
     };
+    const static int kGuessedMapSize = 5;
 
     // 0:床情報 1:red 2:cyan 3:black
     int map[4][kDotHeight][kDotWidth];
@@ -81,6 +82,10 @@ private:
     int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
     void Astar(int x, int y);
+    inline float sigmoid(float gain, float value, float scale);
+    inline float sigmoid(float value, float scale);
+    inline int i_sigmoid(float gain, float value, float scale);
+    inline int i_sigmoid(float value, float scale);
 };
 
 #endif //!AUTO_STRATEGY_HPP

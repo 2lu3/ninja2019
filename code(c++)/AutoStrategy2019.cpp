@@ -7,7 +7,11 @@
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
     IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::extent;
+using std::string;
+using std::to_string;
 
 AutoStrategy::~AutoStrategy()
 {
@@ -31,6 +35,10 @@ AutoStrategy::AutoStrategy()
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
+
+    logErrorMessage.delErrorFile();
+    logErrorMessage.delLogFile();
+    logErrorMessage.delOutFile("out.txt");
     pt.print("AutoStrategy::AutoStrategy() :");
 }
 
@@ -40,13 +48,7 @@ void AutoStrategy::setup()
     UserGame1::setup();
 
     system("chcp 65001");
-    logErrorMessage.delErrorFile();
-    logErrorMessage.delLogFile();
-    logErrorMessage.delOutFile("out.txt");
-    rep(i, TO_INT((extent<decltype(loaded_objects), 0>::value)))
-    {
-        loaded_objects[i] = 4;
-    }
+    resetLoadedObjects();
 
     cout << "run mode : " << TO_INT(getRunMode()) << endl;
     pt.print("AutoStrategy::setup() :");
@@ -127,8 +129,25 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeLeft(gray_zone))
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SWAMPLAND;
-            LOG_MESSAGE("swampland " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    {
+                        map[0][yi][xj] = MAP_SWAMPLAND;
+                        LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
+                    }
+                }
+            }
         }
         else if (ColorJudgeLeft(blue_zone))
         {
@@ -137,18 +156,62 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeLeft(black_obj))
         {
-            map[BLACK_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
-            LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+
+                    map[BLACK_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+                    LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeLeft(cyan_obj))
         {
-            map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeLeft(red_obj))
         {
-            map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+
+                    map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeLeft(white_zone))
         {
@@ -173,8 +236,25 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeRight(gray_zone))
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SWAMPLAND;
-            LOG_MESSAGE("swampland " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
+                    {
+                        map[0][yi][xj] = MAP_SWAMPLAND;
+                        LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
+                    }
+                }
+            }
         }
         else if (ColorJudgeRight(blue_zone))
         {
@@ -183,18 +263,60 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeRight(black_obj))
         {
-            map[BLACK_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    map[BLACK_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    LOG_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeRight(cyan_obj))
         {
-            map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeRight(red_obj))
         {
-            map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
-            LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            {
+                if (yi < 0 || yi >= kDotHeight)
+                {
+                    continue;
+                }
+                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                {
+                    if (xj < 0 || xj >= kDotWidth)
+                    {
+                        continue;
+                    }
+                    map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
+                }
+            }
         }
         else if (ColorJudgeRight(white_zone))
         {
@@ -272,65 +394,69 @@ void AutoStrategy::loop()
                         if (map[0][yi][x[0]] == MAP_WALL)
                         {
                             map[0][yi][x[0]] = MAP_UNKNOWN_NOT_WALL;
+                            LOG_MESSAGE(FUNCNAME + "(): set here as white(not wall) " + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
                         }
                     }
                 }
             }
-            // x[0]<x[1]の場合、x[1]<x[0]の場合、両方ともtiltは、正常な傾きを表す
-            float tilt = static_cast<float>(y[1] - y[0]) / static_cast<float>(x[1] - x[0]);
-            // x[0]>x[1]は、入れ替えるだけ
-            int x_start = x[0], x_end = x[1];
-            if (x[0] < x[1])
+            else
             {
-                x_start = x[1];
-                x_end = x[0];
-            }
-            for (int xi = x_start; xi < x_end; ++xi)
-            {
-                int y_start = x_start + TO_INT(tilt * static_cast<float>(xi - x_start));
-                int y_end = x_start + TO_INT(floor(tilt * (static_cast<float>(xi + 1 - x_start))));
-                if (y_start > y_end)
-                {
-                    int temp = y_start;
-                    y_start = y_end;
-                    y_end = temp;
-                }
-                for (int yj = y_start; yj <= y_end; ++yj)
-                {
-                    if (yj < 0)
-                    {
-                        yj = -1;
-                        continue;
-                    }
-                    if (yj >= kDotHeight)
-                    {
-                        break;
-                    }
-                    if (map[0][yj][xi] == MAP_WALL)
-                    {
-                        map[0][yj][xi] = MAP_UNKNOWN_NOT_WALL;
-                        LOG_MESSAGE(FUNCNAME + "(): set here as white(not wall) space (" + to_string(xi) + ", " + to_string(yj) + ")", MODE_VERBOSE);
-                    }
-                }
-            }
+                // x[0]<x[1]の場合、x[1]<x[0]の場合、両方ともtiltは、正常な傾きを表す
+                float tilt = static_cast<float>(y[1] - y[0]) / static_cast<float>(x[1] - x[0]);
+                // x[0]>x[1]は、入れ替えるだけ
+                int x_start = x[0], x_end = x[1];
 
-            if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
-            {
-                continue;
-            }
-            // 壁はないので、MAP_WALLを登録する必要がない
-            if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
-            {
-                continue;
-            }
-            if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
-            {
-                map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
-                LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
-                cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
+                if (x[0] < x[1])
+                {
+                    x_start = x[1];
+                    x_end = x[0];
+                }
+                for (int xi = x_start; xi < x_end; ++xi)
+                {
+                    int y_start = x_start + TO_INT(tilt * static_cast<float>(xi - x_start));
+                    int y_end = x_start + TO_INT(floor(tilt * (static_cast<float>(xi + 1 - x_start))));
+                    if (y_start > y_end)
+                    {
+                        int temp = y_start;
+                        y_start = y_end;
+                        y_end = temp;
+                    }
+                    for (int yj = y_start; yj <= y_end; ++yj)
+                    {
+                        if (yj < 0)
+                        {
+                            yj = -1;
+                            continue;
+                        }
+                        if (yj >= kDotHeight)
+                        {
+                            break;
+                        }
+                        if (map[0][yj][xi] == MAP_WALL)
+                        {
+                            map[0][yj][xi] = MAP_UNKNOWN_NOT_WALL;
+                            LOG_MESSAGE(FUNCNAME + "(): set here as white(not wall) space (" + to_string(xi) + ", " + to_string(yj) + ")", MODE_VERBOSE);
+                        }
+                    }
+                }
+
+                if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
+                {
+                    continue;
+                }
+                // 壁はないので、MAP_WALLを登録する必要がない
+                if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
+                {
+                    continue;
+                }
+                if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
+                {
+                    map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                    LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                    cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
+                }
             }
         }
-
         // // 0 < 1にする
         // if (x[0] > x[1])
         // {
@@ -609,25 +735,28 @@ void AutoStrategy::loop()
 
     if (SuperDuration > 0)
     {
-        SuperDuration--;
+        --SuperDuration;
     }
     else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[BLACK_LOADED_ID];
+        LOG_MESSAGE("Find Black Object!", MODE_DEBUG);
     }
     else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[CYAN_LOADED_ID];
+        LOG_MESSAGE("Find Cyan Object!", MODE_DEBUG);
     }
     else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[RED_LOADED_ID];
+        LOG_MESSAGE("Find Red Object!", MODE_DEBUG);
     }
     else if (IsOnDepositArea() && LoadedObjects >= 5)
     {
@@ -650,7 +779,7 @@ void AutoStrategy::loop()
     }
     else if (Duration > 0)
     {
-        Duration--;
+        --Duration;
     }
     else if (IsOnYellowLine())
     {
@@ -1438,6 +1567,10 @@ int AutoStrategy::GoToDot(int x, int y)
             {
                 map_data_to_show[yi * kDotWidth + xj] = '#';
             }
+            else if (map[0][yi][xj] == MAP_SWAMPLAND)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = '$';
+            }
             else
             {
                 map_data_to_show[yi * kDotWidth + xj] = ' ';
@@ -1822,7 +1955,7 @@ void AutoStrategy::autoSearch(float parameter)
             {
                 rep(axj, kAreaWidth)
                 {
-                    score_area_map[ayi][axj] += abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x);
+                    score_area_map[ayi][axj] += i_sigmoid(fabsf(static_cast<float>(ayi * kCM2AreaScale - pos_y)) + fabsf(static_cast<float>(axj * kCM2AreaScale - pos_x)) / kCospaceHeight * 10.0f, kCospaceHeight / 10.0f);
                     if (max_score < score_area_map[ayi][axj])
                     {
                         max_score = score_area_map[ayi][axj];
@@ -2057,40 +2190,40 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         continue;
                     }
                     int cost = kCM2DotScale;
-                    // cost += map_arrived_times[y][x] * 10;
+                    cost += map_arrived_times[y][x] * 10;
 
-                    // if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
-                    // {
-                    //     cost *= 100000;
-                    // }
-                    // if (map[0][y][x] == MAP_SWAMPLAND)
-                    // {
-                    //     cost *= 1000;
-                    // }
-                    // if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
-                    // {
-                    //     if (Time < 60)
-                    //     {
-                    //         cost /= 100;
-                    //         // cost -= 100;
-                    //     }
-                    //     else
-                    //     {
-                    //         cost /= 2;
-                    //     }
-                    // }
-                    // if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-                    // {
-                    //     cost /= 10;
-                    // }
-                    // if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-                    // {
-                    //     cost /= 10;
-                    // }
-                    // if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-                    // {
-                    //     cost /= 10;
-                    // }
+                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
+                    {
+                        cost *= 100000;
+                    }
+                    if (map[0][y][x] == MAP_SWAMPLAND)
+                    {
+                        cost *= 1000;
+                    }
+                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
+                    {
+                        if (Time < 60)
+                        {
+                            cost /= 100;
+                            cost -= 100;
+                        }
+                        else
+                        {
+                            cost /= 2;
+                        }
+                    }
+                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
+                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
+                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                    {
+                        cost /= 10;
+                    }
                     if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
                     {
                         map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
@@ -2148,4 +2281,21 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     //     printf("\n");
     // }
     // printf("\n");
+}
+
+float AutoStrategy::sigmoid(float gain, float value, float scale)
+{
+    return (1.0f / (1.0f + static_cast<float>(exp(static_cast<double>(-gain * value))))) * scale;
+}
+float AutoStrategy::sigmoid(float value, float scale)
+{
+    return sigmoid(1, value, scale);
+}
+int AutoStrategy::i_sigmoid(float gain, float value, float scale)
+{
+    return TO_INT(sigmoid(gain, value, scale));
+}
+int AutoStrategy::i_sigmoid(float value, float scale)
+{
+    return i_sigmoid(1, value, scale);
 }
