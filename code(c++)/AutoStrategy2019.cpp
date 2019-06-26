@@ -1,4 +1,3 @@
-
 #include "AutoStrategy2019.hpp"
 
 #define TO_INT(VALUE) static_cast<int>((VALUE))
@@ -608,10 +607,60 @@ void AutoStrategy::loop()
         cout << "output! finished" << endl;
     }
 
-    if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+    if (SuperDuration > 0)
     {
+        SuperDuration--;
     }
-    autoSearch(0);
+    else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+    {
+        setAction(FIND_OBJ);
+        SuperDuration = kFindObjDuration;
+        ++loaded_objects[BLACK_LOADED_ID];
+    }
+    else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+    {
+        setAction(FIND_OBJ);
+        SuperDuration = kFindObjDuration;
+        ++loaded_objects[CYAN_LOADED_ID];
+    }
+    else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+    {
+        setAction(FIND_OBJ);
+        SuperDuration = kFindObjDuration;
+        ++loaded_objects[RED_LOADED_ID];
+    }
+    else if (IsOnDepositArea() && LoadedObjects >= 5)
+    {
+        switch (IsOnDepositArea())
+        {
+        case 1:
+            motor(5, 3);
+            break;
+        case 2:
+            motor(3, 5);
+            break;
+        case 3:
+            setAction(DEPOSIT_OBJ);
+            SuperDuration = kDepositObjDuration;
+            break;
+        default:
+            ERROR_MESSAGE(FUNCNAME + "(): switch(IsOnDepositArea) value is " + to_string(IsOnDepositArea()), MODE_NORMAL);
+            break;
+        }
+    }
+    else if (Duration > 0)
+    {
+        Duration--;
+    }
+    else if (IsOnYellowLine())
+    {
+        setAction(YELLOW_AVOIDANCE);
+        Duration = 5;
+    }
+    else
+    {
+        autoSearch(0);
+    }
     // GoToDot(200 / kCM2DotScale, 150 / kCM2DotScale);
 
     switch (TO_INT(getAction()))
@@ -1760,7 +1809,7 @@ void AutoStrategy::autoSearch(float parameter)
                         continue;
                     }
 
-                    score = 10;
+                    score = kCM2AreaScale;
                     if (map[0][yi][xj] == MAP_UNKNOWN || map[0][yi][xj] == MAP_UNKNOWN_NOT_WALL)
                     {
                         score *= 2;
