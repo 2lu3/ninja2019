@@ -337,7 +337,7 @@ void AutoStrategy::loop()
         // 0: left & right 1: front
         int difference_us_position[2] = {9, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        LOG_MESSAGE(FUNCNAME + "()" + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
+        LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
         string us_names[3] = {"Left", "Front", "Right"};
         int angles[3] = {40, 0, -40};
         int calculated_relative_coordinate[3][2];
@@ -359,14 +359,45 @@ void AutoStrategy::loop()
             // ドット上での壁の絶対座標
             calculated_absolute_dot_position[i][0] = TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
             calculated_absolute_dot_position[i][1] = TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
+                if (0 <= calculated_absolute_dot_position[i][0] && calculated_absolute_dot_position[i][0] kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
+                {
+                    continue;
+                }
+                // 壁はないので、MAP_WALLを登録する必要がない
+                if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
+                {
+                    continue;
+                }
+                if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
+                {
+                    map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
+                    LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+                    cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
+                }
             // x[0], y[0] -> x[1], y[1]までMAP_WALLをMAP_WHITEに変更する
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
+            // 基本的に、実際の壁との距離から0.7倍程度にするが、kCM2DotScaleが最低2つはあけないといけない
+            // 1cm先に壁がある場合、MAP_WHITEは登録しない
+            const int kRange4Wall = 10;
+            int x[2], y[2];
+            x[0] = robot_dot_positions[1][0];
+            y[0] = robot_dot_positions[1][1];
+            if (abs(calculated_relative_coordinate[i][0]) * 0.3 < kRange4Wall)
+            {
+                // 壁との距離が非常に近いとき
+                if(abs(calculated_relative_coordinate[i][0]) < kRange4Wall) {
+                    continue;
+                }
+                else {
+
+                }
+            }
             const int x[2] = {
-                robot_dot_positions[1][0], TO_INT(((pos_x + (calculated_relative_coordinate[i][0] * 0. < kCM2DotScale * 2 ? calculated_relative_coordinate[1][0] - kCM2DotScale * 2 : calculated_relative_coordinate[i][0] * 0.8) + kCM2DotScale / 2) / kCM2DotScale))};
+                robot_dot_positions[1][0], TO_INT(((pos_x + (abs(calculated_relative_coordinate[i][0]) * 0.3 < kCM2DotScale * 2 ? calculated_relative_coordinate[1][0] - kCM2DotScale * 2 : calculated_relative_coordinate[i][0] * 0.7) + kCM2DotScale / 2) / kCM2DotScale))};
             const int y[2] = {
-                robot_dot_positions[1][1], TO_INT(((pos_y + (calculated_relative_coordinate[i][1] * 0.2 < kCM2DotScale * 2 ? calculated_relative_coordinate[i][1] - kCM2DotScale * 2 : calculated_relative_coordinate[i][1] * 0.8) + kCM2DotScale / 2) /
-                                                   kCM2DotScale))};
+                robot_dot_positions[1][1], TO_INT(((pos_y + (calculated_relative_coordinate[i][1] * 0.3 < kCM2DotScale * 2 ? calculated_relative_coordinate[i][1] - kCM2DotScale * 2 : calculated_relative_coordinate[i][1] * 0.7) + kCM2DotScale / 2) / kCM2DotScale))};
             LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(pos_x + calculated_relative_coordinate[i][0]) + "," + to_string(pos_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+            // if()
 
             // (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
             if (x[0] == x[1]) // 縦方向の直線の場合
@@ -403,16 +434,26 @@ void AutoStrategy::loop()
             {
                 // x[0]<x[1]の場合、x[1]<x[0]の場合、両方ともtiltは、正常な傾きを表す
                 float tilt = static_cast<float>(y[1] - y[0]) / static_cast<float>(x[1] - x[0]);
+                LOG_MESSAGE(FUNCNAME + "(): tilt is " + to_string(tilt), MODE_VERBOSE);
                 // x[0]>x[1]は、入れ替えるだけ
                 int x_start = x[0], x_end = x[1];
 
-                if (x[0] < x[1])
+                if (x_start > x_end)
                 {
                     x_start = x[1];
                     x_end = x[0];
                 }
                 for (int xi = x_start; xi < x_end; ++xi)
                 {
+                    if (xi < 0)
+                    {
+                        xi = -1;
+                        continue;
+                    }
+                    if (xi >= kDotWidth)
+                    {
+                        break;
+                    }
                     int y_start = x_start + TO_INT(tilt * static_cast<float>(xi - x_start));
                     int y_end = x_start + TO_INT(floor(tilt * (static_cast<float>(xi + 1 - x_start))));
                     if (y_start > y_end)
@@ -440,21 +481,6 @@ void AutoStrategy::loop()
                     }
                 }
 
-                if (calculated_absolute_dot_position[i][0] < 0 || calculated_absolute_dot_position[i][0] >= kDotWidth || calculated_absolute_dot_position[i][1] < 0 || calculated_absolute_dot_position[i][1] >= kDotHeight)
-                {
-                    continue;
-                }
-                // 壁はないので、MAP_WALLを登録する必要がない
-                if (us_sensors[i] >= kUSLimit + difference_us_position[i % 2])
-                {
-                    continue;
-                }
-                if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN)
-                {
-                    map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] = MAP_WALL;
-                    LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
-                    cout << "wall " << to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale) << endl;
-                }
             }
         }
         // // 0 < 1にする
@@ -1951,11 +1977,23 @@ void AutoStrategy::autoSearch(float parameter)
                     score_area_map[TO_INT(yi / kDot2AreaScale)][TO_INT(xj / kDot2AreaScale)] += score;
                 }
             }
+
+            int max_value;
             rep(ayi, kAreaHeight)
             {
                 rep(axj, kAreaWidth)
                 {
-                    score_area_map[ayi][axj] += i_sigmoid(fabsf(static_cast<float>(ayi * kCM2AreaScale - pos_y)) + fabsf(static_cast<float>(axj * kCM2AreaScale - pos_x)) / kCospaceHeight * 10.0f, kCospaceHeight / 10.0f);
+                    if (abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x) > max_value)
+                    {
+                        max_value = abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x);
+                    }
+                }
+            }
+            rep(ayi, kAreaHeight)
+            {
+                rep(axj, kAreaWidth)
+                {
+                    score_area_map[ayi][axj] += i_sigmoid(fabsf(static_cast<float>(ayi * kCM2AreaScale - pos_y)) + fabsf(static_cast<float>(axj * kCM2AreaScale - pos_x)) / static_cast<float>(max_value) * 20.0f - 10.0f, static_cast<float>(max_value) / 20.0f);
                     if (max_score < score_area_map[ayi][axj])
                     {
                         max_score = score_area_map[ayi][axj];
@@ -2205,7 +2243,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         if (Time < 60)
                         {
                             cost /= 100;
-                            cost -= 100;
+                            // cost -= 100;
                         }
                         else
                         {
@@ -2239,7 +2277,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 
     cout << "num " << i << endl;
     // 出力
-    int max_value = -100;
+    int max_value = INT_MIN;
     rep(yi, kDotHeight)
     {
         rep(xj, kDotWidth)
@@ -2251,10 +2289,14 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
     }
     LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
-    if (max_value == 0)
+    if (max_value == INT_MIN)
     {
         ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
         return;
+    }
+    if (max_value < 0)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(): max value is " + to_string(max_value), MODE_NORMAL);
     }
 
     // for (long yi = kDotHeight - 1; yi >= 0; --yi)
