@@ -2004,7 +2004,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				}
 				Duration = 5;
 			}
-			else if (IsNearYellow(2, -1, -1))
+			else if (IsNearYellow(2, -1, -1) && LoadedObjects < 6)
 			{
 				printf("near yellow\n");
 				if (abs(angle) < 10)

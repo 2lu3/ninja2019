@@ -11,21 +11,19 @@ int blue_zone[3][2] = {{0, 0}, {150, 175}, {255, 255}};
 int object_box[3][2] = {{204, 235}, {163, 186}, {0, 0}};
 // int gray_zone[3][2] = {{130, 160}, {140, 165}, {185, 210}};
 int gray_zone[3][2] = {{133, 153}, {141, 161}, {187, 207}};
-int sp_obj[3][2] = {{200, 255}, {0, 60}, {200, 255}};
+int sp_obj[3][2] = {{200, 255}, {0, 41}, {200, 255}};
 int purple_line[3][2] = {{150, 180}, {80, 100}, {180, 220}};
 int white_zone[3][2] = {{204, 235}, {217, 248}, {255, 255}};
 
 int ColorJudgeLeft(int col[3][2])
 {
-	return (col[0][0] - color_width <= CSLeft_R && CSLeft_R <= col[0][0] + color_width && col[1][0] - color_width <= CSLeft_G && CSLeft_G <= col[1][0] + color_width && col[2][0] - color_width <= CSLeft_B && CSLeft_B <= col[2][0] + color_width)
-	||
-	(col[0][1] - color_width <= CSLeft_R && CSLeft_R <= col[0][1] + color_width && col[1][1] - color_width <= CSLeft_G && CSLeft_G <= col[1][1] + color_width && col[2][1] - color_width <= CSLeft_B && CSLeft_B <= col[2][1] + color_width);
+	return (col[0][0] - color_width <= CSLeft_R && CSLeft_R <= col[0][0] + color_width && col[1][0] - color_width <= CSLeft_G && CSLeft_G <= col[1][0] + color_width && col[2][0] - color_width <= CSLeft_B && CSLeft_B <= col[2][0] + color_width) ||
+		   (col[0][1] - color_width <= CSLeft_R && CSLeft_R <= col[0][1] + color_width && col[1][1] - color_width <= CSLeft_G && CSLeft_G <= col[1][1] + color_width && col[2][1] - color_width <= CSLeft_B && CSLeft_B <= col[2][1] + color_width);
 }
 int ColorJudgeRight(int col[3][2])
 {
-	return (col[0][0] - color_width <= CSRight_R && CSRight_R <= col[0][0] + color_width && col[1][0] - color_width <= CSRight_G && CSRight_G <= col[1][0] + color_width && col[2][0] - color_width <= CSRight_B && CSRight_B <= col[2][0] + color_width)
-	||
-	(col[0][1] - color_width <= CSRight_R && CSRight_R <= col[0][1] + color_width && col[1][1] - color_width <= CSRight_G && CSRight_G <= col[1][1] + color_width && col[2][1] - color_width <= CSRight_B && CSRight_B <= col[2][1] + color_width);
+	return (col[0][0] - color_width <= CSRight_R && CSRight_R <= col[0][0] + color_width && col[1][0] - color_width <= CSRight_G && CSRight_G <= col[1][0] + color_width && col[2][0] - color_width <= CSRight_B && CSRight_B <= col[2][0] + color_width) ||
+		   (col[0][1] - color_width <= CSRight_R && CSRight_R <= col[0][1] + color_width && col[1][1] - color_width <= CSRight_G && CSRight_G <= col[1][1] + color_width && col[2][1] - color_width <= CSRight_B && CSRight_B <= col[2][1] + color_width);
 }
 int EitherColorJudge(int col[3][2])
 {

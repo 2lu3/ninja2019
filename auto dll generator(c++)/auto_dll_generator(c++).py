@@ -9,6 +9,7 @@ from datetime import datetime
 import winsound
 from mutagen.mp3 import MP3 as mp3
 import pygame
+import sys
 
 target_dir_expectations = ["./../code(c++)/", "./code(c++)/", "./../code/", "./code/"]
 target_dir = None
@@ -19,6 +20,8 @@ command_path = None
 music_path_expectations = ["./music/", "./../music/"]
 music_path = None
 
+is_animal = False
+
 
 out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 out_cospace_path = None
@@ -28,6 +31,18 @@ command = None
 prev_saved_time = None
 
 prev_dll_changed_time = None
+
+def playMusic(filename, playTime = None):
+    filename = music_path + filename
+    pygame.mixer.init()
+    pygame.mixer.music.load(filename) #音源を読み込み
+    mp3_length = mp3(filename).info.length #音源の長さ取得
+    pygame.mixer.music.play(1) #再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
+    if playTime is None:
+        time.sleep(mp3_length + 0.25)
+    else:
+        time.sleep(1) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
+    pygame.mixer.music.stop() #音源の長さ待ったら再生停止
 
 class ChangeHandler(FileSystemEventHandler):
     def on_created(self, event):
@@ -60,21 +75,21 @@ class ChangeHandler(FileSystemEventHandler):
                     prev_dll_changed_time = os.stat(out_cospace_path + "Ninja.dll").st_mtime
                     print(prev_dll_changed_time)
                     print("コンパイル成功")
-                    try:
-                        winsound.Beep(1000, 800)
-                    except RuntimeError:
-                        print("Runtime Error")
+                    if is_animal:
+                        playMusic('cat-cry.mp3')
+                    else:
+                        try:
+                            winsound.Beep(1000, 800)
+                        except RuntimeError:
+                            print("Runtime Error")
 
                 else:
                     print("コンパイル失敗")
+                    if is_animal:
+                        playMusic('cat-threat.mp3')
+                    else:
+                        playMusic('error.mp3', 1)
 
-                    filename = music_path + "error.mp3"#再生したいmp3ファイル
-                    pygame.mixer.init()
-                    pygame.mixer.music.load(filename) #音源を読み込み
-                    mp3_length = mp3(filename).info.length #音源の長さ取得
-                    pygame.mixer.music.play(1) #再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
-                    time.sleep(1) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
-                    pygame.mixer.music.stop() #音源の長さ待ったら再生停止
                 break
 
     def on_deleted(self, event):
@@ -137,5 +152,15 @@ def main():
             time.sleep(0.1)
 
 
+command = ['--animal']
 if __name__ == '__main__':
+    args = sys.argv
+    for arg in args:
+        if args.index(arg) == 0:
+            continue
+        elif arg == '--animal':
+            is_animal = True
+            print('mode : animal')
+        elif arg == 'help':
+            print(command)
     main()

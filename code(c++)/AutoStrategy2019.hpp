@@ -39,24 +39,52 @@ private:
 
     ProcessingTime pt;
 
-    enum MapInfo
+    class CospaceMap
     {
-        MAP_YELLOW = -2,    // カラーセンサーの値によって決まる
-        MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
-        MAP_UNKNOWN = 0,    // 不明な場合
-        MAP_WHITE = 1,      // カラーセンサーの値によって決まる
-        MAP_DEPOSIT = 2,    // カラーセンサーの値によって決まる
-        MAP_SUPER_AREA = 3  // カラーセンサーの値によって決まる
-    };
-    const static int kGuessedMapSize = 5;
+    public:
+        CospaceMap();
+        enum MapInfo
+        {
+            MAP_ERROR = map_wall_index;
+            MAP_YELLOW = -2,    // カラーセンサーの値によって決まる
+            MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
+            MAP_UNKNOWN = 0,    // 不明な場合
+            MAP_WALL = 1,
+            MAP_WHITE = 2,      // カラーセンサーの値によって決まる
+            MAP_DEPOSIT = 3,    // カラーセンサーの値によって決まる
+            MAP_SUPER_AREA = 4, // カラーセンサーの値によって決まる
+        };
+        inline int setMapInfo(int x, int y, MapInfo info);
+        inline int setMapInfo(int x, int y, MapInfo info, int times);
+        inline MapInfo getMapInfo(int x, int y);
+        inline int setMapObjInfo(int x, int y, int object_loaded_id);
+        inline int setMapObjInfo(int x, int y, int object_loaded_id, int value);
+        inline int getMapObjInfo(int x, int y, int object_loaded_id);
+        inline void addMapArrivedTimes(int x, int y, int times);
+        inline void addMapArrivedTimes(int x, int y);
+        inline void setMapFrom(int x, int y, int from_x, int from_y);
+        inline void getMapFrom(int x, int y, int *from_x, int *from_y);
+        inline void setMapCost(int x, int y, int cost);
+        inline int getMapCost(int x, int y);
+        inline void setMapTotalCost(int x, int y, int cost);
+        inline int getMapTotalCost(int x, int y);
+        inline void setMapStatus(int x, int y, int status);
+        inline int getMapStatus(int x, int y);
+        const static int kSuccess = 0;
+        const static int kFailure = INT_MIN;
+        const static int kGuessedMapSize = 5;
 
-    // 0:床情報 1:red 2:cyan 3:black 4:壁情報
-    int map[5][kDotHeight][kDotWidth];
-    int map_arrived_times[kDotHeight][kDotWidth];
-    int map_from[kDotHeight][kDotWidth][2];
-    int map_cost[kDotHeight][kDotWidth];
-    int map_total_cost[kDotHeight][kDotWidth];
-    int map_status[kDotHeight][kDotWidth];
+    private:
+        const static int map_wall_index = 4;
+        // 0:床情報 1:red 2:cyan 3:black 4:壁情報
+        int map[5][kDotHeight][kDotWidth];
+        int map_arrived_times[kDotHeight][kDotWidth];
+        int map_from[kDotHeight][kDotWidth][2];
+        int map_cost[kDotHeight][kDotWidth];
+        int map_total_cost[kDotHeight][kDotWidth];
+        int map_status[kDotHeight][kDotWidth];
+    };
+    CospaceMap cospaceMap;
 
     int pos_x,
         pos_y,
@@ -77,7 +105,7 @@ private:
     int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
-    int isNearTheFloor(MapInfo color, int x, int y, int cm_radius);
+    int isNearTheFloor(CospaceMap::MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
     void Astar(int x, int y);
     inline double sigmoid(double gain, double value, double scale);

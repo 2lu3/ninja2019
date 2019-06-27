@@ -94,6 +94,7 @@ command_options = ['--help', '--debug', '--outhere', '--outcospace', '--no-strip
 
 
 if __name__ == '__main__':
+    subprocess.run("cls", shell=True)
     args = sys.argv
     for arg in args:
         if args.index(arg) == 0:

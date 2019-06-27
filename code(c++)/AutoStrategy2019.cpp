@@ -15,16 +15,6 @@ using std::to_string;
 
 AutoStrategy::~AutoStrategy()
 {
-    rep(i, TO_INT((extent<decltype(map), 0>::value)))
-    {
-        rep(j, TO_INT((extent<decltype(map), 1>::value)))
-        {
-            rep(k, TO_INT((extent<decltype(map), 2>::value)))
-            {
-                map[i][j][k] = 0;
-            }
-        }
-    }
 }
 
 AutoStrategy::AutoStrategy()
@@ -36,17 +26,6 @@ AutoStrategy::AutoStrategy()
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
 
-    logErrorMessage.delErrorFile();
-    logErrorMessage.delLogFile();
-    logErrorMessage.delOutFile("out.txt");
-    for (int i = -10; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
-            // printf("%5lf %4lf\n", i + j * 0.1f, i_sigmoid(static_cast<float>(i + j * 0.1f), 1));
-            printf("%5lf %d\n", i + j * 0.1, i_sigmoid(i + j * 0.1, 10.0));
-        }
-    }
     pt.print("AutoStrategy::AutoStrategy() :");
 }
 
@@ -54,6 +33,9 @@ void AutoStrategy::setup()
 {
     pt.start();
     UserGame1::setup();
+    logErrorMessage.delErrorFile();
+    logErrorMessage.delLogFile();
+    logErrorMessage.delOutFile("out.txt");
 
     system("chcp 65001");
     resetLoadedObjects();
@@ -118,7 +100,31 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                map_arrived_times[y][x] = map_arrived_times[y][x] + 2;
+                CospaceMap.addMapArrivedTimes(x, y, 2);
+            }
+        }
+    }
+
+    if (SuperObj_Num != 0)
+    {
+        if (log_superobj_num <= 0 && (log_superobj_x[0] != SuperObj_X || log_superobj_y[0] != SuperObj_Y))
+        {
+            //I separate this from *1 because log_superobj_x[0 - 1] makes error
+            log_superobj_x[0] = SuperObj_X;
+            log_superobj_y[0] = SuperObj_Y;
+            log_superobj_num++;
+        }
+        else
+        {
+            //*1
+            //This avoid record same data many times
+            // if the new SuperObject is undefined
+            // hint : if log_superobj_num == 0, this doesn't work. so I separate this case
+            if (log_superobj_x[log_superobj_num - 1] != SuperObj_X || log_superobj_y[log_superobj_num - 1] != SuperObj_Y)
+            {
+                log_superobj_x[log_superobj_num] = SuperObj_X;
+                log_superobj_y[log_superobj_num] = SuperObj_Y;
+                log_superobj_num++;
             }
         }
     }
@@ -127,12 +133,12 @@ void AutoStrategy::loop()
     {
         if (ColorJudgeLeft(object_box))
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_DEPOSIT;
+            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_DEPOSIT);
             LOG_MESSAGE("deposit " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(trap_line))
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_YELLOW;
+            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_YELLOW);
             LOG_MESSAGE("yellow " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(gray_zone))
@@ -149,8 +155,9 @@ void AutoStrategy::loop()
                     {
                         continue;
                     }
-                    if (map[0][yi][xj] == MAP_UNKNOWN)
+                    if (CospaceMap.getMapInfo(xj, yi) == MAP_UNKNOWN)
                     {
+                        CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_SWAMPLAND);
                         map[0][yi][xj] = MAP_SWAMPLAND;
                         LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                     }
@@ -159,7 +166,7 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeLeft(blue_zone))
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_SUPER_AREA;
+            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_SUPER_AREA);
             LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(black_obj))
@@ -177,7 +184,7 @@ void AutoStrategy::loop()
                         continue;
                     }
 
-                    map[BLACK_LOADED_ID][robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
+                    CospaceMap.setMapObjInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], BLACK_LOADED_ID);
                     LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
                 }
             }
@@ -770,26 +777,33 @@ void AutoStrategy::loop()
     {
         --SuperDuration;
     }
-    else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+    else if (IsOnBlackObj() && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[BLACK_LOADED_ID];
         LOG_MESSAGE("Find Black Object!", MODE_DEBUG);
     }
-    else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+    else if (IsOnCyanObj() && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[CYAN_LOADED_ID];
         LOG_MESSAGE("Find Cyan Object!", MODE_DEBUG);
     }
-    else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+    else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[RED_LOADED_ID];
         LOG_MESSAGE("Find Red Object!", MODE_DEBUG);
+    }
+    else if (IsOnSuperObj() && LoadedObjects < 6)
+    {
+        setAction(FIND_OBJ);
+        SuperDuration = kFindObjDuration;
+        ++loaded_objects[SUPER_LOADED_ID];
+        LOG_MESSAGE("Find Super Object!", MODE_DEBUG);
     }
     else if (IsOnDepositArea() && LoadedObjects >= 5)
     {
@@ -818,6 +832,24 @@ void AutoStrategy::loop()
     {
         setAction(YELLOW_AVOIDANCE);
         Duration = 3;
+    }
+    else if (log_superobj_num > 0)
+    {
+        searching_object = SUPER_LOADED_ID;
+        if (GoToDots(log_superobj_x[0], log_superobj_y[0], 0, 0))
+        {
+            if (prev_repeated_num + 40 < getRepeatedNum())
+            {
+                same_time = 0;
+            }
+            if (same_time > 10)
+            {
+                log_superobj_num = 0;
+                LOG_MESSAGE("There is no superobj", MODE_NORMAL);
+            }
+            GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
+            same_time++;
+        }
     }
     else
     {
@@ -1137,7 +1169,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
     return 0;
 }
 
-int AutoStrategy::isNearTheFloor(MapInfo color, int x, int y, int cm_radius)
+int AutoStrategy::isNearTheFloor(CospaceMap::MapInfo color, int x, int y, int cm_radius)
 {
     LOG_MESSAGE(FUNCNAME + "(" + to_string(TO_INT(color)) + "," + to_string(x) + "," + to_string(y) + "," + to_string(cm_radius) + "): start", MODE_VERBOSE);
     int dot_radious = (cm_radius + kCM2DotScale - 1) / kCM2DotScale;
@@ -1655,10 +1687,9 @@ int AutoStrategy::GoToDot(int x, int y)
 
     int temp_y = y;
     int temp_x = x;
-    while ((map_from[temp_y][temp_x][0] != robot_dot_positions[1][0] || map_from[temp_y][temp_x][1] != robot_dot_positions[1][1]) && i < kDotWidth * 3)
+    while (i < kDotWidth * 3)
     {
-        temp_y = map_from[temp_y][temp_x][1];
-        temp_x = map_from[temp_y][temp_x][0];
+        temp_y = cospaceMap.getMapFrom(temp_x, temp_y, &temp_x, &temp_y);
         map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
         i++;
         if (temp_x < 0 || temp_x >= kDotWidth)
@@ -1670,6 +1701,11 @@ int AutoStrategy::GoToDot(int x, int y)
         {
             ERROR_MESSAGE(FUNCNAME + "(): temp_y (=" + to_string(temp_y) + ") is strange. I continue", MODE_NORMAL);
             GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 5, 5, 5);
+        }
+
+        if (temp_x == robot_dot_position[1][0] && temp_y == robot_dot_position[1][1])
+        {
+            break;
         }
     }
     if (i == 200)
@@ -1733,7 +1769,7 @@ int AutoStrategy::GoToDot(int x, int y)
         }
     }
 
-    if (getRepeatedNum() % 5 == 0)
+    if (getRepeatedNum() % 5 == 0 && 0)
     {
         rep(xj, kDotWidth + 2)
         {
@@ -2048,7 +2084,7 @@ void AutoStrategy::autoSearch(float parameter)
                 }
             }
 
-            int max_value;
+            int max_value = INT_MIN;
             rep(ayi, kAreaHeight)
             {
                 rep(axj, kAreaWidth)
@@ -2064,7 +2100,7 @@ void AutoStrategy::autoSearch(float parameter)
                 rep(axj, kAreaWidth)
                 {
                     double distance = fabs(static_cast<double>(ayi * kCM2AreaScale - pos_y)) + fabs(static_cast<double>(axj * kCM2AreaScale - pos_x));
-                    score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value) / 20.0);
+                    score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value));
                     if (max_score < score_area_map[ayi][axj])
                     {
                         max_score = score_area_map[ayi][axj];
@@ -2206,9 +2242,9 @@ void AutoStrategy::Dijkstra(void)
         }
     }
     LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
-    if (max_value == 0)
+    if (max_value <= 0)
     {
-        ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
+        ERROR_MESSAGE(FUNCNAME + "(): max value is " + to_string(max_value), MODE_NORMAL);
         return;
     }
 
@@ -2319,7 +2355,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                     {
                         cost *= 1000;
                     }
-                    if (map[0][y][x] == MAP_UNKNOWN)
+                    if (map[0][y][x] == MAP_UNKNOWN && LoadedObjects < 6)
                     {
                         if (Time < 60)
                         {
@@ -2421,4 +2457,201 @@ int AutoStrategy::i_sigmoid(double gain, double value, double scale)
 int AutoStrategy::i_sigmoid(double value, double scale)
 {
     return i_sigmoid(1, value, scale);
+}
+
+AutoStrategy::CospaceMap::CospaceMap()
+{
+    rep(i, TO_INT((extent<decltype(map), 0>::value)))
+    {
+        rep(j, TO_INT((extent<decltype(map), 1>::value)))
+        {
+            rep(k, TO_INT((extent<decltype(map), 2>::value)))
+            {
+                map[i][j][k] = 0;
+            }
+        }
+    }
+}
+inline int AutoStrategy::CospaceMap::setMapInfo(int x, int y, MapInfo info)
+{
+    return setMapInfo(x, y, info, 1);
+}
+inline int AutoStrategy::CospaceMap::setMapInfo(int x, int y, MapInfo info, int times)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    if (info == MAP_WALL)
+    {
+        map[map_wall_index][y][x]++;
+    }
+    else
+    {
+        // if(map[0][y][x] == MAP_UNKNOWN) {
+        //     map[0][y][x] = info;
+        // }
+        // else {
+        //     map[0][y][x] = info;
+        // }
+        map[0][y][x] = info;
+    }
+    return kSuccess;
+}
+inline MapInfo AutoStrategy::CospaceMap::getMapInfo(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    if (map[map_wall_index][y][x] > 0)
+    {
+        return MAP_WALL;
+    }
+    else
+    {
+        return map[0][y][x];
+    }
+    return kSuccess;
+}
+inline int setMapObjInfo(int x, int y, int object_loaded_id)
+{
+    setMapObjInfo(x, y, object_loaded_id, 1);
+}
+inline int setMapObjInfo(int x, int y, int object_loaded_id, int value)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        return kFailure;
+    }
+    if(object_loaded_id <= 0 || object_loaded_id >= extent(<decltype(map),0>::value)) {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        return kFailure;
+    }
+    map[object_loaded_id][y][x] = value;
+    return kSuccess;
+}
+inline int getMapObjInfo(int x, int y, int object_loaded_id)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        return kFailure;
+    }
+    if(object_loaded_id <= 0 || object_loaded_id >= extent(<decltype(map),0>::value)) {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        return kFailure;
+    }
+    reutrn map[object_loaded_id][y][x];
+}
+inline int AutoStrategy::CospaceMap::addMapArrivedTimes(int x, int y, int times)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    map_arrived_times[y][x] += times;
+    return kSuccess;
+}
+inline int AutoStrategy::CospaceMap::addMapArrivedTimes(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    return addMapArrivedTimes(x, y, 1);
+}
+inline int AutoStrategy::CospaceMap::setMapFrom(int x, int y, int from_x, int from_y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    map_from[y][x][0] = from_x;
+    map_from[y][x][1] = from_y;
+    return kSuccess;
+}
+inline int AutoStrategy::CospaceMap::getMapFrom(int x, int y, int *from_x, int *from_y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    *from_x = map_from[y][x][0];
+    *from_y = map_from[y][x][1];
+    return kSuccess;
+}
+inline void AutoStrategy::CospaceMap::setMapCost(int x, int y, int cost)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    map_cost[y][x] = cost;
+    return kSuccess;
+}
+inline int AutoStrategy::CospaceMap::getMapCost(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    return map_cost[y][x];
+}
+inline void AutoStrategy::CospaceMap::setMapTotalCost(int x, int y, int cost)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    map_total_costf[y][x] = cost;
+    return kSuccess;
+}
+inline int AutoStrategy::CospaceMap::getMapTotalCost(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    return map_total_cost[y][x];
+}
+inline void AutoStrategy::CospaceMap::setMapStatus(int x, int y, int status)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    map_status[y][x] = status;
+    return kSuccess;
+}
+inline int AutoStrategy::CospaceMap::getMapStatus(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        return kFailure;
+    }
+    return map_status[y][x];
 }
