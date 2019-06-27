@@ -1483,8 +1483,6 @@ int AutoStrategy::
     {
         LOG_MESSAGE(FUNCNAME + "(): changed dots", MODE_NORMAL);
         Dijkstra();
-        int max_value = 0;
-        int max_pos[2] = {-1, -1};
         int min_value = INT_MAX;
         int min_pos[2] = {-1, -1};
         int cost;
@@ -1496,7 +1494,7 @@ int AutoStrategy::
                 if (Time < 60)
                 {
 
-                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k))) * pow(kCM2DotScale, k) * 10;
+                    map_cost[yi][xj] += static_cast<int>(abs(pow(abs(yi - robot_dot_positions[1][1]), k) + pow(abs(xj - robot_dot_positions[1][0]), k) - pow(40 / kCM2DotScale, k)) * pow(kCM2DotScale, k) * 10);
                 }
                 else
                 {
@@ -1504,12 +1502,6 @@ int AutoStrategy::
                 }
 
                 cost = map_cost[yi][xj];
-                if (max_value < cost)
-                {
-                    max_value = cost;
-                    max_pos[0] = xj;
-                    max_pos[1] = yi;
-                }
                 if (cost < min_value)
                 {
                     min_value = cost;
@@ -1848,7 +1840,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         // goalに到着したとき
-        if (map_from[goal_y][goal_x] != -1)
+        if (map_from[goal_y][goal_x][0] != -1)
         {
             break;
         }
