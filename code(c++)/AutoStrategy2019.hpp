@@ -55,26 +55,307 @@ private:
             MAP_DEPOSIT = 3,    // カラーセンサーの値によって決まる
             MAP_SUPER_AREA = 4, // カラーセンサーの値によって決まる
         };
-        inline int setMapInfo(int x, int y, MapInfo info);
-        inline int setMapInfo(int x, int y, MapInfo info, int times);
-        inline int addMapInfo(int x, int y, MapInfo info);
-        inline int addMapInfo(int x, int y, MapInfo info, int times);
-        inline MapInfo getMapInfo(int x, int y);
-        inline int setMapObjInfo(int x, int y, int object_loaded_id);
-        inline int setMapObjInfo(int x, int y, int object_loaded_id, int value);
-        inline int getMapObjInfo(int x, int y, int object_loaded_id);
-        inline int addMapArrivedTimes(int x, int y);
-        inline int addMapArrivedTimes(int x, int y, int times);
-        inline int getMapArrivedTimes(int x, int y);
-        inline int setMapArrivedTimes(int x, int y, int value);
-        inline int setMapFrom(int x, int y, int from_x, int from_y);
-        inline int getMapFrom(int x, int y, int *from_x, int *from_y);
-        inline int setMapCost(int x, int y, int cost);
-        inline int getMapCost(int x, int y);
-        inline int setMapTotalCost(int x, int y, int cost);
-        inline int getMapTotalCost(int x, int y);
-        inline int setMapStatus(int x, int y, int status);
-        inline int getMapStatus(int x, int y);
+        inline int setMapInfo(int x, int y, MapInfo info)
+        {
+            return setMapInfo(x, y, info, 1);
+        }
+        inline int setMapInfo(int x, int y, MapInfo info, int times)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (info == MAP_WALL)
+            {
+                map[map_wall_index][y][x] = times;
+            }
+            else
+            {
+                // if(map[0][y][x] == MAP_UNKNOWN) {
+                //     map[0][y][x] = info;
+                // }
+                // else {
+                //     map[0][y][x] = info;
+                // }
+                map[0][y][x] = info;
+            }
+            return kSuccess;
+        }
+
+        inline int addMapInfo(int x, int y, MapInfo info)
+        {
+            return setMapInfo(x, y, info, 1);
+        }
+        inline int addMapInfo(int x, int y, MapInfo info, int times)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (info == MAP_WALL)
+            {
+                map[map_wall_index][y][x] += times;
+            }
+            else
+            {
+                // if(map[0][y][x] == MAP_UNKNOWN) {
+                //     map[0][y][x] = info;
+                // }
+                // else {
+                //     map[0][y][x] = info;
+                // }
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "(): warming; you should use setMapInfo() instead of " + FUNCNAME + "() if you don't want to change the value of MAP_WALL", MODE_NORMAL);
+                }
+                map[0][y][x] = info;
+            }
+            return kSuccess;
+        }
+
+        inline MapInfo getMapInfo(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return MAP_FAILURE;
+            }
+            if (map[map_wall_index][y][x] > 0)
+            {
+                return MAP_WALL;
+            }
+            else
+            {
+                return static_cast<MapInfo>(map[0][y][x]);
+            }
+            return MAP_SUCCESS;
+        }
+        inline int setMapObjInfo(int x, int y, int object_loaded_id)
+        {
+            return setMapObjInfo(x, y, object_loaded_id, 1);
+        }
+        inline int setMapObjInfo(int x, int y, int object_loaded_id, int value)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (object_loaded_id <= 0 || object_loaded_id >= static_cast<int>((std::extent<decltype(map), 0>::value)))
+            {
+                if (MODE_VERBOSE <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                }
+                return kFailure;
+            }
+            map[object_loaded_id][y][x] = value;
+            return kSuccess;
+        }
+        inline int getMapObjInfo(int x, int y, int object_loaded_id)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
+            {
+                if (MODE_VERBOSE <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                }
+                return kFailure;
+            }
+            if (object_loaded_id <= 0 || object_loaded_id >= static_cast<int>(std::extent<decltype(map), 0>::value))
+            {
+                if (MODE_VERBOSE <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                }
+                return kFailure;
+            }
+            return map[object_loaded_id][y][x];
+        }
+        inline int addMapArrivedTimes(int x, int y, int times)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_arrived_times[y][x] += times;
+            return kSuccess;
+        }
+        inline int addMapArrivedTimes(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            return addMapArrivedTimes(x, y, 1);
+        }
+
+        inline int getMapArrivedTimes(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            return map_arrived_times[y][x];
+        }
+        inline int setMapArrivedTimes(int x, int y, int value)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_arrived_times[y][x] = value;
+        }
+        inline int setMapFrom(int x, int y, int from_x, int from_y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_from[y][x][0] = from_x;
+            map_from[y][x][1] = from_y;
+            return kSuccess;
+        }
+        inline int getMapFrom(int x, int y, int *from_x, int *from_y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            *from_x = map_from[y][x][0];
+            *from_y = map_from[y][x][1];
+            return kSuccess;
+        }
+        inline int setMapCost(int x, int y, int cost)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_cost[y][x] = cost;
+            return kSuccess;
+        }
+        inline int getMapCost(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            return map_cost[y][x];
+        }
+        inline int setMapTotalCost(int x, int y, int cost)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_total_cost[y][x] = cost;
+            return kSuccess;
+        }
+        inline int getMapTotalCost(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            return map_total_cost[y][x];
+        }
+        inline int setMapStatus(int x, int y, int status)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_status[y][x] = status;
+            return kSuccess;
+        }
+        inline int getMapStatus(int x, int y)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            return map_status[y][x];
+        }
+
         const static int kSuccess = -1;
         const static int kFailure = INT_MIN;
         const static int kGuessedMapSize = 5;
