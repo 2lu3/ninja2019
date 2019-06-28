@@ -1,6 +1,8 @@
 #include "JudgeColorTools.hpp"
 
+// SuperObjば場合は、プラスされる
 int color_width = 10;
+int super_obj_color_width = color_width + 20;
 
 int red_obj[3][2] = {{232, 255}, {29, 39}, {29, 39}};
 int cyan_obj[3][2] = {{29, 39}, {249, 255}, {249, 255}};
@@ -85,15 +87,16 @@ void InputColorInformation(void)
 int IsOnStuff(int num)
 {
 	int ans = 0;
+	int local_color_width = color_width;
 	if (num == COLOR_SUPER_OBJ)
 	{
-		color_width += 30;
+		local_color_width = super_obj_color_width;
 	}
-	if ((color_world2[num][0] + color_width > CSLeft_R && color_world2[num][0] - color_width < CSLeft_R && color_world2[num][1] + color_width > CSLeft_G && color_world2[num][1] - color_width < CSLeft_G && color_world2[num][2] + color_width > CSLeft_B && color_world2[num][2] - color_width < CSLeft_B) || (color_world2[num][3] + color_width > CSLeft_R && color_world2[num][3] - color_width < CSLeft_R && color_world2[num][4] + color_width > CSLeft_G && color_world2[num][4] - color_width < CSLeft_G && color_world2[num][5] + color_width > CSLeft_B && color_world2[num][5] - color_width < CSLeft_B))
+	if ((color_world2[num][0] + local_color_width > CSLeft_R && color_world2[num][0] - local_color_width < CSLeft_R && color_world2[num][1] + local_color_width > CSLeft_G && color_world2[num][1] - local_color_width < CSLeft_G && color_world2[num][2] + local_color_width > CSLeft_B && color_world2[num][2] - local_color_width < CSLeft_B) || (color_world2[num][3] + local_color_width > CSLeft_R && color_world2[num][3] - local_color_width < CSLeft_R && color_world2[num][4] + local_color_width > CSLeft_G && color_world2[num][4] - local_color_width < CSLeft_G && color_world2[num][5] + local_color_width > CSLeft_B && color_world2[num][5] - local_color_width < CSLeft_B))
 	{
 		ans++;
 	}
-	if ((color_world2[num][0] + color_width > CSRight_R && color_world2[num][0] - color_width < CSRight_R && color_world2[num][1] + color_width > CSRight_G && color_world2[num][1] - color_width < CSRight_G && color_world2[num][2] + color_width > CSRight_B && color_world2[num][2] - color_width < CSRight_B) || (color_world2[num][3] + color_width > CSRight_R && color_world2[num][3] - color_width < CSRight_R && color_world2[num][4] + color_width > CSRight_G && color_world2[num][4] - color_width < CSRight_G && color_world2[num][5] + color_width > CSRight_B && color_world2[num][5] - color_width < CSRight_B))
+	if ((color_world2[num][0] + local_color_width > CSRight_R && color_world2[num][0] - local_color_width < CSRight_R && color_world2[num][1] + local_color_width > CSRight_G && color_world2[num][1] - local_color_width < CSRight_G && color_world2[num][2] + local_color_width > CSRight_B && color_world2[num][2] - local_color_width < CSRight_B) || (color_world2[num][3] + local_color_width > CSRight_R && color_world2[num][3] - local_color_width < CSRight_R && color_world2[num][4] + local_color_width > CSRight_G && color_world2[num][4] - local_color_width < CSRight_G && color_world2[num][5] + local_color_width > CSRight_B && color_world2[num][5] - local_color_width < CSRight_B))
 	{
 		ans += 2;
 	}

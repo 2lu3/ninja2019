@@ -54,7 +54,7 @@ class ChangeHandler(FileSystemEventHandler):
         global prev_saved_time, prev_dll_changed_time
         filepath = event.src_path
         filename = os.path.basename(filepath)
-        if prev_saved_time is not None and datetime.now() + timedelta(seconds=-20) <= prev_saved_time:
+        if prev_saved_time is not None and datetime.now() + timedelta(seconds=-30) <= prev_saved_time:
             return
         prev_saved_time = datetime.now()
         print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end = ' ')
