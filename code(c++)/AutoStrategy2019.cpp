@@ -2126,12 +2126,12 @@ void AutoStrategy::autoSearch(float parameter)
 void AutoStrategy::Dijkstra(void)
 {
     // 初期化
-    rep(i, kDotHeight)
+    rep(yi, kDotHeight)
     {
-        rep(j, kDotWidth)
+        rep(xj, kDotWidth)
         {
-            cospaceMap.setMapFrom(i, j, -1, -1);
-            cospaceMap.setMapStatus(i, j, 0);
+            cospaceMap.setMapFrom(xj, yi, -1, -1);
+            cospaceMap.setMapStatus(xj, yi, 0);
         }
     }
 
@@ -2267,12 +2267,12 @@ void AutoStrategy::Dijkstra(void)
 void AutoStrategy::Astar(int goal_x, int goal_y)
 {
     // 初期化
-    rep(i, kDotHeight)
+    rep(yi, kDotHeight)
     {
-        rep(j, kDotWidth)
+        rep(xj, kDotWidth)
         {
-            cospaceMap.setMapFrom(i, j, -1, -1);
-            cospaceMap.setMapStatus(i, j, 0);
+            cospaceMap.setMapFrom(xj, yi, -1, -1);
+            cospaceMap.setMapStatus(xj, yi, 0);
         }
     }
 
@@ -2582,10 +2582,10 @@ inline int AutoStrategy::CospaceMap::getMapObjInfo(int x, int y, int object_load
         return kFailure;
     }
     if (object_loaded_id <= 0 || object_loaded_id >= TO_INT((extent<decltype(map), 0>::value)))
-        {
-            ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_VERBOSE);
-            return kFailure;
-        }
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_VERBOSE);
+        return kFailure;
+    }
     return map[object_loaded_id][y][x];
 }
 inline int AutoStrategy::CospaceMap::addMapArrivedTimes(int x, int y, int times)
