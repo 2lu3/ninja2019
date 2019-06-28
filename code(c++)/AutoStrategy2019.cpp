@@ -69,8 +69,8 @@ void AutoStrategy::loop()
             pos_y = kCospaceHeight - 1;
         CheckNowDot();
         // arrived_timesを更新
-        map_arrived_times[robot_dot_positions[0][1]][robot_dot_positions[0][0]]++;
-        map_arrived_times[robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+        cospaceMap.addMapArrivedTimes(robot_dot_positions[0][0], robot_dot_positions[0][1]);
+        cospaceMap.addMapArrivedTimes(robot_dot_positions[2][0], robot_dot_positions[2][1]);
         // int range = 0;
         // rep(hi, range * 2 + 1)
         // {
@@ -100,7 +100,7 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                CospaceMap.addMapArrivedTimes(x, y, 2);
+                cospaceMap.addMapArrivedTimes(x, y, 2);
             }
         }
     }
@@ -133,32 +133,32 @@ void AutoStrategy::loop()
     {
         if (ColorJudgeLeft(object_box))
         {
-            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_DEPOSIT);
+            cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_DEPOSIT);
             LOG_MESSAGE("deposit " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(trap_line))
         {
-            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_YELLOW);
+            cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_YELLOW);
             LOG_MESSAGE("yellow " + to_string(robot_dot_positions[0][0] * kCM2DotScale) + " " + to_string(robot_dot_positions[0][1] * kCM2DotScale), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(gray_zone))
         {
-            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[0][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    if (CospaceMap.getMapInfo(xj, yi) == MAP_UNKNOWN)
+                    if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                     {
-                        CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_SWAMPLAND);
-                        map[0][yi][xj] = MAP_SWAMPLAND;
+                        cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SWAMPLAND);
+                        cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_SWAMPLAND);
                         LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                     }
                 }
@@ -166,106 +166,105 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeLeft(blue_zone))
         {
-            CospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], MAP_SUPER_AREA);
+            cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SUPER_AREA);
             LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeLeft(black_obj))
         {
-            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[0][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
 
-                    CospaceMap.setMapObjInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], BLACK_LOADED_ID);
+                    cospaceMap.setMapObjInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], BLACK_LOADED_ID);
                     LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeLeft(cyan_obj))
         {
-            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[0][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    cospaceMap.setMapObjInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], CYAN_LOADED_ID);
                     LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeLeft(red_obj))
         {
-            for (int yi = robot_dot_positions[0][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[0][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[0][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[0][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-
-                    map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    cospaceMap.setMapObjInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], RED_LOADED_ID);
                     LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeLeft(white_zone))
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_WHITE;
+            cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_WHITE);
             LOG_MESSAGE("white area " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
         else
         {
-            map[0][robot_dot_positions[0][1]][robot_dot_positions[0][0]] = MAP_WHITE;
+            cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_WHITE);
             LOG_MESSAGE("white area(maye be) " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
         }
 
         if (ColorJudgeRight(object_box))
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_DEPOSIT;
+            cospaceMap.setMapInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], cospaceMap.MAP_DEPOSIT);
             LOG_MESSAGE("deposit " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(trap_line))
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_YELLOW;
+            cospaceMap.setMapInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], cospaceMap.MAP_YELLOW);
             LOG_MESSAGE(to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(gray_zone))
         {
-            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[2][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[2][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    if (map[0][yi][xj] == MAP_UNKNOWN)
+                    if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                     {
-                        map[0][yi][xj] = MAP_SWAMPLAND;
+                        cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_SWAMPLAND);
                         LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                     }
                 }
@@ -273,74 +272,74 @@ void AutoStrategy::loop()
         }
         else if (ColorJudgeRight(blue_zone))
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_SUPER_AREA;
+            cospaceMap.setMapInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], cospaceMap.MAP_SUPER_AREA);
             LOG_MESSAGE("blue floor " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else if (ColorJudgeRight(black_obj))
         {
-            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[2][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[2][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    map[BLACK_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    cospaceMap.setMapObjInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], BLACK_LOADED_ID);
                     LOG_MESSAGE("black obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeRight(cyan_obj))
         {
-            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[2][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[2][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    map[CYAN_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    cospaceMap.setMapObjInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], CYAN_LOADED_ID);
                     LOG_MESSAGE("cyan obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeRight(red_obj))
         {
-            for (int yi = robot_dot_positions[2][1] - TO_INT(kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(kGuessedMapSize / kCM2DotScale); ++yi)
+            for (int yi = robot_dot_positions[2][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[2][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
             {
                 if (yi < 0 || yi >= kDotHeight)
                 {
                     continue;
                 }
-                for (int xj = robot_dot_positions[2][0] - TO_INT(kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(kGuessedMapSize / kCM2DotScale); ++xj)
+                for (int xj = robot_dot_positions[2][0] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); xj <= robot_dot_positions[2][0] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++xj)
                 {
                     if (xj < 0 || xj >= kDotWidth)
                     {
                         continue;
                     }
-                    map[RED_LOADED_ID][robot_dot_positions[2][1]][robot_dot_positions[2][0]]++;
+                    cospaceMap.setMapObjInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], RED_LOADED_ID);
                     LOG_MESSAGE("red obj " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
                 }
             }
         }
         else if (ColorJudgeRight(white_zone))
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_WHITE;
+            cospaceMap.setMapInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], cospaceMap.MAP_WHITE);
             LOG_MESSAGE("white area " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
         else
         {
-            map[0][robot_dot_positions[2][1]][robot_dot_positions[2][0]] = MAP_WHITE;
+            cospaceMap.setMapInfo(robot_dot_positions[2][0], robot_dot_positions[2][1], cospaceMap.MAP_WHITE);
             LOG_MESSAGE("white area(may be) " + to_string(robot_dot_positions[2][0]) + " " + to_string(robot_dot_positions[2][1]), MODE_VERBOSE);
         }
     }
@@ -380,24 +379,24 @@ void AutoStrategy::loop()
                 // 壁はないときは、MAP_WALLを登録する必要がない
                 if (us_sensors[i] < kUSLimit + difference_us_position[i % 2])
                 {
-                    // if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
+                    // if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == cospaceMap.MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
                     {
-                        map[4][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]]++;
+                        cospaceMap.setMapInfo(calculated_absolute_dot_position[i][0], calculated_absolute_dot_position[i][1], cospaceMap.MAP_WALL);
                         LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
                     }
                 }
             }
 
-            // x[0], y[0] -> x[1], y[1]までMAP_WALLをMAP_WHITEに変更する
+            // x[0], y[0] -> x[1], y[1]までMAP_WALLをcospaceMap.MAP_WHITEに変更する
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
             // 基本的に、実際の壁との距離から0.7倍程度にするが、kCM2DotScaleが最低2つはあけないといけない
-            // 1cm先に壁がある場合、MAP_WHITEは登録しない
+            // 1cm先に壁がある場合、cospaceMap.MAP_WHITEは登録しない
             const int kRange4Wall = 10;
 
             if (us_sensors[i] < kRange4Wall + difference_us_position[i % 2])
             {
-                // MAP_WHITEは登録しない
-                LOG_MESSAGE(FUNCNAME + "(): MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
+                // cospaceMap.MAP_WHITEは登録しない
+                LOG_MESSAGE(FUNCNAME + "(): cospaceMap.MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
                 continue;
             }
             if (us_sensors[i] * 0.3 < kRange4Wall)
@@ -437,9 +436,9 @@ void AutoStrategy::loop()
                         {
                             break;
                         }
-                        if (map[4][yi][x[0]] > 0)
+                        if (cospaceMap.getMapInfo(x[0], yi) == cospaceMap.MAP_WALL)
                         {
-                            map[4][yi][x[0]] -= 2;
+                            cospaceMap.addMapInfo(x[0], yi, cospaceMap.MAP_WALL, -2);
                             LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
                         }
                     }
@@ -488,10 +487,10 @@ void AutoStrategy::loop()
                         {
                             break;
                         }
-                        if (map[4][yj][xi] > 0)
+                        if (cospaceMap.getMapInfo(xi, yj) == cospaceMap.MAP_WALL)
                         {
-                            map[4][yj][xi] -= 2;
-                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(xi) + ", " + to_string(yj) + ")", MODE_VERBOSE);
+                            cospaceMap.addMapInfo(xi, yj, cospaceMap.MAP_WALL, -2);
+                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(xi * kCM2DotScale) + ", " + to_string(yj * kCM2DotScale), MODE_VERBOSE);
                         }
                     }
                 }
@@ -524,10 +523,10 @@ void AutoStrategy::loop()
         //     tilt = fabs(static_cast<float>(calculated_relative_coordinate[i][1] / calculated_relative_coordinate[i][0]));
         // }
 
-        // // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにMAP_WHITEを代入していく
-        // // ただし、x[0]とx[1]はMAP_WHITEを代入しない
+        // // x[0] -> x[1]まで、順番にyの値を調べ、それぞれのドットにcospaceMap.MAP_WHITEを代入していく
+        // // ただし、x[0]とx[1]はcospaceMap.MAP_WHITEを代入しない
         // // x[0]かx[1]のうちどちらかは壁である
-        // // map[0][y][x] = MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
+        // // map[0][y][x] = cospaceMap.MAP_WALLできるのは、map[0][y][x] == MAP_UNKNOWNのときだけ
         // for (int xi = x[0] + 1; xi < x[1]; ++xi)
         // {
         //     // LOG_MESSAGE(FUNCNAME + "()")
@@ -549,7 +548,7 @@ void AutoStrategy::loop()
         //         {
         //             break;
         //         }
-        //         if (map[0][yj][xi] == MAP_WALL)
+        //         if (map[0][yj][xi] == cospaceMap.MAP_WALL)
         //         {
         //             map[0][yj][xi] = MAP_UNKNOWN_NOT_WALL;
         //             LOG_MESSAGE(FUNCNAME + "(): set here as unknow space; pos:" + to_string(xi * kCM2DotScale) + "," + to_string(yj * kCM2DotScale), MODE_VERBOSE);
@@ -577,7 +576,7 @@ void AutoStrategy::loop()
             }
             if (yi != 0 && yi != kDotHeight - 1)
             {
-                int color_id[20];
+                CospaceMap::MapInfo color_id[20];
                 char color_num[20];
                 int color_pointer = 0; // 最大値18(=20-2)
                 int color_pointer_limit = 18;
@@ -589,21 +588,21 @@ void AutoStrategy::loop()
                     {
                         for (int x = xj - 1; x <= xj + 1; ++x)
                         {
-                            if (map[0][y][x] == static_cast<char>(MAP_UNKNOWN))
+                            if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN)
                             {
                                 continue;
                             }
-                            color_id[color_pointer] = map[0][y][x];
+                            color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
                             rep(i, color_pointer + 1)
                             {
-                                if (color_id[i] == map[0][y][x])
+                                if (color_id[i] == cospaceMap.getMapInfo(x, y))
                                 {
                                     if (i == color_pointer)
                                     {
                                         // 新しい色を追加
                                         if (color_pointer < color_pointer_limit)
                                         {
-                                            color_id[color_pointer] = map[0][y][x];
+                                            color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
                                             color_num[color_pointer] = 1;
                                             color_pointer++;
                                         }
@@ -623,7 +622,8 @@ void AutoStrategy::loop()
                         }
                     }
 
-                    int max_num = 0, max_id = -1;
+                    int max_num = 0;
+                    CospaceMap::MapInfo max_id = cospaceMap.MAP_UNKNOWN;
                     rep(i, color_pointer)
                     {
                         if (color_num[i] > max_num)
@@ -633,7 +633,7 @@ void AutoStrategy::loop()
                         }
                     }
 
-                    if (max_id == -1)
+                    if (max_id == cospaceMap.MAP_UNKNOWN)
                     {
                         // ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
                         continue;
@@ -641,7 +641,7 @@ void AutoStrategy::loop()
 
                     if (max_num >= 6)
                     {
-                        map[0][yi][xj] = max_id;
+                        cospaceMap.setMapInfo(xj, yi, max_id);
                     }
                     // else if (max_num == 3)
                     // {
@@ -694,41 +694,41 @@ void AutoStrategy::loop()
                 }
 
                 // xj == 0の場合 上下の比較のみおこなう
-                int temp_map_color = map[0][yi - 1][0];
-                if (temp_map_color == map[0][yi + 1][0])
+                CospaceMap::MapInfo temp_map_color = cospaceMap.getMapInfo(0, yi - 1);
+                if (temp_map_color == cospaceMap.getMapInfo(0, yi + 1))
                 {
-                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
+                    if (temp_map_color != static_cast<char>(cospaceMap.MAP_UNKNOWN))
                     {
-                        map[0][yi][0] = temp_map_color;
+                        cospaceMap.setMapInfo(0, yi, temp_map_color);
                     }
                 }
                 for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
 
                     // 左右の比較
-                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
+                    if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
                     {
-                        if (map[0][yi][xj + 1] != static_cast<char>(MAP_UNKNOWN))
+                        if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
                         {
-                            map[0][yi][xj] = map[0][yi][xj + 1];
+                            cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
                         }
                     }
                     // 上下の比較
-                    else if (map[0][yi - 1][xj] == map[0][yi + 1][xj])
+                    else if (cospaceMap.getMapInfo(xj, yi - 1) == cospaceMap.getMapInfo(xj, yi + 1))
                     {
-                        if (map[0][yi + 1][xj] != static_cast<char>(MAP_UNKNOWN))
+                        if (cospaceMap.getMapInfo(xj, yi + 1) != cospaceMap.MAP_UNKNOWN)
                         {
-                            map[0][yi][xj] = map[0][yi + 1][xj];
+                            cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj, yi + 1));
                         }
                     }
                 }
                 // xj == kDotWidth - 1 の場合、上下の比較のみ行う
-                temp_map_color = map[0][yi - 1][kDotWidth - 1];
-                if (temp_map_color == map[0][yi + 1][kDotWidth - 1])
+                temp_map_color = cospaceMap.getMapInfo(kDotWidth - 1, yi - 1);
+                if (temp_map_color == cospaceMap.getMapInfo(kDotWidth - 1, yi + 1))
                 {
-                    if (temp_map_color != static_cast<char>(MAP_UNKNOWN))
+                    if (temp_map_color != cospaceMap.MAP_UNKNOWN)
                     {
-                        map[0][yi][kDotWidth - 1] = temp_map_color;
+                        cospaceMap.setMapInfo(kDotWidth - 1, yi, temp_map_color);
                     }
                 }
             }
@@ -738,11 +738,11 @@ void AutoStrategy::loop()
                 for (int xj = 1; xj < kDotWidth - 1; ++xj)
                 {
                     // 左右の比較
-                    if (map[0][yi][xj - 1] == map[0][yi][xj + 1])
+                    if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
                     {
-                        if (map[0][yi][xj + 1] != MAP_UNKNOWN)
+                        if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
                         {
-                            map[0][yi][xj] = map[0][yi][xj + 1];
+                            cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
                         }
                     }
                 }
@@ -762,7 +762,7 @@ void AutoStrategy::loop()
             {
                 rep(xj, kDotWidth)
                 {
-                    logErrorMessage.outputData("out.txt", to_string(map[i][kDotHeight - 1 - yi][xj]));
+                    logErrorMessage.outputData("out.txt", to_string(TO_INT(cospaceMap.getMapInfo(xj, kDotHeight - 1 - yi))));
                 }
                 logErrorMessage.outputData("out.txt", "\n");
             }
@@ -957,7 +957,7 @@ void AutoStrategy::CheckNowDot()
             y[i] = kDotHeight - 1;
         }
         // そのドットが壁の場合
-        if (map[4][y[i]][x[i]] > 0)
+        if (cospaceMap.getMapInfo(x[i], y[i]) == cospaceMap.MAP_WALL)
         {
             // 近くのドットの中で、壁の中ではないドットにする
             int range = (10 + kCM2DotScale - 1) / kCM2DotScale;
@@ -972,7 +972,7 @@ void AutoStrategy::CheckNowDot()
                     {
                         continue;
                     }
-                    if (map[4][temp_y][temp_x] <= 0)
+                    if (cospaceMap.getMapInfo(temp_x, temp_y) != cospaceMap.MAP_WALL)
                     {
                         if (min_value > ABS(hi) + ABS(wj))
                         {
@@ -1189,7 +1189,7 @@ int AutoStrategy::isNearTheFloor(CospaceMap::MapInfo color, int x, int y, int cm
             {
                 continue;
             }
-            if (map[0][yj][xi] == color)
+            if (cospaceMap.getMapInfo(xi, yj) == color)
             {
                 LOG_MESSAGE(FUNCNAME + "(): return 1", MODE_VERBOSE);
                 return 1;
@@ -1381,7 +1381,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                 }
                 Duration = 5;
             }
-            else if (isNearTheFloor(MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
+            else if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(cospaceMap.MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
             {
                 LOG_MESSAGE("near yellow or unknown", MODE_DEBUG);
                 if (abs(angle) < 10)
@@ -1627,15 +1627,15 @@ int AutoStrategy::GoToDot(int x, int y)
     {
         rep(xj, kDotWidth)
         {
-            if (map[4][yi][xj] > 0 || map[0][yi][xj] == MAP_YELLOW)
+            if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL || cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
             {
                 map_data_to_show[yi * kDotWidth + xj] = '#';
             }
-            else if (map[0][yi][xj] == MAP_SWAMPLAND)
+            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_SWAMPLAND)
             {
                 map_data_to_show[yi * kDotWidth + xj] = '$';
             }
-            else if (map[0][yi][xj] == MAP_DEPOSIT)
+            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
             {
                 map_data_to_show[yi * kDotWidth + xj] = 'D';
             }
@@ -1689,7 +1689,7 @@ int AutoStrategy::GoToDot(int x, int y)
     int temp_x = x;
     while (i < kDotWidth * 3)
     {
-        temp_y = cospaceMap.getMapFrom(temp_x, temp_y, &temp_x, &temp_y);
+        cospaceMap.getMapFrom(temp_x, temp_y, &temp_x, &temp_y);
         map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
         i++;
         if (temp_x < 0 || temp_x >= kDotWidth)
@@ -1703,7 +1703,7 @@ int AutoStrategy::GoToDot(int x, int y)
             GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 5, 5, 5);
         }
 
-        if (temp_x == robot_dot_position[1][0] && temp_y == robot_dot_position[1][1])
+        if (temp_x == robot_dot_positions[1][0] && temp_y == robot_dot_positions[1][1])
         {
             break;
         }
@@ -1831,8 +1831,8 @@ int AutoStrategy::
         //         }
         //         switch (map[0][yi][xj])
         //         {
-        //         case MAP_YELLOW:
-        //         case MAP_WALL:
+        //         case cospaceMap.MAP_YELLOW:
+        //         case cospaceMap.MAP_WALL:
         //             printf("*");
         //             break;
         //         default:
@@ -1890,12 +1890,12 @@ int AutoStrategy::
                 {
                     continue;
                 }
-                if (map[0][yi][xj] == MAP_UNKNOWN)
+                if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                 {
                     cost -= 1000;
                 }
 
-                cost = map_cost[yi][xj];
+                cost = cospaceMap.getMapCost(xj, yi);
                 if (max_value < cost)
                 {
                     max_value = cost;
@@ -1915,7 +1915,7 @@ int AutoStrategy::
                 // }
 
                 // //yellow or wall or deposit
-                // if (map[0][j][i] == MAP_YELLOW || map[0][j][i] == MAP_WALL || map[0][j][i] == MAP_DEPOSIT)
+                // if (map[0][j][i] == cospaceMap.MAP_YELLOW || map[0][j][i] == cospaceMap.MAP_WALL || map[0][j][i] == cospaceMap.MAP_DEPOSIT)
                 // {
                 //     continue;
                 // }
@@ -2014,7 +2014,7 @@ void AutoStrategy::autoSearch(float parameter)
             {
                 rep(xj, kDotWidth)
                 {
-                    if (map[0][yi][xj] == MAP_DEPOSIT)
+                    if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
                     {
                         if (abs(yi - robot_dot_positions[1][1]) + abs(xj - robot_dot_positions[1][0]) < min_cost)
                         {
@@ -2055,24 +2055,25 @@ void AutoStrategy::autoSearch(float parameter)
             {
                 rep(xj, kDotWidth)
                 {
-                    if (map[4][yi][xj] > 0 || map[0][yi][xj] == MAP_YELLOW)
+                    if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL || cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
                     {
                         continue;
                     }
 
                     score = kCM2AreaScale;
-                    if (map[0][yi][xj] == MAP_UNKNOWN)
+                    if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                     {
                         switch (status)
                         {
                         case 0:
                             score *= 2;
-                            score -= map_arrived_times[yi][xj];
+                            score -= cospaceMap.getMapArrivedTimes(xj, yi);
+
                             break;
                         case 1:
                             break;
                         case 2:
-                            score -= map_arrived_times[yi][xj];
+                            score -= cospaceMap.getMapArrivedTimes(xj, yi);
                             score *= 20;
                             break;
                         default:
@@ -2129,10 +2130,8 @@ void AutoStrategy::Dijkstra(void)
     {
         rep(j, kDotWidth)
         {
-            map_from[i][j][0] = -1;
-            map_from[i][j][1] = -1;
-            map_cost[i][j] = -1;
-            map_status[i][j] = 0;
+            cospaceMap.setMapFrom(i, j, -1, -1);
+            cospaceMap.setMapStatus(i, j, 0);
         }
     }
 
@@ -2141,10 +2140,9 @@ void AutoStrategy::Dijkstra(void)
         ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
     }
 
-    map_cost[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][0] = robot_dot_positions[1][0];
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = robot_dot_positions[1][1];
-    map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
+    cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+    cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
+    cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
 
     while (true)
     {
@@ -2154,11 +2152,11 @@ void AutoStrategy::Dijkstra(void)
         {
             rep(xj, kDotWidth)
             {
-                if (map_status[yi][xj] != 1)
+                if (cospaceMap.getMapStatus(xj, yi) != 1)
                 {
                     continue;
                 }
-                if (investigating_dot_x == -1 || map_cost[yi][xj] < map_cost[investigating_dot_y][investigating_dot_x])
+                if (investigating_dot_x == -1 || cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y))
                 {
                     investigating_dot_x = xj;
                     investigating_dot_y = yi;
@@ -2172,29 +2170,29 @@ void AutoStrategy::Dijkstra(void)
             break;
         }
 
-        map_status[investigating_dot_y][investigating_dot_x] = 2;
+        cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
         for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
         {
             for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
             {
                 if (0 <= x && x < kDotWidth && 0 <= y && y < kDotHeight)
                 {
-                    if (map_status[y][x] == 2)
+                    if (cospaceMap.getMapStatus(x, y) == 2)
                     {
                         continue;
                     }
                     int cost = kCM2DotScale * 10000;
                     // cost += map_arrived_times[y][x] * 10;
 
-                    if (map[0][y][x] == MAP_YELLOW || map[4][y][x] > 0)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                     {
                         cost *= 100000;
                     }
-                    if (map[0][y][x] == MAP_SWAMPLAND)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
                     {
                         cost *= 1000;
                     }
-                    if (map[0][y][x] == MAP_UNKNOWN)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN)
                     {
                         if (Time < 60)
                         {
@@ -2206,24 +2204,23 @@ void AutoStrategy::Dijkstra(void)
                             cost /= 2;
                         }
                     }
-                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                    if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                    if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                    if (cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
+                    if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
                     {
-                        map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
-                        map_from[y][x][0] = investigating_dot_x;
-                        map_from[y][x][1] = investigating_dot_y;
-                        map_status[y][x] = 1;
+                        cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
+                        cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
+                        cospaceMap.setMapStatus(x, y, 1);
                     }
                 }
             }
@@ -2235,9 +2232,9 @@ void AutoStrategy::Dijkstra(void)
     {
         rep(xj, kDotWidth)
         {
-            if (map_cost[yi][xj] > max_value)
+            if (cospaceMap.getMapCost(xj, yi) > max_value)
             {
-                max_value = map_cost[yi][xj];
+                max_value = cospaceMap.getMapCost(xj, yi);
             }
         }
     }
@@ -2254,8 +2251,8 @@ void AutoStrategy::Dijkstra(void)
     //     {
     //         switch (map[0][yi][xj])
     //         {
-    //         case MAP_YELLOW:
-    //         case MAP_WALL:
+    //         case cospaceMap.MAP_YELLOW:
+    //         case cospaceMap.MAP_WALL:
     //             printf("*");
     //             break;
     //         default:
@@ -2274,11 +2271,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     {
         rep(j, kDotWidth)
         {
-            map_from[i][j][0] = -1;
-            map_from[i][j][1] = -1;
-            map_cost[i][j] = -1;
-            map_status[i][j] = 0;
-            map_total_cost[i][j] = -1;
+            cospaceMap.setMapFrom(i, j, -1, -1);
+            cospaceMap.setMapStatus(i, j, 0);
         }
     }
 
@@ -2287,10 +2281,9 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
     }
 
-    map_cost[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][0] = robot_dot_positions[1][0];
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = robot_dot_positions[1][1];
-    map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
+    cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+    cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
+    cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
 
     long i = 0;
     while (true)
@@ -2302,11 +2295,15 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         {
             rep(xj, kDotWidth)
             {
-                if (map_status[yi][xj] != 1)
+                if (cospaceMap.getMapStatus(xj, yi) != 1)
                 {
                     continue;
                 }
-                if (investigating_dot_x == -1 || map_total_cost[yi][xj] < map_total_cost[investigating_dot_y][investigating_dot_x] || (map_total_cost[yi][xj] == map_total_cost[investigating_dot_y][investigating_dot_x] && map_cost[yi][xj] < map_cost[investigating_dot_y][investigating_dot_x]))
+                if (
+                    investigating_dot_x == -1 ||
+                    cospaceMap.getMapTotalCost(xj, yi) < cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) ||
+                    (cospaceMap.getMapTotalCost(xj, yi) == cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) &&
+                     cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
                 {
                     investigating_dot_x = xj;
                     investigating_dot_y = yi;
@@ -2315,19 +2312,21 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         // goalに到着したとき
-        if (map_from[goal_y][goal_x][0] != -1)
+        int goal[2];
+        cospaceMap.getMapFrom(goal_x, goal_y, &goal[0], &goal[1]);
+        if (goal[0] != -1)
         {
             break;
         }
 
-        map_status[investigating_dot_y][investigating_dot_x] = 2;
+        cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
         for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
         {
             for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
             {
                 if (0 <= x && x < kDotWidth && 0 <= y && y < kDotHeight)
                 {
-                    if (map_status[y][x] == 2)
+                    if (cospaceMap.getMapStatus(x, y) == 2)
                     {
                         continue;
                     }
@@ -2345,17 +2344,17 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                     {
                         cost *= 100;
                     }
-                    cost += map_arrived_times[y][x] * 10;
+                    cost += cospaceMap.getMapArrivedTimes(x, y) * 10;
 
-                    if (map[0][y][x] == MAP_YELLOW || map[4][y][x] > 0)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                     {
                         cost *= 100000;
                     }
-                    if (map[0][y][x] == MAP_SWAMPLAND)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
                     {
                         cost *= 1000;
                     }
-                    if (map[0][y][x] == MAP_UNKNOWN && LoadedObjects < 6)
+                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
                     {
                         if (Time < 60)
                         {
@@ -2367,25 +2366,25 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                             cost /= 2;
                         }
                     }
-                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                    if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                    if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                    if (
+                        cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
                     {
                         cost /= 10;
                     }
-                    if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
+                    if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
                     {
-                        map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
-                        map_total_cost[y][x] = map_cost[y][x] + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale;
-                        map_from[y][x][0] = investigating_dot_x;
-                        map_from[y][x][1] = investigating_dot_y;
-                        map_status[y][x] = 1;
+                        cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
+                        cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
+                        cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
+                        cospaceMap.setMapStatus(x, y, 1);
                     }
                 }
             }
@@ -2399,9 +2398,9 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     {
         rep(xj, kDotWidth)
         {
-            if (map_cost[yi][xj] > max_value)
+            if (cospaceMap.getMapCost(xj, yi) > max_value)
             {
-                max_value = map_cost[yi][xj];
+                max_value = cospaceMap.getMapCost(xj, yi);
             }
         }
     }
@@ -2422,8 +2421,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     //     {
     //         switch (map[0][yi][xj])
     //         {
-    //         case MAP_YELLOW:
-    //         case MAP_WALL:
+    //         case cospaceMap.MAP_YELLOW:
+    //         case cospaceMap.MAP_WALL:
     //             printf("*");
     //             break;
     //         default:
@@ -2480,12 +2479,12 @@ inline int AutoStrategy::CospaceMap::setMapInfo(int x, int y, MapInfo info, int 
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     if (info == MAP_WALL)
     {
-        map[map_wall_index][y][x]++;
+        map[map_wall_index][y][x] = times;
     }
     else
     {
@@ -2499,12 +2498,42 @@ inline int AutoStrategy::CospaceMap::setMapInfo(int x, int y, MapInfo info, int 
     }
     return kSuccess;
 }
-inline MapInfo AutoStrategy::CospaceMap::getMapInfo(int x, int y)
+
+inline int AutoStrategy::CospaceMap::addMapInfo(int x, int y, MapInfo info)
+{
+    return setMapInfo(x, y, info, 1);
+}
+inline int AutoStrategy::CospaceMap::addMapInfo(int x, int y, MapInfo info, int times)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
+    }
+    if (info == MAP_WALL)
+    {
+        map[map_wall_index][y][x] += times;
+    }
+    else
+    {
+        // if(map[0][y][x] == MAP_UNKNOWN) {
+        //     map[0][y][x] = info;
+        // }
+        // else {
+        //     map[0][y][x] = info;
+        // }
+        ERROR_MESSAGE(FUNCNAME + "(): warming; you should use setMapInfo() instead of " + FUNCNAME + "() if you don't want to change the value of MAP_WALL", MODE_NORMAL);
+        map[0][y][x] = info;
+    }
+    return kSuccess;
+}
+
+inline AutoStrategy::CospaceMap::MapInfo AutoStrategy::CospaceMap::getMapInfo(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
+        return MAP_FAILURE;
     }
     if (map[map_wall_index][y][x] > 0)
     {
@@ -2512,56 +2541,58 @@ inline MapInfo AutoStrategy::CospaceMap::getMapInfo(int x, int y)
     }
     else
     {
-        return map[0][y][x];
+        return static_cast<AutoStrategy::CospaceMap::MapInfo>(map[0][y][x]);
     }
-    return kSuccess;
+    return MAP_SUCCESS;
 }
-inline int setMapObjInfo(int x, int y, int object_loaded_id)
+inline int AutoStrategy::CospaceMap::setMapObjInfo(int x, int y, int object_loaded_id)
 {
-    setMapObjInfo(x, y, object_loaded_id, 1);
+    return setMapObjInfo(x, y, object_loaded_id, 1);
 }
-inline int setMapObjInfo(int x, int y, int object_loaded_id, int value)
+inline int AutoStrategy::CospaceMap::setMapObjInfo(int x, int y, int object_loaded_id, int value)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_NORMAL);
         return kFailure;
     }
-    if(object_loaded_id <= 0 || object_loaded_id >= extent(<decltype(map),0>::value)) {
-        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+    if (object_loaded_id <= 0 || object_loaded_id >= TO_INT((extent<decltype(map), 0>::value)))
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_VERBOSE);
         return kFailure;
     }
     map[object_loaded_id][y][x] = value;
     return kSuccess;
 }
-inline int getMapObjInfo(int x, int y, int object_loaded_id)
+inline int AutoStrategy::CospaceMap::getMapObjInfo(int x, int y, int object_loaded_id)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     if (object_loaded_id != RED_LOADED_ID && object_loaded_id != CYAN_LOADED_ID && object_loaded_id != BLACK_LOADED_ID)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
+        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_VERBOSE);
         return kFailure;
     }
-    if(object_loaded_id <= 0 || object_loaded_id >= extent(<decltype(map),0>::value)) {
-        ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id));
-        return kFailure;
-    }
-    reutrn map[object_loaded_id][y][x];
+    if (object_loaded_id <= 0 || object_loaded_id >= TO_INT((extent<decltype(map), 0>::value)))
+        {
+            ERROR_MESSAGE(FUNCNAME + "Failed; object_loaded_id = " + to_string(object_loaded_id), MODE_VERBOSE);
+            return kFailure;
+        }
+    return map[object_loaded_id][y][x];
 }
 inline int AutoStrategy::CospaceMap::addMapArrivedTimes(int x, int y, int times)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     map_arrived_times[y][x] += times;
@@ -2571,16 +2602,35 @@ inline int AutoStrategy::CospaceMap::addMapArrivedTimes(int x, int y)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     return addMapArrivedTimes(x, y, 1);
+}
+
+inline int AutoStrategy::CospaceMap::getMapArrivedTimes(int x, int y)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
+        return kFailure;
+    }
+    return map_arrived_times[y][x];
+}
+inline int AutoStrategy::CospaceMap::setMapArrivedTimes(int x, int y, int value)
+{
+    if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
+        return kFailure;
+    }
+    map_arrived_times[y][x] = value;
 }
 inline int AutoStrategy::CospaceMap::setMapFrom(int x, int y, int from_x, int from_y)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     map_from[y][x][0] = from_x;
@@ -2591,18 +2641,18 @@ inline int AutoStrategy::CospaceMap::getMapFrom(int x, int y, int *from_x, int *
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     *from_x = map_from[y][x][0];
     *from_y = map_from[y][x][1];
     return kSuccess;
 }
-inline void AutoStrategy::CospaceMap::setMapCost(int x, int y, int cost)
+inline int AutoStrategy::CospaceMap::setMapCost(int x, int y, int cost)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     map_cost[y][x] = cost;
@@ -2612,35 +2662,35 @@ inline int AutoStrategy::CospaceMap::getMapCost(int x, int y)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     return map_cost[y][x];
 }
-inline void AutoStrategy::CospaceMap::setMapTotalCost(int x, int y, int cost)
+inline int AutoStrategy::CospaceMap::setMapTotalCost(int x, int y, int cost)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
-    map_total_costf[y][x] = cost;
+    map_total_cost[y][x] = cost;
     return kSuccess;
 }
 inline int AutoStrategy::CospaceMap::getMapTotalCost(int x, int y)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     return map_total_cost[y][x];
 }
-inline void AutoStrategy::CospaceMap::setMapStatus(int x, int y, int status)
+inline int AutoStrategy::CospaceMap::setMapStatus(int x, int y, int status)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     map_status[y][x] = status;
@@ -2650,7 +2700,7 @@ inline int AutoStrategy::CospaceMap::getMapStatus(int x, int y)
 {
     if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
     {
-        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")");
+        ERROR_MESSAGE(FUNCNAME + "Failed; (x, y)=(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         return kFailure;
     }
     return map_status[y][x];

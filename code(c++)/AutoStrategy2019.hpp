@@ -45,7 +45,8 @@ private:
         CospaceMap();
         enum MapInfo
         {
-            MAP_ERROR = map_wall_index;
+            MAP_FAILURE = -1000,
+            MAP_SUCCESS = -1001,
             MAP_YELLOW = -2,    // カラーセンサーの値によって決まる
             MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
             MAP_UNKNOWN = 0,    // 不明な場合
@@ -56,21 +57,25 @@ private:
         };
         inline int setMapInfo(int x, int y, MapInfo info);
         inline int setMapInfo(int x, int y, MapInfo info, int times);
+        inline int addMapInfo(int x, int y, MapInfo info);
+        inline int addMapInfo(int x, int y, MapInfo info, int times);
         inline MapInfo getMapInfo(int x, int y);
         inline int setMapObjInfo(int x, int y, int object_loaded_id);
         inline int setMapObjInfo(int x, int y, int object_loaded_id, int value);
         inline int getMapObjInfo(int x, int y, int object_loaded_id);
-        inline void addMapArrivedTimes(int x, int y, int times);
-        inline void addMapArrivedTimes(int x, int y);
-        inline void setMapFrom(int x, int y, int from_x, int from_y);
-        inline void getMapFrom(int x, int y, int *from_x, int *from_y);
-        inline void setMapCost(int x, int y, int cost);
+        inline int addMapArrivedTimes(int x, int y);
+        inline int addMapArrivedTimes(int x, int y, int times);
+        inline int getMapArrivedTimes(int x, int y);
+        inline int setMapArrivedTimes(int x, int y, int value);
+        inline int setMapFrom(int x, int y, int from_x, int from_y);
+        inline int getMapFrom(int x, int y, int *from_x, int *from_y);
+        inline int setMapCost(int x, int y, int cost);
         inline int getMapCost(int x, int y);
-        inline void setMapTotalCost(int x, int y, int cost);
+        inline int setMapTotalCost(int x, int y, int cost);
         inline int getMapTotalCost(int x, int y);
-        inline void setMapStatus(int x, int y, int status);
+        inline int setMapStatus(int x, int y, int status);
         inline int getMapStatus(int x, int y);
-        const static int kSuccess = 0;
+        const static int kSuccess = -1;
         const static int kFailure = INT_MIN;
         const static int kGuessedMapSize = 5;
 
