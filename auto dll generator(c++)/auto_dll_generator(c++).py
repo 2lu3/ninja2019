@@ -22,6 +22,7 @@ music_path = None
 
 is_animal = False
 
+is_cls = False
 
 out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 out_cospace_path = None
@@ -141,7 +142,9 @@ def main():
         print("Error : there is no music folder")
         return
 
-    command = "\"" + command_path + "\"" + " --no-strip"
+    command = "\"" + command_path + "\"" + " --no-strip "
+    if is_cls:
+        command = command + ' --cls'
 
     while 1:
         event_handler = ChangeHandler()
@@ -152,7 +155,7 @@ def main():
             time.sleep(0.1)
 
 
-command = ['--animal']
+command = ['--animal','--help','--cls']
 if __name__ == '__main__':
     args = sys.argv
     for arg in args:
@@ -161,6 +164,14 @@ if __name__ == '__main__':
         elif arg == '--animal':
             is_animal = True
             print('mode : animal')
-        elif arg == 'help':
+        elif arg == '--help':
             print(command)
+        elif arg == '--cls':
+            print('mode : clear screen')
+            is_cls = True
+        else:
+            print(arg + ' is not a command')
+            print('correct commands is this')
+            for cmd in command:
+                print(cmd)
     main()
