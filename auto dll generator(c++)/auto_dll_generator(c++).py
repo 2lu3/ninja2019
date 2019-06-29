@@ -11,7 +11,8 @@ from mutagen.mp3 import MP3 as mp3
 import pygame
 import sys
 
-target_dir_expectations = ["./../code(c++)/", "./code(c++)/", "./../code/", "./code/"]
+target_dir_expectations = [
+    "./../code(c++)/", "./code(c++)/", "./../code/", "./code/"]
 target_dir = None
 
 command_path_expectations = ["./../cplus.exe", "./cplus.exe"]
@@ -24,26 +25,29 @@ is_animal = False
 
 is_cls = False
 
-out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
+out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/',
+                                 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 out_cospace_path = None
 
-command = None
+command = ""
 
 prev_saved_time = None
 
 prev_dll_changed_time = None
 
-def playMusic(filename, playTime = None):
+
+def playMusic(filename, playTime=None):
     filename = music_path + filename
     pygame.mixer.init()
-    pygame.mixer.music.load(filename) #音源を読み込み
-    mp3_length = mp3(filename).info.length #音源の長さ取得
-    pygame.mixer.music.play(1) #再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
+    pygame.mixer.music.load(filename)  # 音源を読み込み
+    mp3_length = mp3(filename).info.length  # 音源の長さ取得
+    pygame.mixer.music.play(1)  # 再生開始。1の部分を変えるとn回再生(その場合は次の行の秒数も×nすること)
     if playTime is None:
         time.sleep(mp3_length + 0.25)
     else:
-        time.sleep(1) #再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
-    pygame.mixer.music.stop() #音源の長さ待ったら再生停止
+        time.sleep(1)  # 再生開始後、音源の長さだけ待つ(0.25待つのは誤差解消)
+    pygame.mixer.music.stop()  # 音源の長さ待ったら再生停止
+
 
 class ChangeHandler(FileSystemEventHandler):
     def on_created(self, event):
@@ -58,9 +62,9 @@ class ChangeHandler(FileSystemEventHandler):
         if prev_saved_time is not None and datetime.now() + timedelta(seconds=-30) <= prev_saved_time:
             return
         prev_saved_time = datetime.now()
-        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end = ' ')
+        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end=' ')
         print('%sが変更されました' % filename)
-        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end = ' ')
+        print(datetime.now().strftime("%Y/%m/%d %H:%M:%S"), end=' ')
         target_filenames = [".cpp", ".hpp", ".c", ".h"]
         for target_filename in target_filenames:
             if target_filename in filename:
@@ -72,8 +76,10 @@ class ChangeHandler(FileSystemEventHandler):
                 subprocess.run(command, shell=True)
 
                 if prev_dll_changed_time is None or os.stat(out_cospace_path + "Ninja.dll").st_mtime != prev_dll_changed_time:
-                    subprocess.run("strip --strip-unneeded " + "\"" + out_cospace_path + "Ninja.dll\"")
-                    prev_dll_changed_time = os.stat(out_cospace_path + "Ninja.dll").st_mtime
+                    subprocess.run("strip --strip-unneeded " +
+                                   "\"" + out_cospace_path + "Ninja.dll\"")
+                    prev_dll_changed_time = os.stat(
+                        out_cospace_path + "Ninja.dll").st_mtime
                     print(prev_dll_changed_time)
                     print("コンパイル成功")
                     if is_animal:
@@ -142,9 +148,7 @@ def main():
         print("Error : there is no music folder")
         return
 
-    command = "\"" + command_path + "\"" + " --no-strip "
-    if is_cls:
-        command = command + ' --cls'
+    command = "\"" + command_path + "\"" + " --no-strip " + command
 
     while 1:
         event_handler = ChangeHandler()
@@ -155,7 +159,7 @@ def main():
             time.sleep(0.1)
 
 
-command = ['--animal','--help','--cls']
+command_list = ['--animal', '--help', '--cplus=']
 if __name__ == '__main__':
     args = sys.argv
     for arg in args:
@@ -165,10 +169,10 @@ if __name__ == '__main__':
             is_animal = True
             print('mode : animal')
         elif arg == '--help':
-            print(command)
-        elif arg == '--cls':
-            print('mode : clear screen')
-            is_cls = True
+            print(command_list)
+        elif '--cplus=' in arg:
+            command = command + ' -' + arg[8:]
+            print('cplus command : ' + arg[8:])
         else:
             print(arg + ' is not a command')
             print('correct commands is this')

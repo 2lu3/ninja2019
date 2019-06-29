@@ -21,7 +21,7 @@ AutoStrategy::AutoStrategy()
 {
     pt.start();
     // setRunMode(MODE_NORMAL);
-    setRunMode(MODE_VERBOSE);
+    setRunMode(MODE_NORMAL);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
@@ -37,6 +37,7 @@ void AutoStrategy::setup()
     logErrorMessage.delLogFile();
     logErrorMessage.delOutFile("out.txt");
 
+    system("cls");
     system("chcp 65001");
     resetLoadedObjects();
 
@@ -789,21 +790,49 @@ void AutoStrategy::loop()
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[CYAN_LOADED_ID];
-        LOG_MESSAGE("Find Cyan Object!", MODE_DEBUG);
+        LOG_MESSAGE("Find Cyan Object!", MODE_NORMAL);
     }
     else if (IsOnRedObj() && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
     {
         setAction(FIND_OBJ);
         SuperDuration = kFindObjDuration;
         ++loaded_objects[RED_LOADED_ID];
-        LOG_MESSAGE("Find Red Object!", MODE_DEBUG);
+        LOG_MESSAGE("Find Red Object!", MODE_NORMAL);
     }
     else if (IsOnSuperObj() && LoadedObjects < 6)
     {
-        setAction(FIND_OBJ);
-        SuperDuration = kFindObjDuration;
-        ++loaded_objects[SUPER_LOADED_ID];
-        LOG_MESSAGE("Find Super Object!", MODE_DEBUG);
+
+        int min = 10000;
+        int num = 0;
+        for (int i = 0; i < log_superobj_num; i++)
+        {
+            if (pow(log_superobj_x[i] - pos_x, 2) + pow(log_superobj_y[i] - pos_y, 2) < min)
+            {
+                min = static_cast<int>(pow(log_superobj_x[i] - pos_x, 2) + pow(log_superobj_y[i] - pos_y, 2));
+                num = i;
+            }
+        }
+
+        if (min < 1200)
+        {
+            //I delete log_superobj_x[2], I have to move the data of log_superobj_x[3] to [2].
+            for (int i = num + 1; i < log_superobj_num; i++)
+            {
+                log_superobj_x[i] = log_superobj_x[i - 1];
+                log_superobj_y[i] = log_superobj_y[i - 1];
+            }
+            loaded_objects[3]++;
+            log_superobj_num--;
+            setAction(FIND_OBJ);
+            SuperDuration = kFindObjDuration;
+            ++loaded_objects[SUPER_LOADED_ID];
+            LOG_MESSAGE("Find Super Object!", MODE_NORMAL);
+        }
+        else
+        {
+            motor(3, 3);
+            LOG_MESSAGE(FUNCNAME + "(): Super Obj Passed because it's not mine", MODE_NORMAL);
+        }
     }
     else if (IsOnDepositArea() && LoadedObjects >= 5)
     {
@@ -845,7 +874,7 @@ void AutoStrategy::loop()
             if (same_time > 10)
             {
                 log_superobj_num = 0;
-                LOG_MESSAGE("There is no superobj", MODE_NORMAL);
+                LOG_MESSAGE("There is no superobj", MODE_MATCH);
             }
             GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
             same_time++;
@@ -1132,7 +1161,7 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
     if (PLUSMINUS(absolute_x, temp_x, wide_judge_arrived) && PLUSMINUS(absolute_y, temp_y, wide_judge_arrived))
     {
         printf("(%d, %d)に到着しました\n", absolute_x, absolute_y);
-        LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_NORMAL);
+        LOG_MESSAGE("(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")に到着しました", MODE_MATCH);
         absolute_x = -1;
         absolute_y = -1;
         same_operate = -1;
@@ -1140,12 +1169,12 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
         return 1;
     }
 
-    LOG_MESSAGE("ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
+    LOG_MESSAGE(FUNCNAME + "(): calculated ab(" + to_string(absolute_x) + "," + to_string(absolute_y) + ")", MODE_NORMAL);
     x = absolute_x;
     y = absolute_y;
     x = x - temp_x;
     y = y - temp_y;
-    LOG_MESSAGE("x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
+    LOG_MESSAGE(FUNCNAME + "(): x, y = " + to_string(x) + ", " + to_string(y), MODE_NORMAL);
     double angle = atan2(y, x);
     angle = angle * 180 / 3.14;
     int angle_int = TO_INT(angle);
@@ -1622,29 +1651,33 @@ int AutoStrategy::GoToDot(int x, int y)
         GoToPosition(x, y, 10, 10, 5);
         return 1;
     }
-    char map_data_to_show[kDotWidth * kDotHeight];
-    rep(yi, kDotHeight)
-    {
-        rep(xj, kDotWidth)
-        {
-            if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL || cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
-            {
-                map_data_to_show[yi * kDotWidth + xj] = '#';
-            }
-            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_SWAMPLAND)
-            {
-                map_data_to_show[yi * kDotWidth + xj] = '$';
-            }
-            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
-            {
-                map_data_to_show[yi * kDotWidth + xj] = 'D';
-            }
-            else
-            {
-                map_data_to_show[yi * kDotWidth + xj] = ' ';
-            }
-        }
-    }
+    // char map_data_to_show[kDotWidth * kDotHeight];
+    // rep(yi, kDotHeight)
+    // {
+    //     rep(xj, kDotWidth)
+    //     {
+    //         if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL)
+    //         {
+    //             map_data_to_show[yi * kDotWidth + xj] = '#';
+    //         }
+    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
+    //         {
+    //             map_data_to_show[yi * kDotWidth + xj] = 'Y';
+    //         }
+    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_SWAMPLAND)
+    //         {
+    //             map_data_to_show[yi * kDotWidth + xj] = '$';
+    //         }
+    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
+    //         {
+    //             map_data_to_show[yi * kDotWidth + xj] = 'D';
+    //         }
+    //         else
+    //         {
+    //             map_data_to_show[yi * kDotWidth + xj] = ' ';
+    //         }
+    //     }
+    // }
 
     //If the node I want to go will be go out
     if (x < 1 || x >= kDotWidth - 1 || y < 1 || y >= kDotHeight - 1)
@@ -1682,15 +1715,17 @@ int AutoStrategy::GoToDot(int x, int y)
     prev_x = x;
     prev_y = y;
 
-    map_data_to_show[y * kDotWidth + x] = 'T';
+    // map_data_to_show[y * kDotWidth + x] = 'T';
     int i = 0;
 
+    int back_search_x = x;
+    int back_search_y = y;
     int temp_y = y;
     int temp_x = x;
     while (i < kDotWidth * 3)
     {
-        cospaceMap.getMapFrom(temp_x, temp_y, &temp_x, &temp_y);
-        map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
+        cospaceMap.getMapFrom(back_search_x, back_search_y, &temp_x, &temp_y);
+        // map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
         i++;
         if (temp_x < 0 || temp_x >= kDotWidth)
         {
@@ -1707,6 +1742,8 @@ int AutoStrategy::GoToDot(int x, int y)
         {
             break;
         }
+        back_search_x = temp_x;
+        back_search_y = temp_y;
     }
     if (i == 200)
     {
@@ -1714,12 +1751,12 @@ int AutoStrategy::GoToDot(int x, int y)
         LOG_MESSAGE(FUNCNAME + "(): iの値が200です", MODE_NORMAL);
     }
 
-    map_data_to_show[now_dot_id] = '@';
+    // map_data_to_show[now_dot_id] = '@';
 
-    int next_x = temp_x, next_y = temp_y;
+    int next_x = back_search_x, next_y = back_search_y;
 
-    int now_y = now_dot_id / kDotWidth;
-    int now_x = now_dot_id - now_y * kDotWidth;
+    int now_x = robot_dot_positions[1][0];
+    int now_y = robot_dot_positions[1][1];
 
     int distance = 20;
     if (next_x < now_x)
@@ -1746,6 +1783,7 @@ int AutoStrategy::GoToDot(int x, int y)
         else if (next_y == now_y)
         {
             GoToPosition(pos_x - 3 + rand() % 6, pos_y - 3 + rand() % 6, 6, 6, 3);
+            ERROR_MESSAGE(FUNCNAME + "(): next_x == now_x && next_y == now_y; but we alredy passed plusminus; we run GoToPosition() and return 1", MODE_NORMAL);
             return 1;
         }
         else
@@ -1769,29 +1807,30 @@ int AutoStrategy::GoToDot(int x, int y)
         }
     }
 
-    if (getRepeatedNum() % 5 == 0 && 0)
-    {
-        rep(xj, kDotWidth + 2)
-        {
-            printf("#");
-        }
-        rep(yi, kDotHeight)
-        {
-            printf("#");
-            rep(xj, kDotWidth)
-            {
-                printf("%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
-            }
-            printf("#");
-            printf("\n");
-        }
-        rep(xj, kDotWidth + 2)
-        {
-            printf("#");
-        }
-        printf("\n");
-    }
+    // if (getRepeatedNum() % 5 == 0 && 0)
+    // {
+    //     rep(xj, kDotWidth + 2)
+    //     {
+    //         printf("#");
+    //     }
+    //     rep(yi, kDotHeight)
+    //     {
+    //         printf("#");
+    //         rep(xj, kDotWidth)
+    //         {
+    //             printf("%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
+    //         }
+    //         printf("#");
+    //         printf("\n");
+    //     }
+    //     rep(xj, kDotWidth + 2)
+    //     {
+    //         printf("#");
+    //     }
+    //     printf("\n");
+    // }
 
+    LOG_MESSAGE(FUNCNAME + "(): return 0", MODE_DEBUG)
     return 0;
 }
 
@@ -1941,6 +1980,7 @@ int AutoStrategy::
         }
         target_x = min_pos[0];
         target_y = min_pos[1];
+        LOG_MESSAGE(FUNCNAME + "(): calculated best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_DEBUG);
         // if (id == -1)
         // {
         //     target_x = x / kCM2DotScale;
@@ -1957,9 +1997,11 @@ int AutoStrategy::
         same_target_border += 30;
         LOG_MESSAGE(FUNCNAME + "(): set same_target_border as " + to_string(same_target_border), MODE_VERBOSE);
     }
+    else
+    {
+        LOG_MESSAGE(FUNCNAME + "(): continued best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_NORMAL);
+    }
     local_same_target++;
-
-    LOG_MESSAGE(FUNCNAME + "(): calculated best coordinate(" + to_string(target_x * kCM2DotScale) + "," + to_string(target_y * kCM2DotScale) + ")", MODE_DEBUG);
 
     if (GoToDot(target_x, target_y))
     {
@@ -2036,7 +2078,7 @@ void AutoStrategy::autoSearch(float parameter)
                 status = 1;
             }
         }
-        if (status != 2)
+        if (status != 1)
         {
             int score_area_map[kAreaHeight][kAreaWidth];
             rep(ayi, kAreaHeight)
@@ -2266,6 +2308,7 @@ void AutoStrategy::Dijkstra(void)
 
 void AutoStrategy::Astar(int goal_x, int goal_y)
 {
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start", MODE_DEBUG);
     // 初期化
     rep(yi, kDotHeight)
     {
@@ -2285,10 +2328,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
     cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
 
-    long i = 0;
     while (true)
     {
-        i++;
         int investigating_dot_x = -1, investigating_dot_y = -1;
 
         rep(yi, kDotHeight)
@@ -2320,100 +2361,105 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
+        // 外に出そうな危険な範囲には行かないようにする
+        int dangerous_range = 10;
+        // ドット1つ分と、dangerous_range、大きい方を採用する
+        if (kCM2DotScale > dangerous_range)
+        {
+            dangerous_range = kCM2DotScale;
+        }
+        dangerous_range /= kCM2DotScale;
         for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
         {
-            for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
+            if (0 <= y && y < kDotHeight)
             {
-                if (0 <= x && x < kDotWidth && 0 <= y && y < kDotHeight)
+                for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
                 {
-                    if (cospaceMap.getMapStatus(x, y) == 2)
+                    if (0 <= x && x < kDotWidth)
                     {
-                        continue;
-                    }
-                    int cost = kCM2DotScale;
-
-                    // 外に出そうな危険な範囲には行かないようにする
-                    int range = 10;
-                    // ドット1つ分と、range、大きい方を採用する
-                    if (kCM2DotScale > range)
-                    {
-                        range = kCM2DotScale;
-                    }
-                    range /= kCM2DotScale;
-                    if (x < range || x >= kDotWidth - range || y < range || y >= kDotHeight - range)
-                    {
-                        cost *= 100;
-                    }
-                    cost += cospaceMap.getMapArrivedTimes(x, y) * 10;
-
-                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
-                    {
-                        cost *= 100000;
-                    }
-                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
-                    {
-                        cost *= 1000;
-                    }
-                    if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
-                    {
-                        if (Time < 60)
+                        // x = investigating_x, y = investigating_yは、setMapStatus(inv_x, inv_y, 2)で回避
+                        if (cospaceMap.getMapStatus(x, y) == 2)
                         {
-                            cost /= 100;
-                            // cost -= 100;
+                            continue;
                         }
-                        else
+                        int cost = kCM2DotScale * 10;
+
+                        if (x < dangerous_range || x >= kDotWidth - dangerous_range || y < dangerous_range || y >= kDotHeight - dangerous_range)
                         {
-                            cost /= 2;
+                            cost *= 10;
                         }
-                    }
-                    if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (
-                        cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
-                    {
-                        cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
-                        cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
-                        cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
-                        cospaceMap.setMapStatus(x, y, 1);
+                        cost += cospaceMap.getMapArrivedTimes(x, y) * 5;
+
+                        if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
+                        {
+                            cost *= 10000;
+                        }
+                        if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
+                        {
+                            cost *= 100;
+                        }
+                        if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
+                        {
+                            if (Time < 60)
+                            {
+                                cost /= 10;
+                                // cost -= 100;
+                            }
+                            else
+                            {
+                                cost /= 2;
+                            }
+                        }
+                        if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                        {
+                            LOG_MESSAGE(FUNCNAME + "(): We can get Red Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                            cost /= 10;
+                        }
+                        if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                        {
+                            LOG_MESSAGE(FUNCNAME + "(): We can get Cyan Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                            cost /= 10;
+                        }
+                        if (cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                        {
+                            LOG_MESSAGE(FUNCNAME + "(): We can get Black Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                            cost /= 10;
+                        }
+                        if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
+                        {
+                            cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
+                            cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
+                            cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
+                            cospaceMap.setMapStatus(x, y, 1);
+                        }
                     }
                 }
             }
         }
     }
 
-    cout << "num " << i << endl;
-    // 出力
-    int max_value = INT_MIN;
-    rep(yi, kDotHeight)
-    {
-        rep(xj, kDotWidth)
-        {
-            if (cospaceMap.getMapCost(xj, yi) > max_value)
-            {
-                max_value = cospaceMap.getMapCost(xj, yi);
-            }
-        }
-    }
-    LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
-    if (max_value == INT_MIN)
-    {
-        ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
-        return;
-    }
-    if (max_value < 0)
-    {
-        ERROR_MESSAGE(FUNCNAME + "(): max value is " + to_string(max_value), MODE_NORMAL);
-    }
+    // // 出力
+    // int max_value = INT_MIN;
+    // rep(yi, kDotHeight)
+    // {
+    //     rep(xj, kDotWidth)
+    //     {
+    //         if (cospaceMap.getMapCost(xj, yi) > max_value)
+    //         {
+    //             max_value = cospaceMap.getMapCost(xj, yi);
+    //         }
+    //     }
+    // }
+    // LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
+    // if (max_value == INT_MIN)
+    // {
+    //     ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
+    //     return;
+    // }
+    // if (max_value < 0)
+    // {
+    //     ERROR_MESSAGE(FUNCNAME + "(): max value is " + to_string(max_value), MODE_NORMAL);
+    // }
 
     // for (long yi = kDotHeight - 1; yi >= 0; --yi)
     // {
