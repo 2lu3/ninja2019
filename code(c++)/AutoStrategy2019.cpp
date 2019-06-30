@@ -101,7 +101,7 @@ void AutoStrategy::loop()
                 {
                     continue;
                 }
-                cospaceMap.addMapArrivedTimes(x, y, 2);
+                cospaceMap.addMapArrivedTimes(x, y, 10);
             }
         }
     }
@@ -396,7 +396,7 @@ void AutoStrategy::loop()
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
             // 基本的に、実際の壁との距離から0.7倍程度にするが、kCM2DotScaleが最低2つはあけないといけない
             // 1cm先に壁がある場合、cospaceMap.MAP_WHITEは登録しない
-            const int kRange4Wall = 30;
+            const int kRange4Wall = 20;
 
             if (us_sensors[i] < kRange4Wall + difference_us_position[i % 2])
             {
@@ -764,6 +764,7 @@ void AutoStrategy::loop()
     {
         cout << "output!" << endl;
         logErrorMessage.outputData("out.txt", "\n");
+        logErrorMessage.outputData("out.txt", "Start\n");
         rep(i, 5)
         {
             rep(yi, kDotHeight)
@@ -777,6 +778,7 @@ void AutoStrategy::loop()
             logErrorMessage.outputData("out.txt", "\n");
             logErrorMessage.outputData("out.txt", "\n");
         }
+        logErrorMessage.outputData("out.txt", "End\n");
         logErrorMessage.outputData("out.txt", "\n");
         cout << "output! finished" << endl;
     }
@@ -1416,7 +1418,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                     }
                 }
                 Duration = 5;
-            }
+            } /*
             else if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(cospaceMap.MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
             {
                 LOG_MESSAGE("near yellow or unknown", MODE_DEBUG);
@@ -1468,7 +1470,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                         motor(-4, 3);
                     }
                 }
-            }
+            }*/
             // else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
             // {
             // 	if (abs(angle) < 10)

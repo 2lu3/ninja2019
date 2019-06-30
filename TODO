@@ -1,4 +1,5 @@
 Todo:必須
+  ☐ HowManyCurvedの実装
 
 Todo:必須ではない
   ☐ Astarのアルゴリズムで、最初はMAP_YELLOWやMAP_WALLを計算に入れないが、それで破綻したときはそれらを入れるようにする
