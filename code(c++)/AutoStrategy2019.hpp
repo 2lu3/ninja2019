@@ -73,6 +73,10 @@ private:
             {
                 map[map_wall_index][y][x] = times;
             }
+            else if (info == MAP_WHITE && map[map_wall_index][y][x] != MAP_UNKNOWN)
+            {
+                return kFailure;
+            }
             else
             {
                 // if(map[0][y][x] == MAP_UNKNOWN) {

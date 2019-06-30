@@ -21,7 +21,7 @@ AutoStrategy::AutoStrategy()
 {
     pt.start();
     // setRunMode(MODE_NORMAL);
-    setRunMode(MODE_NORMAL);
+    setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(true);
@@ -346,21 +346,24 @@ void AutoStrategy::loop()
     }
 
     // 壁の位置を計算
+    if (PositionX != -1)
     {
         LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
 
         // 0: left & right 1: front
         int difference_us_position[2] = {9, 9};
         int us_sensors[3] = {US_Left, US_Front, US_Right};
-        LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right), MODE_DEBUG);
+        LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right) + " Compass: " + to_string(Compass), MODE_DEBUG);
         string us_names[3] = {"Left", "Front", "Right"};
         int angles[3] = {40, 0, -40};
         int calculated_relative_coordinate[3][2];
         int calculated_absolute_dot_position[3][2];
         for (int i = 0; i < 3; ++i)
         {
+
             angles[i] += Compass + 90;
             angles[i] %= 360;
+            LOG_MESSAGE(FUNCNAME + "(): US(" + us_names[i] + "): " + to_string(us_sensors[i]) + " Compass: " + to_string(angles[i]), MODE_VERBOSE);
             if (us_sensors[i] > kUSLimit - 1)
             {
                 us_sensors[i] = kUSLimit;
@@ -375,6 +378,7 @@ void AutoStrategy::loop()
             calculated_absolute_dot_position[i][0] = TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale);
             calculated_absolute_dot_position[i][1] = TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale);
             LOG_MESSAGE(FUNCNAME + "(): calculated wall position us: " + us_names[i] + " pos: " + to_string(pos_x + calculated_relative_coordinate[i][0]) + "," + to_string(pos_y + calculated_relative_coordinate[i][1]) + " registered pos:" + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
+            LOG_MESSAGE(FUNCNAME + "(): calculated positions (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ") -> (" + to_string(calculated_absolute_dot_position[i][0]) + ", " + to_string(calculated_absolute_dot_position[i][1]) + ")", MODE_VERBOSE);
             if (0 <= calculated_absolute_dot_position[i][0] && calculated_absolute_dot_position[i][0] < kDotWidth && 0 <= calculated_absolute_dot_position[i][1] && calculated_absolute_dot_position[i][1] < kDotHeight)
             {
                 // 壁はないときは、MAP_WALLを登録する必要がない
@@ -382,7 +386,7 @@ void AutoStrategy::loop()
                 {
                     // if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == cospaceMap.MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
                     {
-                        cospaceMap.setMapInfo(calculated_absolute_dot_position[i][0], calculated_absolute_dot_position[i][1], cospaceMap.MAP_WALL);
+                        cospaceMap.addMapInfo(calculated_absolute_dot_position[i][0], calculated_absolute_dot_position[i][1], cospaceMap.MAP_WALL, 2);
                         LOG_MESSAGE(FUNCNAME + "(): set here as Wall; pos: " + to_string(calculated_absolute_dot_position[i][0] * kCM2DotScale) + "," + to_string(calculated_absolute_dot_position[i][1] * kCM2DotScale), MODE_VERBOSE);
                     }
                 }
@@ -392,7 +396,7 @@ void AutoStrategy::loop()
             // 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
             // 基本的に、実際の壁との距離から0.7倍程度にするが、kCM2DotScaleが最低2つはあけないといけない
             // 1cm先に壁がある場合、cospaceMap.MAP_WHITEは登録しない
-            const int kRange4Wall = 10;
+            const int kRange4Wall = 30;
 
             if (us_sensors[i] < kRange4Wall + difference_us_position[i % 2])
             {
@@ -402,17 +406,20 @@ void AutoStrategy::loop()
             }
             if (us_sensors[i] * 0.3 < kRange4Wall)
             {
+                LOG_MESSAGE(FUNCNAME + "(): us_sensors[i](" + to_string(us_sensors[i]) + ") * 0.3 < kRange4Wall(" + to_string(kRange4Wall) + ")", MODE_VERBOSE);
                 calculated_relative_coordinate[i][0] = TO_INT(cos(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
                 calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
             }
             else
             {
+                LOG_MESSAGE(FUNCNAME + "(): us_sensors[i](" + to_string(us_sensors[i]) + ") * 0.3 >= kRange4Wall(" + to_string(kRange4Wall) + ")", MODE_VERBOSE);
                 calculated_relative_coordinate[i][0] = TO_INT(cos(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
                 calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
             }
 
-            const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0]) / kCM2DotScale)};
-            const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1]) / kCM2DotScale)};
+            const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0]) / kCM2DotScale + kCM2DotScale / 2)};
+            const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1]) / kCM2DotScale + kCM2DotScale / 2)};
+            LOG_MESSAGE(FUNCNAME + "(): Set MAP_UNKNOWN (" + to_string(x[0]) + ", " + to_string(y[0]) + ") -> (" + to_string(x[1]) + ", " + to_string(y[1]) + ")", MODE_VERBOSE);
 
             // (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
             if (x[0] == x[1]) // 縦方向の直線の場合
@@ -439,25 +446,24 @@ void AutoStrategy::loop()
                         }
                         if (cospaceMap.getMapInfo(x[0], yi) == cospaceMap.MAP_WALL)
                         {
-                            cospaceMap.addMapInfo(x[0], yi, cospaceMap.MAP_WALL, -2);
-                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
+                            cospaceMap.addMapInfo(x[0], yi, cospaceMap.MAP_WALL, -1);
+                            LOG_MESSAGE(FUNCNAME + "(): decrease the possibility of wall pos (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
                         }
+                        LOG_MESSAGE(FUNCNAME + "(): (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale) + "): here is not wall; wall(" + to_string(calculated_absolute_dot_position[i][0]) + ", " + to_string(calculated_absolute_dot_position[i][1]) + ")", MODE_VERBOSE);
                     }
                 }
             }
             else
             {
-                // x[0]<x[1]の場合、x[1]<x[0]の場合、両方ともtiltは、正常な傾きを表す
-                float tilt = static_cast<float>(y[1] - y[0]) / static_cast<float>(x[1] - x[0]);
-                LOG_MESSAGE(FUNCNAME + "(): tilt is " + to_string(tilt), MODE_VERBOSE);
-                // x[0]>x[1]は、入れ替えるだけ
+                double tilt = static_cast<double>(y[1] - y[0]) / static_cast<double>(x[1] - x[0]);
                 int x_start = x[0], x_end = x[1];
-
                 if (x_start > x_end)
                 {
                     x_start = x[1];
                     x_end = x[0];
+                    tilt = -tilt;
                 }
+                LOG_MESSAGE(FUNCNAME + "(): tilt is " + to_string(tilt), MODE_VERBOSE);
                 for (int xi = x_start; xi < x_end; ++xi)
                 {
                     if (xi < 0)
@@ -469,8 +475,8 @@ void AutoStrategy::loop()
                     {
                         break;
                     }
-                    int y_start = x_start + TO_INT(tilt * static_cast<float>(xi - x_start));
-                    int y_end = x_start + TO_INT(floor(tilt * (static_cast<float>(xi + 1 - x_start))));
+                    int y_start = x_start + TO_INT(tilt * static_cast<double>(xi - x_start));
+                    int y_end = x_start + TO_INT(floor(tilt * (static_cast<double>(xi + 1 - x_start))));
                     if (y_start > y_end)
                     {
                         int temp = y_start;
@@ -490,9 +496,10 @@ void AutoStrategy::loop()
                         }
                         if (cospaceMap.getMapInfo(xi, yj) == cospaceMap.MAP_WALL)
                         {
-                            cospaceMap.addMapInfo(xi, yj, cospaceMap.MAP_WALL, -2);
-                            LOG_MESSAGE(FUNCNAME + "(): decrase the possibility of wall pos (" + to_string(xi * kCM2DotScale) + ", " + to_string(yj * kCM2DotScale), MODE_VERBOSE);
+                            cospaceMap.addMapInfo(xi, yj, cospaceMap.MAP_WALL, -1);
+                            LOG_MESSAGE(FUNCNAME + "(): decrease the possibility of wall pos (" + to_string(xi * kCM2DotScale) + ", " + to_string(yj * kCM2DotScale), MODE_VERBOSE);
                         }
+                        LOG_MESSAGE(FUNCNAME + "(): (" + to_string(xi * kCM2DotScale) + ", " + to_string(yj * kCM2DotScale) + "): here is not wall; wall(" + to_string(calculated_absolute_dot_position[i][0]) + ", " + to_string(calculated_absolute_dot_position[i][1]) + ")", MODE_VERBOSE);
                     }
                 }
             }
@@ -882,9 +889,9 @@ void AutoStrategy::loop()
     }
     else
     {
-        autoSearch(0);
+        // autoSearch(0);
+        GoToDot(200 / kCM2DotScale, 150 / kCM2DotScale);
     }
-    // GoToDot(200 / kCM2DotScale, 150 / kCM2DotScale);
 
     switch (TO_INT(getAction()))
     {
@@ -1651,33 +1658,33 @@ int AutoStrategy::GoToDot(int x, int y)
         GoToPosition(x, y, 10, 10, 5);
         return 1;
     }
-    // char map_data_to_show[kDotWidth * kDotHeight];
-    // rep(yi, kDotHeight)
-    // {
-    //     rep(xj, kDotWidth)
-    //     {
-    //         if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL)
-    //         {
-    //             map_data_to_show[yi * kDotWidth + xj] = '#';
-    //         }
-    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
-    //         {
-    //             map_data_to_show[yi * kDotWidth + xj] = 'Y';
-    //         }
-    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_SWAMPLAND)
-    //         {
-    //             map_data_to_show[yi * kDotWidth + xj] = '$';
-    //         }
-    //         else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
-    //         {
-    //             map_data_to_show[yi * kDotWidth + xj] = 'D';
-    //         }
-    //         else
-    //         {
-    //             map_data_to_show[yi * kDotWidth + xj] = ' ';
-    //         }
-    //     }
-    // }
+    char map_data_to_show[kDotWidth * kDotHeight];
+    rep(yi, kDotHeight)
+    {
+        rep(xj, kDotWidth)
+        {
+            if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = '#';
+            }
+            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_YELLOW)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = 'Y';
+            }
+            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_SWAMPLAND)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = '$';
+            }
+            else if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_DEPOSIT)
+            {
+                map_data_to_show[yi * kDotWidth + xj] = 'D';
+            }
+            else
+            {
+                map_data_to_show[yi * kDotWidth + xj] = ' ';
+            }
+        }
+    }
 
     //If the node I want to go will be go out
     if (x < 1 || x >= kDotWidth - 1 || y < 1 || y >= kDotHeight - 1)
@@ -1715,7 +1722,7 @@ int AutoStrategy::GoToDot(int x, int y)
     prev_x = x;
     prev_y = y;
 
-    // map_data_to_show[y * kDotWidth + x] = 'T';
+    map_data_to_show[y * kDotWidth + x] = 'T';
     int i = 0;
 
     int back_search_x = x;
@@ -1725,7 +1732,7 @@ int AutoStrategy::GoToDot(int x, int y)
     while (i < kDotWidth * 3)
     {
         cospaceMap.getMapFrom(back_search_x, back_search_y, &temp_x, &temp_y);
-        // map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
+        map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
         i++;
         if (temp_x < 0 || temp_x >= kDotWidth)
         {
@@ -1751,7 +1758,7 @@ int AutoStrategy::GoToDot(int x, int y)
         LOG_MESSAGE(FUNCNAME + "(): iの値が200です", MODE_NORMAL);
     }
 
-    // map_data_to_show[now_dot_id] = '@';
+    map_data_to_show[now_dot_id] = '@';
 
     int next_x = back_search_x, next_y = back_search_y;
 
@@ -1807,28 +1814,28 @@ int AutoStrategy::GoToDot(int x, int y)
         }
     }
 
-    // if (getRepeatedNum() % 5 == 0 && 0)
-    // {
-    //     rep(xj, kDotWidth + 2)
-    //     {
-    //         printf("#");
-    //     }
-    //     rep(yi, kDotHeight)
-    //     {
-    //         printf("#");
-    //         rep(xj, kDotWidth)
-    //         {
-    //             printf("%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
-    //         }
-    //         printf("#");
-    //         printf("\n");
-    //     }
-    //     rep(xj, kDotWidth + 2)
-    //     {
-    //         printf("#");
-    //     }
-    //     printf("\n");
-    // }
+    if (getRepeatedNum() % 5 == 0)
+    {
+        rep(xj, kDotWidth + 2)
+        {
+            printf("#");
+        }
+        rep(yi, kDotHeight)
+        {
+            printf("#");
+            rep(xj, kDotWidth)
+            {
+                printf("%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
+            }
+            printf("#");
+            printf("\n");
+        }
+        rep(xj, kDotWidth + 2)
+        {
+            printf("#");
+        }
+        printf("\n");
+    }
 
     LOG_MESSAGE(FUNCNAME + "(): return 0", MODE_DEBUG)
     return 0;
@@ -2392,7 +2399,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                         {
-                            cost *= 10000;
+                            // cost *= 10000;
+                            continue;
                         }
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
                         {

@@ -94,7 +94,7 @@ def main():
 
 
 command_options = ['--help', '--debug', '--outhere',
-                   '--outcospace', '--no-strip', '-O0', '-O1', '-O2', '-O3', '--cls']
+                   '--outcospace', '--no-strip', '--O0', '--O1', '--O2', '--O3', '--cls']
 
 mode_pushed_message = []
 
@@ -121,16 +121,16 @@ if __name__ == '__main__':
         elif arg == '--no-strip':
             mode_pushed_message.append('mode : no strip')
             is_strip = False
-        elif arg == '-O0':
+        elif arg == '--O0':
             mode_pushed_message.append('mode : optimisation-level-0')
             optimisation_level = 0
-        elif arg == '-O1':
+        elif arg == '--O1':
             mode_pushed_message.append('mode : optimisation-level-1')
             optimisation_level = 1
-        elif arg == '-O2':
+        elif arg == '--O2':
             mode_pushed_message.append('mode : optimisation-level-2')
             optimisation_level = 2
-        elif arg == '-O3':
+        elif arg == '--O3':
             mode_pushed_message.append('mode : optimisation-level-3')
             optimisation_level = 3
         elif arg == '--cls':

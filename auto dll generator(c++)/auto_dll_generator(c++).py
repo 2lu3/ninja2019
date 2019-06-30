@@ -171,7 +171,7 @@ if __name__ == '__main__':
         elif arg == '--help':
             print(command_list)
         elif '--cplus=' in arg:
-            command = command + ' -' + arg[8:]
+            command = command + ' --' + arg[8:]
             print('cplus command : ' + arg[8:])
         else:
             print(arg + ' is not a command')
