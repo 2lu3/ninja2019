@@ -782,7 +782,6 @@ void AutoStrategy::loop()
         logErrorMessage.outputData("out.txt", "\n");
         cout << "output! finished" << endl;
     }
-
     if (SuperDuration > 0)
     {
         --SuperDuration;
@@ -891,8 +890,7 @@ void AutoStrategy::loop()
     }
     else
     {
-        // autoSearch(0);
-        GoToDot(200 / kCM2DotScale, 150 / kCM2DotScale);
+        autoSearch(0);
     }
 
     switch (TO_INT(getAction()))
@@ -1258,10 +1256,11 @@ void AutoStrategy::GoToAngle(int angle, int distance)
         classification = obstacle(5, 7, 5);
     }
 
-    // double magnification = 0.3;
-    int short_front = 1; //(int)(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-    int short_left = 1;  //(int)(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
-    int short_right = 1; //(int)(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 8) / pow(25, magnification));
+    double magnification = 0.5;
+    int distance_from_wall = 30;
+    int short_front = TO_INT(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
+    int short_left = TO_INT(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
+    int short_right = TO_INT(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
     if (short_front < 0)
         short_front = 0;
     if (short_front > 5)
@@ -1418,7 +1417,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                     }
                 }
                 Duration = 5;
-            } /*
+            }
             else if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], 30) || isNearTheFloor(cospaceMap.MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], 30))
             {
                 LOG_MESSAGE("near yellow or unknown", MODE_DEBUG);
@@ -1452,11 +1451,11 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                 {
                     if (angle < 0)
                     {
-                        motor(2, -3);
+                        motor(4, 1);
                     }
                     else
                     {
-                        motor(-3, 2);
+                        motor(1, 4);
                     }
                 }
                 else
@@ -1470,7 +1469,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
                         motor(-4, 3);
                     }
                 }
-            }*/
+            }
             // else if ((loaded_objects[BLACK_LOADED_ID] < 2 && dot[now_dot_id].black == 1) || (loaded_objects[CYAN_LOADED_ID] < 2 && dot[now_dot_id].cyan == 1) || (loaded_objects[RED_LOADED_ID] < 2 && dot[now_dot_id].red == 1))
             // {
             // 	if (abs(angle) < 10)
@@ -1654,7 +1653,7 @@ int AutoStrategy::GoToDot(int x, int y)
 
     LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "): start", MODE_DEBUG);
 
-    if (PositionX == -1 && (PLUSMINUS(pos_x, x * kCM2DotScale, (10 < kCM2DotScale ? kCM2DotScale : 10)) && PLUSMINUS(pos_y, y * kCM2DotScale, (10 < kCM2DotScale ? kCM2DotScale : 10))))
+    if (PositionX == -1 && (PLUSMINUS(pos_x, x * kCM2DotScale, (20 < kCM2DotScale ? kCM2DotScale : 20)) && PLUSMINUS(pos_y, y * kCM2DotScale, (20 < kCM2DotScale ? kCM2DotScale : 20))))
     {
         LOG_MESSAGE(FUNCNAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
         GoToPosition(x, y, 10, 10, 5);
@@ -2055,6 +2054,7 @@ void AutoStrategy::autoSearch(float parameter)
 
     if (is_changed)
     {
+        LOG_MESSAGE(FUNCNAME + "(): is_changed true!", MODE_VERBOSE);
         is_changed = 0;
         if (LoadedObjects >= 6)
         {
@@ -2336,6 +2336,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
     cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
     cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
+    cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
 
     while (true)
     {
@@ -2397,6 +2398,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         {
                             cost *= 10;
                         }
+                        cost *= 3 * cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y);
                         cost += cospaceMap.getMapArrivedTimes(x, y) * 5;
 
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
@@ -2441,6 +2443,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                             cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
                             cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
                             cospaceMap.setMapStatus(x, y, 1);
+                            cospaceMap.setMapCurvedTimes(x, y, cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y));
                         }
                     }
                 }
@@ -2518,12 +2521,51 @@ AutoStrategy::CospaceMap::CospaceMap()
 {
     rep(i, TO_INT((extent<decltype(map), 0>::value)))
     {
-        rep(j, TO_INT((extent<decltype(map), 1>::value)))
+        rep(j, kDotHeight)
         {
-            rep(k, TO_INT((extent<decltype(map), 2>::value)))
+            rep(k, kDotWidth)
             {
                 map[i][j][k] = 0;
             }
         }
+    }
+    rep(i, kDotHeight)
+    {
+        rep(j, kDotWidth)
+        {
+            map_curved_times[i][j] = 0;
+        }
+    }
+}
+int AutoStrategy::CospaceMap::getMapCurvedTimes(int from_x, int from_y, int target_x, int target_y)
+{
+    LOG_MESSAGE(FUNCNAME + "(" + to_string(from_x) + ", " + to_string(from_y) + ", " + to_string(target_x) + "," + to_string(target_y) + "): start", MODE_DEBUG);
+
+    if (from_x < 0 || from_x >= kDotWidth || from_y < 0 || from_y >= kDotHeight)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(): from(" + to_string(from_x) + ", " + to_string(from_y) + "); target(" + to_string(target_x) + "," + to_string(target_y) + ")", MODE_NORMAL);
+    }
+
+    if (map_from[from_y][from_x][0] == -1)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(): there is no map_from value in (" + to_string(from_x) + ", " + to_string(from_y) + ")", MODE_NORMAL);
+    }
+
+    // (previous_ x, y) -> (from_ x, y) -> (target_ x, y)
+    int previous_x = map_from[from_y][from_x][0];
+    int previous_y = map_from[from_y][from_x][1];
+    if (abs(previous_x - from_x) > 1 || abs(previous_y - from_y) > 1)
+    {
+        ERROR_MESSAGE(FUNCNAME + "(): the difference between previous_(x or y) and from(x or y) > 1", MODE_NORMAL);
+    }
+    int previous_direction = (previous_y - from_y) * 3 + previous_x - from_x;
+    int now_direction = (from_y - target_y) * 3 + from_x - target_x;
+    if (previous_direction == now_direction)
+    {
+        return map_curved_times[from_y][from_x];
+    }
+    else
+    {
+        return map_curved_times[from_y][from_x] + 1;
     }
 }

@@ -1,5 +1,6 @@
 Todo:必須
-  ☐ HowManyCurvedの実装
+  ✔ HowManyCurvedの実装 @done(19-06-30 15:46)
+  ☐ 中継点を用意し、よりスムーズに動くようにする
 
 Todo:必須ではない
   ☐ Astarのアルゴリズムで、最初はMAP_YELLOWやMAP_WALLを計算に入れないが、それで破綻したときはそれらを入れるようにする

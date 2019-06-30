@@ -124,7 +124,6 @@ private:
             }
             return kSuccess;
         }
-
         inline MapInfo getMapInfo(int x, int y)
         {
             if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
@@ -231,7 +230,6 @@ private:
             }
             return addMapArrivedTimes(x, y, 1);
         }
-
         inline int getMapArrivedTimes(int x, int y)
         {
             if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
@@ -359,6 +357,20 @@ private:
             }
             return map_status[y][x];
         }
+        inline int setMapCurvedTimes(int x, int y, int value)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            map_curved_times[y][x] = value;
+            return kSuccess;
+        }
+        int getMapCurvedTimes(int from_x, int from_y, int target_x, int target_y);
 
         const static int kSuccess = -1;
         const static int kFailure = INT_MIN;
@@ -373,6 +385,7 @@ private:
         int map_cost[kDotHeight][kDotWidth];
         int map_total_cost[kDotHeight][kDotWidth];
         int map_status[kDotHeight][kDotWidth];
+        int map_curved_times[kDotHeight][kDotWidth];
     };
     CospaceMap cospaceMap;
 
