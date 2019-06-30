@@ -24,7 +24,7 @@ AutoStrategy::AutoStrategy()
     setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
-    setIsOutputErrorMessage2Console(true);
+    setIsOutputErrorMessage2Console(false);
 
     pt.print("AutoStrategy::AutoStrategy() :");
 }
@@ -417,8 +417,8 @@ void AutoStrategy::loop()
                 calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
             }
 
-            const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0]) / kCM2DotScale + kCM2DotScale / 2)};
-            const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1]) / kCM2DotScale + kCM2DotScale / 2)};
+            const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale)};
+            const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale)};
             LOG_MESSAGE(FUNCNAME + "(): Set MAP_UNKNOWN (" + to_string(x[0]) + ", " + to_string(y[0]) + ") -> (" + to_string(x[1]) + ", " + to_string(y[1]) + ")", MODE_VERBOSE);
 
             // (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
@@ -475,8 +475,8 @@ void AutoStrategy::loop()
                     {
                         break;
                     }
-                    int y_start = x_start + TO_INT(tilt * static_cast<double>(xi - x_start));
-                    int y_end = x_start + TO_INT(floor(tilt * (static_cast<double>(xi + 1 - x_start))));
+                    int y_start = y[0] + TO_INT(tilt * static_cast<double>(xi - x_start));
+                    int y_end = y[0] + TO_INT(floor(tilt * (static_cast<double>(xi + 1 - x_start))));
                     if (y_start > y_end)
                     {
                         int temp = y_start;
@@ -2399,8 +2399,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                         {
-                            // cost *= 10000;
-                            continue;
+                            cost *= 10000;
+                            // continue;
                         }
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
                         {
