@@ -37,6 +37,9 @@ private:
     int searching_object;
     int prev_repeated_num;
 
+    int kEmergencyPosX = 180;
+    int kEmergencyPosY = 135;
+
     ProcessingTime pt;
 
     class CospaceMap
@@ -65,7 +68,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -73,7 +76,7 @@ private:
             {
                 map[map_wall_index][y][x] = times;
             }
-            else if (info == MAP_WHITE && map[map_wall_index][y][x] != MAP_UNKNOWN)
+            else if (info == MAP_WHITE && map[0][y][x] != MAP_UNKNOWN)
             {
                 return kFailure;
             }
@@ -100,7 +103,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -130,7 +133,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return MAP_FAILURE;
             }
@@ -154,7 +157,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -162,7 +165,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -170,7 +173,7 @@ private:
             {
                 if (MODE_VERBOSE <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
                 }
                 return kFailure;
             }
@@ -183,7 +186,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -191,7 +194,7 @@ private:
             {
                 if (MODE_VERBOSE <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
                 }
                 return kFailure;
             }
@@ -199,7 +202,7 @@ private:
             {
                 if (MODE_VERBOSE <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; object_loaded_id = " + std::to_string(object_loaded_id), MODE_VERBOSE);
                 }
                 return kFailure;
             }
@@ -211,7 +214,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -224,7 +227,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -236,7 +239,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -248,7 +251,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -260,7 +263,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -274,7 +277,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -288,7 +291,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -301,7 +304,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -313,7 +316,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -326,7 +329,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -338,7 +341,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -351,7 +354,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -363,7 +366,7 @@ private:
             {
                 if (MODE_NORMAL <= getRunMode())
                 {
-                    logErrorMessage.errorMessage(FUNCNAME + "Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
                 }
                 return kFailure;
             }
@@ -389,6 +392,9 @@ private:
     };
     CospaceMap cospaceMap;
 
+    int map_position_data[36][27] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
     int pos_x,
         pos_y,
         pos_compass;
@@ -410,10 +416,24 @@ private:
     int HowManyCurved(int id);
     int isNearTheFloor(CospaceMap::MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
-    inline double sigmoid(double gain, double value, double scale);
-    inline double sigmoid(double value, double scale);
-    inline int i_sigmoid(double gain, double value, double scale);
-    inline int i_sigmoid(double value, double scale);
+    void saveColorInfo(void);
+    void calculateWallPosition(void);
+    inline double sigmoid(double gain, double value, double scale)
+    {
+        return (1.0 / (1.0 + exp(-gain * value))) * scale;
+    }
+    inline double sigmoid(double value, double scale)
+    {
+        return sigmoid(1, value, scale);
+    }
+    inline int i_sigmoid(double gain, double value, double scale)
+    {
+        return static_cast<int>(sigmoid(gain, value, scale));
+    }
+    inline int i_sigmoid(double value, double scale)
+    {
+        return i_sigmoid(1, value, scale);
+    }
 };
 
 #endif //!AUTO_STRATEGY_HPP
