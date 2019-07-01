@@ -21,8 +21,8 @@ AutoStrategy::~AutoStrategy()
 AutoStrategy::AutoStrategy()
 {
     pt.start();
-    // setRunMode(MODE_NORMAL);
-    setRunMode(MODE_DEBUG);
+    setRunMode(MODE_NORMAL);
+    //setRunMode(MODE_DEBUG);
     // setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);

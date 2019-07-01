@@ -97,196 +97,196 @@ void AutoStrategy::loop()
 	LOG_MESSAGE(FUNCNAME + "(): start beautifying map data " + to_string(pt.end()) + " ms", MODE_NORMAL);
 
 	// スレッドを使って、整形
-	// {
-	//     LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
-	//     int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
-	//     int end_len = start_len + kProcessingNumOfOneThread;
-	//     if (end_len > kDotHeight)
-	//     {
-	//         end_len = kDotHeight;
-	//     }
-	//     for (int yi = start_len; yi < end_len; ++yi)
-	//     {
-	//         if (yi < 0 || yi >= kDotHeight)
-	//         {
-	//             ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
-	//         }
-	//         if (yi != 0 && yi != kDotHeight - 1)
-	//         {
-	//             CospaceMap::MapInfo color_id[20];
-	//             char color_num[20];
-	//             int color_pointer = 0; // 最大値18(=20-2)
-	//             int color_pointer_limit = 18;
-	//             for (int xj = 1; xj < kDotWidth - 1; ++xj)
-	//             {
-	//                 color_pointer = 0;
-	//                 // そのドットの周りで一番多い床の色を探す
-	//                 for (int y = yi - 1; y <= yi + 1; ++y)
-	//                 {
-	//                     for (int x = xj - 1; x <= xj + 1; ++x)
-	//                     {
-	//                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN)
-	//                         {
-	//                             continue;
-	//                         }
-	//                         color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
-	//                         rep(i, color_pointer + 1)
-	//                         {
-	//                             if (color_id[i] == cospaceMap.getMapInfo(x, y))
-	//                             {
-	//                                 if (i == color_pointer)
-	//                                 {
-	//                                     // 新しい色を追加
-	//                                     if (color_pointer < color_pointer_limit)
-	//                                     {
-	//                                         color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
-	//                                         color_num[color_pointer] = 1;
-	//                                         color_pointer++;
-	//                                     }
-	//                                     else
-	//                                     {
-	//                                         ERROR_MESSAGE(FUNCNAME + "(): error; To fix the floor map, the array num is over " + to_string(color_pointer_limit), MODE_NORMAL);
-	//                                     }
-	//                                 }
-	//                                 else
-	//                                 {
-	//                                     // 色の数を++
-	//                                     color_num[i]++;
-	//                                 }
-	//                                 break;
-	//                             }
-	//                         }
-	//                     }
-	//                 }
+	{
+		LOG_MESSAGE(FUNCNAME + "(): データの整形を開始", MODE_DEBUG);
+		int start_len = (getRepeatedNum() % kThreadNum) * kProcessingNumOfOneThread;
+		int end_len = start_len + kProcessingNumOfOneThread;
+		if (end_len > kDotHeight)
+		{
+			end_len = kDotHeight;
+		}
+		for (int yi = start_len; yi < end_len; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeight)
+			{
+				ERROR_MESSAGE(FUNCNAME + "(): thread yi is abnormal; " + to_string(yi), MODE_NORMAL);
+			}
+			if (yi != 0 && yi != kDotHeight - 1)
+			{
+				CospaceMap::MapInfo color_id[20];
+				char color_num[20];
+				int color_pointer = 0; // 最大値18(=20-2)
+				int color_pointer_limit = 18;
+				for (int xj = 1; xj < kDotWidth - 1; ++xj)
+				{
+					color_pointer = 0;
+					// そのドットの周りで一番多い床の色を探す
+					for (int y = yi - 1; y <= yi + 1; ++y)
+					{
+						for (int x = xj - 1; x <= xj + 1; ++x)
+						{
+							if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN)
+							{
+								continue;
+							}
+							color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
+							rep(i, color_pointer + 1)
+							{
+								if (color_id[i] == cospaceMap.getMapInfo(x, y))
+								{
+									if (i == color_pointer)
+									{
+										// 新しい色を追加
+										if (color_pointer < color_pointer_limit)
+										{
+											color_id[color_pointer] = cospaceMap.getMapInfo(x, y);
+											color_num[color_pointer] = 1;
+											color_pointer++;
+										}
+										else
+										{
+											ERROR_MESSAGE(FUNCNAME + "(): error; To fix the floor map, the array num is over " + to_string(color_pointer_limit), MODE_NORMAL);
+										}
+									}
+									else
+									{
+										// 色の数を++
+										color_num[i]++;
+									}
+									break;
+								}
+							}
+						}
+					}
 
-	//                 int max_num = 0;
-	//                 CospaceMap::MapInfo max_id = cospaceMap.MAP_UNKNOWN;
-	//                 rep(i, color_pointer)
-	//                 {
-	//                     if (color_num[i] > max_num)
-	//                     {
-	//                         max_num = color_num[i];
-	//                         max_id = color_id[i];
-	//                     }
-	//                 }
+					int max_num = 0;
+					CospaceMap::MapInfo max_id = cospaceMap.MAP_UNKNOWN;
+					rep(i, color_pointer)
+					{
+						if (color_num[i] > max_num)
+						{
+							max_num = color_num[i];
+							max_id = color_id[i];
+						}
+					}
 
-	//                 if (max_id == cospaceMap.MAP_UNKNOWN)
-	//                 {
-	//                     // ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
-	//                     continue;
-	//                 }
+					if (max_id == cospaceMap.MAP_UNKNOWN)
+					{
+						// ERROR_MESSAGE(FUNCNAME + "(): error; color_num has fatal error", MODE_NORMAL);
+						continue;
+					}
 
-	//                 if (max_num >= 5)
-	//                 {
-	//                     cospaceMap.setMapInfo(xj, yi, max_id);
-	//                 }
-	//                 // else if (max_num == 3)
-	//                 // {
-	//                 //     // 64128256
-	//                 //     //  8 16 32
-	//                 //     //  1  2  4
-	//                 //     int sum = 0;
-	//                 //     for (int y = yi - 1; y <= yi + 1; ++y)
-	//                 //     {
-	//                 //         for (int x = xj - 1; x <= xj + 1; ++x)
-	//                 //         {
-	//                 //             if (map[0][y][x] == max_id && (x != 0 || y != 0))
-	//                 //             {
-	//                 //                 sum += TO_INT(pow(2, (yi - y + 1) * 3 + (xj - x + 1)));
-	//                 //             }
-	//                 //         }
-	//                 //     }
-	//                 //     if (sum != 1 + 8 + 64 && sum != 1 + 2 + 4 && sum != 4 + 32 + 256 && sum != 64 + 128 + 256)
-	//                 //     {
-	//                 //         // 一列になっていないので、変更する
-	//                 //         map[0][yi][xj] = static_cast<char>(max_id);
-	//                 //     }
-	//                 // }
-	//                 // else
-	//                 // {
-	//                 //     int pos_x, pos_y, flag = 0;
-	//                 //     for (int y = yi - 1; y <= yi + 1; ++y)
-	//                 //     {
-	//                 //         for (int x = xj - 1; x <= xj + 1; ++x)
-	//                 //         {
-	//                 //             if (map[0][y][x] == max_id)
-	//                 //             {
-	//                 //                 if (flag == 0)
-	//                 //                 {
-	//                 //                     pos_x = x;
-	//                 //                     pos_y = y;
-	//                 //                 }
-	//                 //                 else
-	//                 //                 {
-	//                 //                     if (pos_x != x && pos_y != y)
-	//                 //                     {
-	//                 //                         // 縦横が重なっていないので、変更する
-	//                 //                         map[0][yi][xj] = static_cast<char>(max_id);
-	//                 //                     }
-	//                 //                 }
-	//                 //             }
-	//                 //         }
-	//                 //     }
-	//                 // }
-	//             }
+					if (max_num >= 5)
+					{
+						cospaceMap.setMapInfo(xj, yi, max_id);
+					}
+					// else if (max_num == 3)
+					// {
+					//     // 64128256
+					//     //  8 16 32
+					//     //  1  2  4
+					//     int sum = 0;
+					//     for (int y = yi - 1; y <= yi + 1; ++y)
+					//     {
+					//         for (int x = xj - 1; x <= xj + 1; ++x)
+					//         {
+					//             if (map[0][y][x] == max_id && (x != 0 || y != 0))
+					//             {
+					//                 sum += TO_INT(pow(2, (yi - y + 1) * 3 + (xj - x + 1)));
+					//             }
+					//         }
+					//     }
+					//     if (sum != 1 + 8 + 64 && sum != 1 + 2 + 4 && sum != 4 + 32 + 256 && sum != 64 + 128 + 256)
+					//     {
+					//         // 一列になっていないので、変更する
+					//         map[0][yi][xj] = static_cast<char>(max_id);
+					//     }
+					// }
+					// else
+					// {
+					//     int pos_x, pos_y, flag = 0;
+					//     for (int y = yi - 1; y <= yi + 1; ++y)
+					//     {
+					//         for (int x = xj - 1; x <= xj + 1; ++x)
+					//         {
+					//             if (map[0][y][x] == max_id)
+					//             {
+					//                 if (flag == 0)
+					//                 {
+					//                     pos_x = x;
+					//                     pos_y = y;
+					//                 }
+					//                 else
+					//                 {
+					//                     if (pos_x != x && pos_y != y)
+					//                     {
+					//                         // 縦横が重なっていないので、変更する
+					//                         map[0][yi][xj] = static_cast<char>(max_id);
+					//                     }
+					//                 }
+					//             }
+					//         }
+					//     }
+					// }
+				}
 
-	//             // xj == 0の場合 上下の比較のみおこなう
-	//             CospaceMap::MapInfo temp_map_color = cospaceMap.getMapInfo(0, yi - 1);
-	//             if (temp_map_color == cospaceMap.getMapInfo(0, yi + 1))
-	//             {
-	//                 if (temp_map_color != static_cast<char>(cospaceMap.MAP_UNKNOWN))
-	//                 {
-	//                     cospaceMap.setMapInfo(0, yi, temp_map_color);
-	//                 }
-	//             }
-	//             for (int xj = 1; xj < kDotWidth - 1; ++xj)
-	//             {
+				// xj == 0の場合 上下の比較のみおこなう
+				CospaceMap::MapInfo temp_map_color = cospaceMap.getMapInfo(0, yi - 1);
+				if (temp_map_color == cospaceMap.getMapInfo(0, yi + 1))
+				{
+					if (temp_map_color != static_cast<char>(cospaceMap.MAP_UNKNOWN))
+					{
+						cospaceMap.setMapInfo(0, yi, temp_map_color);
+					}
+				}
+				for (int xj = 1; xj < kDotWidth - 1; ++xj)
+				{
 
-	//                 // 左右の比較
-	//                 if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
-	//                 {
-	//                     if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
-	//                     {
-	//                         cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
-	//                     }
-	//                 }
-	//                 // 上下の比較
-	//                 else if (cospaceMap.getMapInfo(xj, yi - 1) == cospaceMap.getMapInfo(xj, yi + 1))
-	//                 {
-	//                     if (cospaceMap.getMapInfo(xj, yi + 1) != cospaceMap.MAP_UNKNOWN)
-	//                     {
-	//                         cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj, yi + 1));
-	//                     }
-	//                 }
-	//             }
-	//             // xj == kDotWidth - 1 の場合、上下の比較のみ行う
-	//             temp_map_color = cospaceMap.getMapInfo(kDotWidth - 1, yi - 1);
-	//             if (temp_map_color == cospaceMap.getMapInfo(kDotWidth - 1, yi + 1))
-	//             {
-	//                 if (temp_map_color != cospaceMap.MAP_UNKNOWN)
-	//                 {
-	//                     cospaceMap.setMapInfo(kDotWidth - 1, yi, temp_map_color);
-	//                 }
-	//             }
-	//         }
-	//         else
-	//         {
-	//             // 左右の比較しか行わない
-	//             for (int xj = 1; xj < kDotWidth - 1; ++xj)
-	//             {
-	//                 // 左右の比較
-	//                 if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
-	//                 {
-	//                     if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
-	//                     {
-	//                         cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
-	//                     }
-	//                 }
-	//             }
-	//         }
-	//     }
-	//     LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
-	// }
+					// 左右の比較
+					if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
+					{
+						if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
+						{
+							cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
+						}
+					}
+					// 上下の比較
+					else if (cospaceMap.getMapInfo(xj, yi - 1) == cospaceMap.getMapInfo(xj, yi + 1))
+					{
+						if (cospaceMap.getMapInfo(xj, yi + 1) != cospaceMap.MAP_UNKNOWN)
+						{
+							cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj, yi + 1));
+						}
+					}
+				}
+				// xj == kDotWidth - 1 の場合、上下の比較のみ行う
+				temp_map_color = cospaceMap.getMapInfo(kDotWidth - 1, yi - 1);
+				if (temp_map_color == cospaceMap.getMapInfo(kDotWidth - 1, yi + 1))
+				{
+					if (temp_map_color != cospaceMap.MAP_UNKNOWN)
+					{
+						cospaceMap.setMapInfo(kDotWidth - 1, yi, temp_map_color);
+					}
+				}
+			}
+			else
+			{
+				// 左右の比較しか行わない
+				for (int xj = 1; xj < kDotWidth - 1; ++xj)
+				{
+					// 左右の比較
+					if (cospaceMap.getMapInfo(xj - 1, yi) == cospaceMap.getMapInfo(xj + 1, yi))
+					{
+						if (cospaceMap.getMapInfo(xj + 1, yi) != cospaceMap.MAP_UNKNOWN)
+						{
+							cospaceMap.setMapInfo(xj, yi, cospaceMap.getMapInfo(xj + 1, yi));
+						}
+					}
+				}
+			}
+		}
+		LOG_MESSAGE(FUNCNAME + "(): データの整形終了", MODE_DEBUG)
+	}
 
 	LOG_MESSAGE(FUNCNAME + "(): end beautifying map data " + to_string(pt.end()) + " ms", MODE_NORMAL);
 
@@ -433,7 +433,6 @@ void AutoStrategy::loop()
 		break;
 	case YELLOW_AVOIDANCE:
 		if (IsOnSwampland()) {
-
 			if (BothColorJudge(trap_line))
 			{
 				motor_no_action_change(5, -5);
@@ -449,22 +448,28 @@ void AutoStrategy::loop()
 		}
 		else {
 			if (IsOnYellowLine()) {
-				if (BothColorJudge(trap_line))
-				{
-					motor_no_action_change(-4, -5);
+				if (Duration >= 3) {
+					motor_no_action_change(-3, -3);
 				}
-				else if (ColorJudgeLeft(trap_line))
-				{
-					motor_no_action_change(-4, -5);
-				}
-				else
-				{
-					motor_no_action_change(-5, -4);
+				else {
+
+					if (BothColorJudge(trap_line))
+					{
+						motor_no_action_change(2, -3);
+					}
+					else if (ColorJudgeLeft(trap_line))
+					{
+						motor_no_action_change(2, -3);
+					}
+					else
+					{
+						motor_no_action_change(-3, 2);
+					}
 				}
 			}
 			else {
-				motor_no_action_change(5, 5);
-				Duration = 0;
+				motor(3, 3);
+				Duration = 2;
 				SuperDuration = 0;
 			}
 		}
@@ -1128,8 +1133,18 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			log_astar[i][j] = -1;
 		}
 	}*/
+	cout << FUNCNAME << "(): init finished " << pt2.end() << endl;
 	int i = 0;
-	while (i <40)
+	// 外に出そうな危険な範囲には行かないようにする
+	int dangerous_range = 10;
+	// ドット1つ分と、dangerous_range、大きい方を採用する
+
+	if (kCM2DotScale > dangerous_range)
+	{
+		dangerous_range = kCM2DotScale;
+	}
+	dangerous_range /= kCM2DotScale;
+	while (i < 40)
 	{
 		i++;
 		int investigating_dot_x = -1, investigating_dot_y = -1;
@@ -1173,14 +1188,6 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		//log_astar[investigating_dot_y][investigating_dot_x] = log_pointer;
 		//++log_pointer;
 
-		// 外に出そうな危険な範囲には行かないようにする
-		int dangerous_range = 10;
-		// ドット1つ分と、dangerous_range、大きい方を採用する
-		if (kCM2DotScale > dangerous_range)
-		{
-			dangerous_range = kCM2DotScale;
-		}
-		dangerous_range /= kCM2DotScale;
 		for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
 		{
 			if (0 <= y && y < kDotHeight)
