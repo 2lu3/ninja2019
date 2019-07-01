@@ -1,4 +1,5 @@
 #include "AutoStrategy2019.hpp"
+#include <stdio.h>
 
 #define TO_INT(VALUE) static_cast<int>((VALUE))
 #define IF if
@@ -1717,7 +1718,10 @@ int AutoStrategy::GoToDot(int x, int y)
     if (prev_now_dot_id != now_dot_id || prev_x != x || prev_y != y)
     {
         // Dijkstra();
+        ProcessingTime pt2;
+        pt2.start();
         Astar(x, y);
+        cout << "astar " << pt2.end() << endl;
     }
     prev_now_dot_id = now_dot_id;
     prev_x = x;
@@ -1817,25 +1821,42 @@ int AutoStrategy::GoToDot(int x, int y)
 
     if (getRepeatedNum() % 5 == 0)
     {
-        rep(xj, kDotWidth + 2)
+        cout << "out map" << endl;
+        ProcessingTime pt2;
+        pt2.start();
+        FILE *fp = fopen("map_out.txt", "w");
+        if (fp == NULL)
         {
-            printf("#");
+            ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
         }
-        rep(yi, kDotHeight)
+        else
         {
-            printf("#");
-            rep(xj, kDotWidth)
+            cout << "out map start" << endl;
+            rep(xj, kDotWidth + 2)
             {
-                printf("%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
+                fprintf(fp, "#");
+                // printf("#");
             }
-            printf("#");
-            printf("\n");
+            rep(yi, kDotHeight)
+            {
+                fprintf(fp, "#");
+                // printf("#");
+                rep(xj, kDotWidth)
+                {
+                    fprintf(fp, "%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
+                }
+                fprintf(fp, "#");
+                // printf("#");
+                fprintf(fp, "\n");
+            }
+            rep(xj, kDotWidth + 2)
+            {
+                fprintf(fp, "#");
+            }
+            fprintf(fp, "\n");
+            fclose(fp);
+            cout << "out map end " << pt2.end() << endl;
         }
-        rep(xj, kDotWidth + 2)
-        {
-            printf("#");
-        }
-        printf("\n");
     }
 
     LOG_MESSAGE(FUNCNAME + "(): return 0", MODE_DEBUG)
