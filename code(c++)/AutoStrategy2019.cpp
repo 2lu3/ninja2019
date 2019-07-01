@@ -580,17 +580,16 @@ int AutoStrategy::GoToDot(int x, int y)
             {
                 if (cospaceMap.getMapStatus(xj, yi) >= 1)
                 {
-                    if (min_score > TO_INT(sqrt(pow((x - xj) * kCM2DotScale, 2) + pow((y - yi) * kCM2DotScale, 2))) * 2 + cospaceMap.getMapCost(xj, yi))
+                    int score = TO_INT(sqrt(pow((x - xj) * kCM2DotScale, 2) + pow((y - yi) * kCM2DotScale, 2)));
+                    if (min_score > score)
                     {
-                        LOG_MESSAGE(FUNCNAME + "subsituted (" + to_string(xj) + ", " + to_string(yi) + "); status = " + to_string(cospaceMap.getMapStatus(xj, yi)), MODE_VERBOSE);
-                        min_score = TO_INT(sqrt(pow(x - xj, 2) + pow(y - yi, 2))) * 2 + cospaceMap.getMapCost(xj, yi);
+                        min_score = score;
                         min_score_x = xj;
                         min_score_y = yi;
                     }
                 }
             }
         }
-        LOG_MESSAGE(FUNCNAME + " after score " + to_string(min_score) + "x,y (" + to_string(min_score_x) + ", " + to_string(min_score_y) + ")", MODE_VERBOSE);
         back_search_x = min_score_x;
         back_search_y = min_score_y;
         LOG_MESSAGE(FUNCNAME + "(): Best Coordinate (" + to_string(back_search_x) + ", " + to_string(back_search_y) + ") after gave up; status = " + to_string(cospaceMap.getMapStatus(back_search_x, back_search_y)), MODE_NORMAL);
@@ -1093,7 +1092,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
     }
     int i = 0;
-    while (i < 40)
+    while (i < 100)
     {
         i++;
         int investigating_dot_x = -1, investigating_dot_y = -1;

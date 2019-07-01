@@ -22,7 +22,8 @@ AutoStrategy::AutoStrategy()
 {
     pt.start();
     // setRunMode(MODE_NORMAL);
-    setRunMode(MODE_VERBOSE);
+    setRunMode(MODE_DEBUG);
+    // setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(false);
@@ -1166,10 +1167,10 @@ void AutoStrategy::saveColorInfo(void)
     }
 }
 
+void AutoStrategy::calculateWallPosition(void)
+{
 
-void AutoStrategy::calculateWallPosition(void) {
-
-if (PositionX != -1)
+    if (PositionX != -1)
     {
         LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
 
