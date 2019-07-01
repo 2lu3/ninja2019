@@ -369,21 +369,28 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 
     // double magnification = 0.5;
     // int distance_from_wall = 30;
-    int short_front = 3; //TO_INT(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
-    int short_left = 3;  //TO_INT(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
-    int short_right = 3; //TO_INT(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
-    if (short_front < 0)
-        short_front = 0;
-    if (short_front > 5)
-        short_front = 5;
-    if (short_right < 0)
-        short_right = 0;
-    if (short_right > 5)
-        short_right = 5;
-    if (short_left < 0)
-        short_left = 0;
-    if (short_left > 5)
-        short_left = 5;
+    int big_motor = 5;
+    int short_motor = 3;
+    if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale))
+    {
+        big_motor = 4;
+        short_motor = 2;
+    }
+    // int short_front = 3; //TO_INT(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
+    // int short_left = 3;  //TO_INT(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
+    // int short_right = 3; //TO_INT(pow(US_Right, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
+    // if (short_front < 0)
+    //     short_front = 0;
+    // if (short_front > 5)
+    //     short_front = 5;
+    // if (short_right < 0)
+    //     short_right = 0;
+    // if (short_right > 5)
+    //     short_right = 5;
+    // if (short_left < 0)
+    //     short_left = 0;
+    // if (short_left > 5)
+    //     short_left = 5;
     switch (classification)
     {
     case 0:
@@ -394,32 +401,38 @@ void AutoStrategy::GoToAngle(int angle, int distance)
         }
         if (classification == 1 && angle > 0 && angle < 90)
         { //left
-            motor(5, short_left);
+            // motor(5, short_left);
+            motor(big_motor, short_motor);
         }
         else if (classification == 2 && abs(angle) < 30)
         { //front
             if (angle < 0)
             {
-                motor(5, short_front);
+                // motor(5, short_front);
+                motor(big_motor, short_motor);
             }
             else
             {
-                motor(short_front, 5);
+                // motor(short_front, 5);
+                motor(short_motor, big_motor);
             }
         }
         else if (classification == 3 && angle > -30 && angle < 90)
         { //left & front
-            motor(5, (short_left < short_front) ? (short_left) : (short_right));
+            //motor(5, (short_left < short_front) ? (short_left) : (short_right));
+            motor(big_motor, short_motor);
         }
         else if (classification == 4 && angle < 0 && angle > -90)
         { //right
-            motor(short_right, 5);
+            //motor(short_right, 5);
+			motor(short_motor, big_motor);
         }
         else if (classification == 5 && abs(angle) > 30)
         { //left & right
             if (abs(angle) < 150)
             {
-                motor(5, 5);
+				motor(big_motor, big_motor);
+                //motor(5, 5);
             }
             else
             {
@@ -436,17 +449,20 @@ void AutoStrategy::GoToAngle(int angle, int distance)
         }
         else if (classification == 6 && angle < 30 && angle > -90)
         { //front & right
-            motor((short_right < short_front) ? (short_right) : (short_right), 5);
+            //motor((short_right < short_front) ? (short_right) : (short_right), 5);
+			motor(short_motor, big_motor);
         }
         else if (classification == 7)
         { //all
             if (angle < 0)
             {
-                motor(5, short_front);
+                //motor(5, short_front);
+				motor(big_motor, short_motor);
             }
             else
             {
-                motor(short_front, 5);
+                //motor(short_front, 5);
+				motor(short_motor, big_motor);
             }
         }
         else
@@ -1288,10 +1304,6 @@ void AutoStrategy::calculateWallPosition(void)
                         }
                         if (cospaceMap.getMapInfo(x[0], yi) == cospaceMap.MAP_WALL)
                         {
-                            if (map_position_data[x[0]][yi] == 1)
-                            {
-                                LOG_MESSAGE(FUNCNAME + "(): calculated not wall is wall", MODE_NORMAL);
-                            }
                             cospaceMap.addMapInfo(x[0], yi, cospaceMap.MAP_WALL, -1);
                             LOG_MESSAGE(FUNCNAME + "(): decrease the possibility of wall pos (" + to_string(x[0] * kCM2DotScale) + ", " + to_string(yi * kCM2DotScale), MODE_VERBOSE);
                         }
@@ -1364,10 +1376,6 @@ void AutoStrategy::calculateWallPosition(void)
                         }
                         if (cospaceMap.getMapInfo(xi, yj) == cospaceMap.MAP_WALL)
                         {
-                            if (map_position_data[xi][yj] == 1)
-                            {
-                                LOG_MESSAGE(FUNCNAME + "(): calculated not wall is wall", MODE_NORMAL);
-                            }
                             cospaceMap.addMapInfo(xi, yj, cospaceMap.MAP_WALL, -1);
                             LOG_MESSAGE(FUNCNAME + "(): decrease the possibility of wall pos (" + to_string(xi * kCM2DotScale) + ", " + to_string(yj * kCM2DotScale), MODE_VERBOSE);
                         }
