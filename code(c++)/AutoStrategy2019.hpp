@@ -400,7 +400,7 @@ private:
     void GoToAngle(int angle, int distance);
     int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
     void Dijkstra(void);
-    void Astar(void);
+    void Astar(int goal_x, int goal_y);
     int GoToDot(int x, int y);
     long WhereIsMotor(void);
     long WhereIsColorSensor(void);
@@ -410,7 +410,6 @@ private:
     int HowManyCurved(int id);
     int isNearTheFloor(CospaceMap::MapInfo color, int x, int y, int cm_radius);
     void autoSearch(float parameter);
-    void Astar(int x, int y);
     inline double sigmoid(double gain, double value, double scale);
     inline double sigmoid(double value, double scale);
     inline int i_sigmoid(double gain, double value, double scale);
