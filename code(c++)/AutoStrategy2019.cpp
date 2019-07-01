@@ -2336,7 +2336,7 @@ void AutoStrategy::Dijkstra(void)
     // printf("\n");
 }
 
-void AutoStrategy::Astar(int goal_x, int goal_y)
+void AutoStrategy::CospaceMap::Astar(int goal_x, int goal_y)
 {
     LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start", MODE_DEBUG);
     // 初期化
@@ -2344,8 +2344,9 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     {
         rep(xj, kDotWidth)
         {
-            cospaceMap.setMapFrom(xj, yi, -1, -1);
-            cospaceMap.setMapStatus(xj, yi, 0);
+            map_from[yi][xj][0] = -1;
+            map_from[yi][xj][1] = -1;
+            map_status[yi][xj] = 0;
         }
     }
 
@@ -2354,10 +2355,11 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
     }
 
-    cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
-    cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
-    cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
-    cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+    map_cost[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
+    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][0] = -1;
+    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = -1;
+    map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
+    map_curved_times[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
 
     while (true)
     {
@@ -2367,15 +2369,13 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         {
             rep(xj, kDotWidth)
             {
-                if (cospaceMap.getMapStatus(xj, yi) != 1)
+                if (map_status[yi][xj] != 1)
                 {
                     continue;
                 }
                 if (
-                    investigating_dot_x == -1 ||
-                    cospaceMap.getMapTotalCost(xj, yi) < cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) ||
-                    (cospaceMap.getMapTotalCost(xj, yi) == cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) &&
-                     cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
+                    investigating_dot_x == -1 || map_total_cost[yi][xj] < map_total_cost[investigating_dot_y][investigating_dot_x] ||
+                    (map_total_cost[yi][xj] == map_total_cost[investigating_dot_y][investigating_dot_x] && map_cost[yi][xj] < map_cost[investigating_dot_y][investigating_dot_x]))
                 {
                     investigating_dot_x = xj;
                     investigating_dot_y = yi;
@@ -2384,14 +2384,12 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         // goalに到着したとき
-        int goal[2];
-        cospaceMap.getMapFrom(goal_x, goal_y, &goal[0], &goal[1]);
-        if (goal[0] != -1)
+        if (map_from[goal_y][goal_x][0] != -1)
         {
             break;
         }
 
-        cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
+        map_status[investigating_dot_y][investigating_dot_x] = 2;
         // 外に出そうな危険な範囲には行かないようにする
         int dangerous_range = 10;
         // ドット1つ分と、dangerous_range、大きい方を採用する
@@ -2409,7 +2407,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                     if (0 <= x && x < kDotWidth)
                     {
                         // x = investigating_x, y = investigating_yは、setMapStatus(inv_x, inv_y, 2)で回避
-                        if (cospaceMap.getMapStatus(x, y) == 2)
+                        if (map_status[y][x] == 2)
                         {
                             continue;
                         }
@@ -2420,7 +2418,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                             cost *= 10;
                         }
                         cost *= 3 * cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y);
-                        cost += cospaceMap.getMapArrivedTimes(x, y) * 5;
+                        cost += map_arrived_times[y][x] * 5;
 
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                         {
@@ -2460,6 +2458,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         }
                         if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
                         {
+                            map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
                             cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
                             cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
                             cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
