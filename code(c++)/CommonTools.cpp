@@ -110,15 +110,15 @@ void ProcessingTime::start(void)
 {
 	start_time = chrono::system_clock::now();
 }
-double ProcessingTime::end(void)
+int ProcessingTime::end(void)
 {
 	end_time = chrono::system_clock::now();
-	double elapsed = static_cast<double>(chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
+	int elapsed = static_cast<int>(chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
 	return elapsed;
 }
 void ProcessingTime::print(string message)
 {
-	cout << message << " " << end() << "ms\n";
+	printf("%s %2dms\n", message.c_str(), end());
 }
 void ProcessingTime::print(void)
 {

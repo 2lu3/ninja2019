@@ -1718,10 +1718,7 @@ int AutoStrategy::GoToDot(int x, int y)
     if (prev_now_dot_id != now_dot_id || prev_x != x || prev_y != y)
     {
         // Dijkstra();
-        ProcessingTime pt2;
-        pt2.start();
         Astar(x, y);
-        cout << "astar " << pt2.end() << endl;
     }
     prev_now_dot_id = now_dot_id;
     prev_x = x;
@@ -2338,6 +2335,8 @@ void AutoStrategy::Dijkstra(void)
 
 void AutoStrategy::Astar(int goal_x, int goal_y)
 {
+    ProcessingTime pt2;
+    pt2.start();
     LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start", MODE_DEBUG);
     // 初期化
     rep(yi, kDotHeight)
@@ -2359,8 +2358,19 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
     cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
     cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
 
+    int log_astar[kDotHeight][kDotWidth];
+    int log_pointer = 0;
+    rep(i, kDotHeight)
+    {
+        rep(j, kDotWidth)
+        {
+            log_astar[i][j] = -1;
+        }
+    }
+    int i = 0;
     while (true)
     {
+        i++;
         int investigating_dot_x = -1, investigating_dot_y = -1;
 
         rep(yi, kDotHeight)
@@ -2392,6 +2402,10 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
         }
 
         cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
+
+        log_astar[investigating_dot_y][investigating_dot_x] = log_pointer;
+        ++log_pointer;
+
         // 外に出そうな危険な範囲には行かないようにする
         int dangerous_range = 10;
         // ドット1つ分と、dangerous_range、大きい方を採用する
@@ -2413,55 +2427,54 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                         {
                             continue;
                         }
-                        int cost = kCM2DotScale * 10;
+                        int cost = kCM2DotScale;
 
                         if (x < dangerous_range || x >= kDotWidth - dangerous_range || y < dangerous_range || y >= kDotHeight - dangerous_range)
                         {
-                            cost *= 10;
+                            cost += 10 * kCM2DotScale;
                         }
-                        cost *= 3 * cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y);
-                        cost += cospaceMap.getMapArrivedTimes(x, y) * 5;
+                        // cost += kCM2DotScale * cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y);
+                        // cost += kCM2DotScale * cospaceMap.getMapArrivedTimes(x, y);
 
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
                         {
-                            cost *= 10000;
+                            cost += 100 * kCM2DotScale;
                             // continue;
                         }
                         if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
                         {
-                            cost *= 100;
+                            cost += 50 * kCM2DotScale;
                         }
-                        if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
-                        {
-                            if (Time < 60)
-                            {
-                                cost /= 10;
-                                // cost -= 100;
-                            }
-                            else
-                            {
-                                cost /= 2;
-                            }
-                        }
-                        if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-                        {
-                            LOG_MESSAGE(FUNCNAME + "(): We can get Red Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
-                            cost /= 10;
-                        }
-                        if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-                        {
-                            LOG_MESSAGE(FUNCNAME + "(): We can get Cyan Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
-                            cost /= 10;
-                        }
-                        if (cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-                        {
-                            LOG_MESSAGE(FUNCNAME + "(): We can get Black Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
-                            cost /= 10;
-                        }
+                        // if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
+                        // {
+                        //     if (Time < 60)
+                        //     {
+                        //         cost -= kCM2DotScale;
+                        //     }
+                        //     else
+                        //     {
+                        //         cost -= kCM2DotScale;
+                        //     }
+                        // }
+                        // if (cospaceMap.getMapObjInfo(x, y, RED_LOADED_ID) > 0 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
+                        // {
+                        //     LOG_MESSAGE(FUNCNAME + "(): We can get Red Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                        //     cost -= kCM2DotScale;
+                        // }
+                        // if (cospaceMap.getMapObjInfo(x, y, CYAN_LOADED_ID) > 0 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+                        // {
+                        //     LOG_MESSAGE(FUNCNAME + "(): We can get Cyan Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                        //     cost -= kCM2DotScale;
+                        // }
+                        // if (cospaceMap.getMapObjInfo(x, y, BLACK_LOADED_ID) > 0 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+                        // {
+                        //     LOG_MESSAGE(FUNCNAME + "(): We can get Black Obj here(" + to_string(x * kCM2DotScale) + ',' + to_string(y * kCM2DotScale) + ")", MODE_VERBOSE);
+                        //     cost -= kCM2DotScale;
+                        // }
                         if (cospaceMap.getMapStatus(x, y) == 0 || cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost < cospaceMap.getMapCost(x, y))
                         {
-                            cospaceMap.setMapCost(x, y, cospaceMap.getMapInfo(investigating_dot_x, investigating_dot_y) + cost);
-                            cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale);
+                            cospaceMap.setMapCost(x, y, cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y) + cost);
+                            cospaceMap.setMapTotalCost(x, y, cospaceMap.getMapCost(x, y) + TO_INT(sqrt(pow((goal_x - x) * kCM2DotScale, 2) + pow((goal_y - y) * kCM2DotScale, 2))));
                             cospaceMap.setMapFrom(x, y, investigating_dot_x, investigating_dot_y);
                             cospaceMap.setMapStatus(x, y, 1);
                             cospaceMap.setMapCurvedTimes(x, y, cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y));
@@ -2470,6 +2483,40 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
                 }
             }
         }
+    }
+    if (pt2.end() > 60)
+    {
+        rep(yi, kDotHeight)
+        {
+            rep(xj, kDotWidth)
+            {
+
+                if (goal_y == kDotHeight - yi - 1 && goal_x == xj)
+                {
+                    printf("goal");
+                }
+                else if (robot_dot_positions[1][1] == kDotHeight - yi - 1 && robot_dot_positions[1][0] == xj)
+                {
+                    printf(" go ");
+                }
+                else if (log_astar[kDotHeight - yi - 1][xj] == -1)
+                {
+                    printf("    ");
+                }
+                else
+                {
+
+                    printf("%3d ", log_astar[kDotHeight - yi - 1][xj]);
+                }
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+    else
+    {
+        cout << "astar num " << i << endl;
+        cout << "astar " << pt2.end() << endl;
     }
 
     // // 出力
