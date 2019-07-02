@@ -293,7 +293,7 @@ void AutoStrategy::loop()
 	// データの出力
 	if (getRepeatedNum() % (60 * 1000 / 60) == 0 && getRepeatedNum() != 0)
 	{
-		cout << "output!" << endl;
+		/*cout << "output!" << endl;
 		logErrorMessage.outputData("out.txt", "\n");
 		logErrorMessage.outputData("out.txt", "Start\n");
 		rep(i, 5)
@@ -311,7 +311,7 @@ void AutoStrategy::loop()
 		}
 		logErrorMessage.outputData("out.txt", "End\n");
 		logErrorMessage.outputData("out.txt", "\n");
-		cout << "output! finished" << endl;
+		cout << "output! finished" << endl;*/
 	}
 	if (SuperDuration > 0)
 	{
@@ -1049,7 +1049,7 @@ void AutoStrategy::autoSearch(float parameter)
 						if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
 						{
 							score *= 2;
-							
+
 						}
 						if (cospaceMap.getMapArrivedTimes(xj, yi) > 0) {
 							score -= cospaceMap.getMapArrivedTimes(xj, yi);
@@ -1062,7 +1062,6 @@ void AutoStrategy::autoSearch(float parameter)
 						ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
 						break;
 					case 2:
-
 						if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
 						{
 							score *= 10;
@@ -1077,13 +1076,18 @@ void AutoStrategy::autoSearch(float parameter)
 			}
 
 			int max_value = INT_MIN;
+			int base_lengh = 80;
+			if (status == 2) {
+				base_lengh = kCM2AreaScale;
+			}
 			rep(ayi, kAreaHeight)
 			{
 				rep(axj, kAreaWidth)
 				{
-					if (abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x) > max_value)
+					int value = TO_INT(sqrt(pow(abs(ayi * kCM2AreaScale - pos_y) - base_lengh, 2) + pow(abs(axj * kCM2AreaScale - pos_x) - base_lengh, 2)));
+					if (value > max_value)
 					{
-						max_value = abs(ayi * kCM2AreaScale - pos_y) + abs(axj * kCM2AreaScale - pos_x);
+						max_value = value;
 					}
 				}
 			}
@@ -1091,9 +1095,14 @@ void AutoStrategy::autoSearch(float parameter)
 			{
 				rep(axj, kAreaWidth)
 				{
-					double distance = fabs(static_cast<double>(ayi * kCM2AreaScale - pos_y)) + fabs(static_cast<double>(axj * kCM2AreaScale - pos_x));
+					double distance = TO_INT(sqrt(pow(abs(ayi * kCM2AreaScale - pos_y) - base_lengh, 2) + pow(abs(axj * kCM2AreaScale - pos_x) - base_lengh, 2)));
 					//cout << axj * kCM2AreaScale << " " << ayi * kCM2AreaScale << " score = " << score_area_map[ayi][axj] << " sigmoid " << i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) << endl;
-					score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value));
+					if (status == 2) {
+						score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) / 10;
+					}
+					else {
+						score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value));
+					}
 					if (max_score < score_area_map[ayi][axj])
 					{
 						max_score = score_area_map[ayi][axj];
@@ -1241,7 +1250,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 						}
 						if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_SWAMPLAND)
 						{
-							cost += 50 * kCM2DotScale;
+							cost += 100 * kCM2DotScale;
 						}
 						if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_UNKNOWN && LoadedObjects < 6)
 						{
