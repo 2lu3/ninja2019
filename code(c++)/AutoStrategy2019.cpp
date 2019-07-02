@@ -1024,6 +1024,14 @@ void AutoStrategy::autoSearch(float parameter)
 			int max_score = INT_MIN;
 			int max_score_x = -1;
 			int max_score_y = -1;
+			/*cout << "Arrived Times" << endl;
+			rep(yi, kDotHeight) {
+				rep(xj, kDotWidth) {
+					printf("%3d", cospaceMap.getMapArrivedTimes(xj, yi));
+				}
+				printf("\n");
+			}
+			printf("\n");*/
 			// 候補のエリアを選ぶ
 			rep(yi, kDotHeight)
 			{
@@ -1035,25 +1043,34 @@ void AutoStrategy::autoSearch(float parameter)
 					}
 
 					score = kCM2AreaScale;
-					if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
+					switch (status)
 					{
-						switch (status)
+					case 0:
+						if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
 						{
-						case 0:
 							score *= 2;
-							score -= cospaceMap.getMapArrivedTimes(xj, yi);
-
-							break;
-						case 1:
-							ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
-							break;
-						case 2:
-							score *= 10;
-							break;
-						default:
-							ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
-							break;
+							
 						}
+						if (cospaceMap.getMapArrivedTimes(xj, yi) > 0) {
+							score -= cospaceMap.getMapArrivedTimes(xj, yi);
+						}
+						if (score < 0) {
+							score = 0;
+						}
+						break;
+					case 1:
+						ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
+						break;
+					case 2:
+
+						if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
+						{
+							score *= 10;
+						}
+						break;
+					default:
+						ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
+						break;
 					}
 					score_area_map[TO_INT(yi / kDot2AreaScale)][TO_INT(xj / kDot2AreaScale)] += score;
 				}
@@ -1075,6 +1092,7 @@ void AutoStrategy::autoSearch(float parameter)
 				rep(axj, kAreaWidth)
 				{
 					double distance = fabs(static_cast<double>(ayi * kCM2AreaScale - pos_y)) + fabs(static_cast<double>(axj * kCM2AreaScale - pos_x));
+					//cout << axj * kCM2AreaScale << " " << ayi * kCM2AreaScale << " score = " << score_area_map[ayi][axj] << " sigmoid " << i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) << endl;
 					score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value));
 					if (max_score < score_area_map[ayi][axj])
 					{
@@ -1084,6 +1102,7 @@ void AutoStrategy::autoSearch(float parameter)
 					}
 				}
 			}
+			//cout << "best " << max_score_x << " " << max_score_y << endl;
 			target_x = max_score_x;
 			target_y = max_score_y;
 			LOG_MESSAGE(FUNCNAME + "(): calculated best area (" + to_string(max_score_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ", " + to_string(max_score_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2)) + ")", MODE_DEBUG);
@@ -1091,7 +1110,7 @@ void AutoStrategy::autoSearch(float parameter)
 		}
 	}
 
-	cout << "target " << target_x * kCM2DotScale << " " << target_y * kCM2DotScale << endl;
+	cout << "target " << target_x * kCM2AreaScale << " " << target_y * kCM2AreaScale << endl;
 	if (GoToDots(target_x * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), target_y * kCM2AreaScale + TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2), TO_INT(kCM2AreaScale / 2)))
 	{
 		is_changed = 1;
