@@ -783,7 +783,7 @@ GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		int max_value = 0;
 		// int max_pos[2] = {-1, -1};
 		int min_value = INT_MAX;
-		int min_pos[2] = { -1, -1 };
+		int min_pos[2] = { TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale) };
 		int cost;
 		// for (long yi = kDotHeight - 1; yi >= 0; --yi)
 		// {
@@ -1045,10 +1045,10 @@ void AutoStrategy::autoSearch(float parameter)
 
 							break;
 						case 1:
+							ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
 							break;
 						case 2:
-							score -= cospaceMap.getMapArrivedTimes(xj, yi);
-							score *= 20;
+							score *= 10;
 							break;
 						default:
 							ERROR_MESSAGE(FUNCNAME + "(): switch status value is " + to_string(status), MODE_NORMAL);
