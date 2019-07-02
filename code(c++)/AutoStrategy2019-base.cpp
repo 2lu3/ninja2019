@@ -423,15 +423,15 @@ void AutoStrategy::GoToAngle(int angle, int distance)
             motor(big_motor, short_motor);
         }
         else if (classification == 4 && angle < 0 && angle > -90)
-        { //right
+        {   //right
             //motor(short_right, 5);
-			motor(short_motor, big_motor);
+            motor(short_motor, big_motor);
         }
         else if (classification == 5 && abs(angle) > 30)
         { //left & right
             if (abs(angle) < 150)
             {
-				motor(big_motor, big_motor);
+                motor(big_motor, big_motor);
                 //motor(5, 5);
             }
             else
@@ -448,21 +448,21 @@ void AutoStrategy::GoToAngle(int angle, int distance)
             }
         }
         else if (classification == 6 && angle < 30 && angle > -90)
-        { //front & right
+        {   //front & right
             //motor((short_right < short_front) ? (short_right) : (short_right), 5);
-			motor(short_motor, big_motor);
+            motor(short_motor, big_motor);
         }
         else if (classification == 7)
         { //all
             if (angle < 0)
             {
                 //motor(5, short_front);
-				motor(big_motor, short_motor);
+                motor(big_motor, short_motor);
             }
             else
             {
                 //motor(short_front, 5);
-				motor(short_motor, big_motor);
+                motor(short_motor, big_motor);
             }
         }
         else
@@ -982,6 +982,7 @@ void AutoStrategy::saveColorInfo(void)
     }
     else if (ColorJudgeLeft(gray_zone))
     {
+        cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SWAMPLAND);
         for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
         {
             if (yi < 0 || yi >= kDotHeight)
@@ -996,8 +997,7 @@ void AutoStrategy::saveColorInfo(void)
                 }
                 if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                 {
-                    cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SWAMPLAND);
-                    cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_SWAMPLAND);
+                    cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_MAY_SWAMPLAND);
                     LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                 }
             }
@@ -1023,6 +1023,10 @@ void AutoStrategy::saveColorInfo(void)
                     continue;
                 }
 
+
+aaa
+やること
+MAP_MAY_SWAMPLANDの実装
                 cospaceMap.setMapObjInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], BLACK_LOADED_ID);
                 LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
             }
