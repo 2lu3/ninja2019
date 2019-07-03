@@ -1194,7 +1194,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		dangerous_range = kCM2DotScale;
 	}
 	dangerous_range /= kCM2DotScale;
-	while (i < 40)
+	while (i < 50)
 	{
 		i++;
 		int investigating_dot_x = -1, investigating_dot_y = -1;
@@ -1313,7 +1313,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			}
 		}
 	}
-	if(i >= 40 && getRunMode() != MODE_MATCH) {
+	if(i >= 50 && getRunMode() != MODE_MATCH) {
 		rep(yi, kDotHeight)
 		{
 			rep(xj, kDotWidth)
