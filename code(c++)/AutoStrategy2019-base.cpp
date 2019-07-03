@@ -141,8 +141,8 @@ void AutoStrategy::CheckNowDot()
 			{
 				// y * kDotWidth + x -> -1
 				ERROR_MESSAGE(FUNCNAME + "(): i = " + to_string(i) + " there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]), MODE_NORMAL);
-				y[i] = static_cast<int>(kEmergencyPosX / kCM2DotScale);
-				x[i] = static_cast<int>(kEmergencyPosY / kCM2DotScale);
+				x[i] = static_cast<int>(kEmergencyPosX / kCM2DotScale);
+				y[i] = static_cast<int>(kEmergencyPosY / kCM2DotScale);
 			}
 		}
 		robot_dot_positions[i][0] = x[i];
