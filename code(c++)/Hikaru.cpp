@@ -538,7 +538,7 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < 2)
+		if (loaded_objects[RED_LOADED_ID] < 2)
 		{
 			if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
 
