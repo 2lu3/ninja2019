@@ -611,7 +611,7 @@ void Game1_Hikaru::loop()
 		{
 			loaded_objects[i] = 0;
 		}
-		if (Duration <= 3 && SuperDuration <= 3)
+		if (Duration <= 6 && SuperDuration <= 6)
 		{
 			LED_1 = 0;
 			motor(-5, -5);
