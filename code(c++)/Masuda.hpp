@@ -30,15 +30,9 @@ public:
 private:
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
-    const static int kSize = 10;
-    const static int kDotWidthNum = kCospaceWidth / kSize;
-    const static int kDotHeightNum = kCospaceHeight / kSize;
-    const static int kMaxDotNum = kCospaceWidth * kCospaceHeight / kSize / kSize;
-    const static int kMaxEdgeNum = 25;
     const static int kBorderSameObjNum = 2;
     const static int kFindObjDuration = Game0_Masuda::kFindObjDuration;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
-    int now_dot_id;
     int emergency_x, emergency_y;
     int super_sameoperate = 0;
     int searching_object;

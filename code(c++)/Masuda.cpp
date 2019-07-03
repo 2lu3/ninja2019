@@ -1,7 +1,17 @@
 /*
-todo : 回転するときに、カラーセンサが沼地に入ってしまう問題を解決
-オドメトリを用いて、PLAでTrapに入る問題を解決
-360 x 270にすること
+todo:
+JudgeColorTools.cppの色のデータの確認
+特に、収集箱と罠は必ず確認すること
+
+todo:
+LOG_MESSAGE、ERROR_MESSAGEはC:\Microsoft Robotics Dev Studio 4の下にできる
+
+todo:
+main.cppで、Game1_Masuda game1;がコメントアウトされていないかを確認する
+
+todo:
+マップの図を書いて、どのような移動経路にするのかを決める
+必ず、目的地を丸として、丸同士をつなぐ経路を矢印で示し、各目的地のprocessの番号と、座標を
 */
 #include "Masuda.hpp"
 #include <iostream>
@@ -563,39 +573,30 @@ long Game1_Masuda::WhereIsMotor(void)
 }
 long Game1_Masuda::WhereIsColorSensor(void)
 {
-	//fprintf(logfile, "%4d Start WhereIsColorSensor()\n", getRepeatedNum());
 	long x, y;
 	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
 	{
-		//fprintf(errfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-		//fprintf(logfile, "%4d WhereIsColorSensor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
 		log_x = kCospaceWidth / 2;
 		log_y = kCospaceHeight / 2;
 	}
 	x = log_x + static_cast<long>(cos((Compass + 90) * 3.14 / 180) * 5);
 	y = log_y + static_cast<long>(sin((Compass + 90) * 3.14 / 180) * 5);
-	//fprintf(logfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 	if (x < 0)
 	{
-		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 		x = 0;
 	}
 	if (y < 0)
 	{
-		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 		y = 0;
 	}
 	if (x >= kCospaceWidth)
 	{
-		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 		x = kCospaceWidth - 1;
 	}
 	if (y >= kCospaceHeight)
 	{
-		//fprintf(errfile, "%4d WhereIsColorSensor() (x, y) = (%ld, %ld)\n", getRepeatedNum(), x, y);
 		y = kCospaceHeight - 1;
 	}
-	//fprintf(logfile, "%4d End WhereIsColorSensor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
 	return y * 1000 + x;
 }
 
