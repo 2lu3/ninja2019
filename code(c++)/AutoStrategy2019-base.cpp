@@ -217,7 +217,7 @@ long AutoStrategy::WhereIsColorSensor(void)
 int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived)
 {
 	//fprintf(logfile, " %d Start GoToPosition(%d, %d, %d, %d, %d)\n", getRepeatedNum(), x, y, wide_decide_x, wide_decide_y, wide_judge_arrived);
-
+	LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + ", " + to_string(y) + ", " + to_string(wide_decide_x) + ", " + to_string(wide_decide_y) + ", " + to_string(wide_judge_arrived) + "): start", MODE_DEBUG);
 	static int absolute_x = -1;
 	static int absolute_y = -1;
 	static int absolute_distance = -1;
@@ -246,12 +246,12 @@ int AutoStrategy::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 		int i = 0;
 		do
 		{
-			if (i > 5)
+			if (i > 30)
 			{
 				absolute_x = x;
 				absolute_y = y;
 
-				ERROR_MESSAGE("warming GoToPosition(): absolute_x, absolute_yが決まりません\n", MODE_NORMAL);
+				ERROR_MESSAGE("warming GoToPosition(): absolute_x, absolute_yが決まりません; (" + to_string(x) + ", " + to_string(y) + ", " + to_string(wide_decide_x) + ", " + to_string(wide_decide_y) + ", " + to_string(wide_judge_arrived) + ")", MODE_NORMAL);
 				break;
 			}
 			absolute_x = x - wide_decide_x + (rand() + 1) % (wide_decide_x * 2 + 1);
