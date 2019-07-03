@@ -540,7 +540,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		return 1;
 	}
 	if (PLUSMINUS(pos_x, x * kCM2DotScale, 5) && PLUSMINUS(pos_y, y * kCM2DotScale, 5)) {
-		LOG_MESSAGE(FUNCNAME + "(): Arrived!");
+		LOG_MESSAGE(FUNCNAME + "(): Arrived!", MODE_NORMAL);
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
