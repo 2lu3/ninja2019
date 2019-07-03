@@ -1151,40 +1151,51 @@ void AutoStrategy::autoSearch(float parameter)
 
 void AutoStrategy::Astar(int goal_x, int goal_y)
 {
+	static int is_not_finished= 0;
+	static int log_astar[kDotHeight][kDotWidth];
+	static int log_pointer = 0;
+	static int loop_times = 0;
 	ProcessingTime pt2;
 	pt2.start();
-	LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start", MODE_DEBUG);
-	// 初期化
-	rep(yi, kDotHeight)
-	{
-		rep(xj, kDotWidth)
+	if (!is_not_finished) {
+		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with init", MODE_DEBUG);
+		// 初期化
+		rep(yi, kDotHeight)
 		{
-			cospaceMap.setMapFrom(xj, yi, -1, -1);
-			cospaceMap.setMapStatus(xj, yi, 0);
+			rep(xj, kDotWidth)
+			{
+				cospaceMap.setMapFrom(xj, yi, -1, -1);
+				cospaceMap.setMapStatus(xj, yi, 0);
+			}
+		}
+		if (robot_dot_positions[1][0] < 0 || robot_dot_positions[1][0] >= kDotWidth || robot_dot_positions[1][1] < 0 || robot_dot_positions[1][1] >= kDotHeight)
+		{
+			ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
+		}
+
+		cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+		cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
+		cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
+		cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+		log_pointer = 0;
+		loop_times = 0;
+		rep(i, kDotHeight)
+		{
+			rep(j, kDotWidth)
+			{
+				log_astar[i][j] = -1;
+			}
 		}
 	}
+	else {
+		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with no-init " + to_string(is_not_finished), MODE_DEBUG);
 
-	if (robot_dot_positions[1][0] < 0 || robot_dot_positions[1][0] >= kDotWidth || robot_dot_positions[1][1] < 0 || robot_dot_positions[1][1] >= kDotHeight)
-	{
-		ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
 	}
 
-	cospaceMap.setMapCost(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
-	cospaceMap.setMapFrom(robot_dot_positions[1][0], robot_dot_positions[1][1], robot_dot_positions[1][0], robot_dot_positions[1][1]);
-	cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
-	cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
+	
 
-	int log_astar[kDotHeight][kDotWidth];
-	int log_pointer = 0;
-	rep(i, kDotHeight)
-	{
-		rep(j, kDotWidth)
-		{
-			log_astar[i][j] = -1;
-		}
-	}
-	cout << FUNCNAME << "(): init finished " << pt2.end() << endl;
-	int i = 0;
+	
+	
 	// 外に出そうな危険な範囲には行かないようにする
 	int dangerous_range = 10;
 	// ドット1つ分と、dangerous_range、大きい方を採用する
@@ -1194,9 +1205,9 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		dangerous_range = kCM2DotScale;
 	}
 	dangerous_range /= kCM2DotScale;
-	while (i < 50)
+	while (loop_times < (is_not_finished+ 1) * 50)
 	{
-		i++;
+		loop_times++;
 		int investigating_dot_x = -1, investigating_dot_y = -1;
 
 		rep(yi, kDotHeight)
@@ -1313,7 +1324,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			}
 		}
 	}
-	if(i >= 50 && getRunMode() != MODE_MATCH) {
+	if (getRepeatedNum() % 10 == 0) {
 		rep(yi, kDotHeight)
 		{
 			rep(xj, kDotWidth)
@@ -1342,8 +1353,20 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		printf("\n");
 	}
 	
-	LOG_MESSAGE(FUNCNAME + "(): while num " + to_string(i), MODE_DEBUG);
-	cout << "astar num " << i << endl;
+	// goalに到着したとき
+	int goal[2];
+	cospaceMap.getMapFrom(goal_x, goal_y, &goal[0], &goal[1]);
+	if (goal[0] != -1)
+	{
+		is_not_finished= 1;
+		return;
+	}
+	else {
+		++is_not_finished;
+	}
+
+	LOG_MESSAGE(FUNCNAME + "(): while num " + to_string(loop_times), MODE_DEBUG);
+	cout << "astar num " << loop_times << endl;
 	cout << "astar " << pt2.end() << endl;
 
 	// // 出力
