@@ -20,11 +20,14 @@ private:
     const static int kCM2DotScale = 10;
     const static int kDotWidth = kCospaceWidth / kCM2DotScale;
     const static int kDotHeight = kCospaceHeight / kCM2DotScale;
-    const static int kUSLimit = 186;
+	/*const static int kCM2SecureAreaScale = 30;
+	const static int kSecureAreaWidth = kCospaceWidth / kCM2SecureAreaScale;
+	const static int kSecureAreaHeight = kCospaceHeight / kCM2SecureAreaScale;*/
     const static int kCM2AreaScale = 30;
     const static int kDot2AreaScale = kCM2AreaScale / kCM2DotScale;
     const static int kAreaWidth = kCospaceWidth / kCM2AreaScale;
     const static int kAreaHeight = kCospaceHeight / kCM2AreaScale;
+	const static int kUSLimit = 186;
 
     const int kBorderSameObjNum = 2;
     const int kFindObjDuration = 45;
@@ -53,13 +56,13 @@ private:
         {
             MAP_FAILURE = -1000,
             MAP_SUCCESS = -1001,
-            MAP_YELLOW,    // カラーセンサーの値によって決まる
-            MAP_SWAMPLAND, // カラーセンサーの値によって決まる
-            MAP_UNKNOWN, // 不明な場合
-            MAP_WALL,
-            MAP_WHITE,      // カラーセンサーの値によって決まる
-            MAP_DEPOSIT,    // カラーセンサーの値によって決まる
-            MAP_SUPER_AREA, // カラーセンサーの値によって決まる
+            MAP_YELLOW = 0,    // カラーセンサーの値によって決まる
+            MAP_SWAMPLAND = 1, // カラーセンサーの値によって決まる
+            MAP_UNKNOWN = 2, // 不明な場合
+            MAP_WALL = 3,
+            MAP_WHITE = 4,      // カラーセンサーの値によって決まる
+            MAP_DEPOSIT = 5,    // カラーセンサーの値によって決まる
+            MAP_SUPER_AREA = 6, // カラーセンサーの値によって決まる
         };
         inline int setMapInfo(int x, int y, MapInfo info)
         {
@@ -123,7 +126,6 @@ private:
             }
             return kSuccess;
         }
-
         inline int addMapInfo(int x, int y, MapInfo info)
         {
             return setMapInfo(x, y, info, 1);
@@ -420,6 +422,7 @@ private:
         int map_total_cost[kDotHeight][kDotWidth];
         int map_status[kDotHeight][kDotWidth];
         int map_curved_times[kDotHeight][kDotWidth];
+		//int map_secure[7][kSecureAreaHeight][kSecureAreaWidth];
     };
     CospaceMap cospaceMap;
 
