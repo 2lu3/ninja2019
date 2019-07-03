@@ -524,7 +524,7 @@ void AutoStrategy::loop()
 		break;
 	}
 
-	pt.print("AutoStrategy loop time :");
+	pt.print("AS time :");
 }
 
 int AutoStrategy::GoToDot(int x, int y)

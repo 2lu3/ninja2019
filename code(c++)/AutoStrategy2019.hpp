@@ -120,7 +120,6 @@ private:
             }
             else
             {
-
                 map[0][y][x] = info;
             }
             return kSuccess;

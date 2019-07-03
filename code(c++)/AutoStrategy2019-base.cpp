@@ -16,6 +16,7 @@ using std::to_string;
 
 AutoStrategy::~AutoStrategy()
 {
+	
 }
 
 AutoStrategy::AutoStrategy()
@@ -27,6 +28,11 @@ AutoStrategy::AutoStrategy()
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(false);
+	rep(yi, kDotHeight) {
+		rep(xj, kDotWidth) {
+			cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_UNKNOWN);
+		}
+	}
 
     pt.print("AutoStrategy::AutoStrategy() :");
 }
