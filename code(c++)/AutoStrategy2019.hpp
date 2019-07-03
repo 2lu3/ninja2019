@@ -55,7 +55,6 @@ private:
             MAP_SUCCESS = -1001,
             MAP_YELLOW,    // カラーセンサーの値によって決まる
             MAP_SWAMPLAND, // カラーセンサーの値によって決まる
-            MAP_MAY_SWAMPLAND,
             MAP_UNKNOWN, // 不明な場合
             MAP_WALL,
             MAP_WHITE,      // カラーセンサーの値によって決まる
@@ -80,7 +79,7 @@ private:
             {
                 map[map_wall_index][y][x] = times;
             }
-            else if (info == MAP_WHITE && map[0][y][x] != MAP_UNKNOWN)
+            else if (info == MAP_WHITE && (map[0][y][x] != MAP_UNKNOWN && map[0][y][x] != MAP_SWAMPLAND))
             {
                 return kFailure;
             }
