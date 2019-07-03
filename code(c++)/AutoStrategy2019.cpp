@@ -736,7 +736,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		cout << "out map" << endl;
 		ProcessingTime pt2;
 		pt2.start();
-		FILE *fp = fopen("map_out.txt", "w");
+		FILE* fp = fopen("map_out.txt", "w");
 		if (fp == NULL)
 		{
 			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
@@ -776,7 +776,7 @@ int AutoStrategy::GoToDot(int x, int y)
 }
 
 int AutoStrategy::
-	GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
 
@@ -793,7 +793,7 @@ int AutoStrategy::
 		int max_value = 0;
 		// int max_pos[2] = {-1, -1};
 		int min_value = INT_MAX;
-		int min_pos[2] = {TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale)};
+		int min_pos[2] = { TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale) };
 		int cost;
 		// for (long yi = kDotHeight - 1; yi >= 0; --yi)
 		// {
@@ -991,7 +991,7 @@ void AutoStrategy::autoSearch(float parameter)
 			is_changed = 1;
 		}
 	}
-	
+
 
 	if (is_changed)
 	{
@@ -1174,15 +1174,15 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 	cospaceMap.setMapStatus(robot_dot_positions[1][0], robot_dot_positions[1][1], 1);
 	cospaceMap.setMapCurvedTimes(robot_dot_positions[1][0], robot_dot_positions[1][1], 0);
 
-	//int log_astar[kDotHeight][kDotWidth];
-	/*int log_pointer = 0;
+	int log_astar[kDotHeight][kDotWidth];
+	int log_pointer = 0;
 	rep(i, kDotHeight)
 	{
 		rep(j, kDotWidth)
 		{
 			log_astar[i][j] = -1;
 		}
-	}*/
+	}
 	cout << FUNCNAME << "(): init finished " << pt2.end() << endl;
 	int i = 0;
 	// 外に出そうな危険な範囲には行かないようにする
@@ -1211,7 +1211,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 					investigating_dot_x == -1 ||
 					cospaceMap.getMapTotalCost(xj, yi) < cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) ||
 					(cospaceMap.getMapTotalCost(xj, yi) == cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) &&
-					 cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
+						cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
 				{
 					investigating_dot_x = xj;
 					investigating_dot_y = yi;
@@ -1235,8 +1235,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 
 		cospaceMap.setMapStatus(investigating_dot_x, investigating_dot_y, 2);
 
-		//log_astar[investigating_dot_y][investigating_dot_x] = log_pointer;
-		//++log_pointer;
+		log_astar[investigating_dot_y][investigating_dot_x] = log_pointer;
+		++log_pointer;
 
 		for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
 		{
@@ -1313,32 +1313,35 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			}
 		}
 	}
-	// rep(yi, kDotHeight)
-	// {
-	//     rep(xj, kDotWidth)
-	//     {
+	if(i >= 40 && getRunMode() != MODE_MATCH) {
+		rep(yi, kDotHeight)
+		{
+			rep(xj, kDotWidth)
+			{
 
-	//         if (goal_y == kDotHeight - yi - 1 && goal_x == xj)
-	//         {
-	//             printf("goal");
-	//         }
-	//         else if (robot_dot_positions[1][1] == kDotHeight - yi - 1 && robot_dot_positions[1][0] == xj)
-	//         {
-	//             printf(" go ");
-	//         }
-	//         else if (log_astar[kDotHeight - yi - 1][xj] == -1)
-	//         {
-	//             printf("    ");
-	//         }
-	//         else
-	//         {
+				if (goal_y == kDotHeight - yi - 1 && goal_x == xj)
+				{
+					printf("goal");
+				}
+				else if (robot_dot_positions[1][1] == kDotHeight - yi - 1 && robot_dot_positions[1][0] == xj)
+				{
+					printf(" go ");
+				}
+				else if (log_astar[kDotHeight - yi - 1][xj] == -1)
+				{
+					printf("    ");
+				}
+				else
+				{
 
-	//             printf("%3d ", log_astar[kDotHeight - yi - 1][xj]);
-	//         }
-	//     }
-	//     printf("\n");
-	// }
-	// printf("\n");
+					printf("%3d ", log_astar[kDotHeight - yi - 1][xj]);
+				}
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
+	
 	LOG_MESSAGE(FUNCNAME + "(): while num " + to_string(i), MODE_DEBUG);
 	cout << "astar num " << i << endl;
 	cout << "astar " << pt2.end() << endl;
