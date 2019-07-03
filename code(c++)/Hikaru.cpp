@@ -420,18 +420,39 @@ void Game1_Hikaru::loop()
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
+		total_loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
+		if (log_x < 180) {
+			area_objects_num[RED_LOADED_ID][0]--;
+		}
+		else {
+			area_objects_num[RED_LOADED_ID][1]--;
+		}
 	}
 	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
+		total_loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
+		if (log_x < 180) {
+			area_objects_num[CYAN_LOADED_ID][1]--;
+		}
+		else {
+			area_objects_num[CYAN_LOADED_ID][0]--;
+		}
 	}
 	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
+		total_loaded_objects[BLACK_LOADED_ID]++;
+		if (log_x < 180) {
+			area_objects_num[BLACK_LOADED_ID][0]--;
+		}
+		else {
+			area_objects_num[BLACK_LOADED_ID][1]--;
+		}
 		SuperDuration = kFindObjDuration;
 	}
 	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
@@ -458,7 +479,7 @@ void Game1_Hikaru::loop()
 				log_superobj_x[i] = log_superobj_x[i - 1];
 				log_superobj_y[i] = log_superobj_y[i - 1];
 			}
-			loaded_objects[3]++;
+			loaded_objects[SUPER_LOADED_ID]++;
 			log_superobj_num--;
 		}
 		else
@@ -519,21 +540,46 @@ void Game1_Hikaru::loop()
 	{
 		if (loaded_objects[BLACK_LOADED_ID] < 2)
 		{
-			GoToDots(280, 230, 80, 40);
-			searching_object = BLACK_LOADED_ID;
-		}
-		else if (loaded_objects[CYAN_LOADED_ID] < 2)
-		{
-			GoToDots(110, 230, 110, 40);
-			searching_object = CYAN_LOADED_ID;
-		}
-		else
-		{
-			GoToDots(180, 80, 180, 80);
+			if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
+
+				//左上
+				GoToDots(120, 195, 30, 25);
+			}
+			else {
+				//右下
+				GoToDots(245, 80, 35, 30);
+			}
 			searching_object = RED_LOADED_ID;
 		}
+
+		else if (loaded_objects[CYAN_LOADED_ID] < 2)
+		{
+			if ((log_x < 180 && area_objects_num[CYAN_LOADED_ID][1] > 0) || (log_x >= 180 && area_objects_num[CYAN_LOADED_ID][0] <= 0)) {
+				//左上
+				GoToDots(40, 255, 35, 5);
+			}
+			else {
+				//右上
+				GoToDots(340, 220, 5, 70);
+			}
+			searching_object = CYAN_LOADED_ID;
+		}
+		else 
+		{
+			if ((log_x < 180 && area_objects_num[BLACK_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[BLACK_LOADED_ID][1] <= 0)) {
+				//左下
+				GoToDots(25, 55, 15, 45);
+			}
+			else
+			{
+				//右下
+				GoToDots(305, 15, 35, 5);
+			}
+			searching_object = BLACK_LOADED_ID;
+		}
+
 	}
-	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(RED_LOADED_ID) << endl;
+	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(loaded_objects[RED_LOADED_ID]) << endl;
 
 	switch (static_cast<int>(getAction()))
 	{
@@ -565,21 +611,23 @@ void Game1_Hikaru::loop()
 		{
 			loaded_objects[i] = 0;
 		}
-		if (Duration == 0 && SuperDuration == 0)
+		if (Duration <= 3 && SuperDuration <= 3)
 		{
 			LED_1 = 0;
+			motor(-5, -5);
 		}
 		else
 		{
-			if (!(IsOnDepositArea() == 3))
+			if (IsOnDepositArea() != 3)
 			{
 				LoadedObjects = 6;
 				Duration = 0;
 				SuperDuration = 0;
-				for (int i = 0; i < 3; i++)
+				for (int i = 1; i < 4; i++)
 				{
 					loaded_objects[i] = 2;
 				}
+				setAction(DEFINED);
 			}
 		}
 		break;
@@ -969,7 +1017,7 @@ void Game1_Hikaru::InputDotInformation(void)
 	{
 		for (int xj = 0; xj < kDotWidthNum; ++xj)
 		{
-			switch (map_position_color_data[yi][xj])
+			switch (map_position_color_data[xj][yi])
 			{
 			case POINT_WHITE:
 				printf(" ");
@@ -1784,8 +1832,8 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 int Game1_Hikaru::HowManyCurved(int id)
 {
 	/*
-    道の長さ * 10 + 曲がった回数 * 20 + (Object < 6 のとき) Objectのとれる試算
-    */
+	道の長さ * 10 + 曲がった回数 * 20 + (Object < 6 のとき) Objectのとれる試算
+	*/
 	int route[kMaxDotNum];
 	//曲がった回数
 	int curved_times = 0;
@@ -1888,7 +1936,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(10, 12, 10);
+	int classification = obstacle(5, 5, 5);
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
@@ -1904,7 +1952,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	switch (classification)
 	{
 	case 0:
-		classification = obstacle(30, 40, 30);
+		classification = obstacle(20, 20, 20);
 		if (log_superobj_num > 0)
 		{
 			classification = obstacle(15, 20, 15);

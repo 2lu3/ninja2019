@@ -46,6 +46,9 @@ private:
     int same_target_num = 5;
     int same_target = 0;
     int log_x = -1, log_y = -1;
+	int total_loaded_objects[5];
+	int area_objects_num[4][2] = { {0, 0}, {9, 9}, {6, 3}, {8, 3} };
+	
 
     int large_process = -1;
     int process = 0;
