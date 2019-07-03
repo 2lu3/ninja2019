@@ -539,6 +539,11 @@ int AutoStrategy::GoToDot(int x, int y)
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
+	if (PLUSMINUS(pos_x, x * kCM2DotScale, 5) && PLUSMINUS(pos_y, y * kCM2DotScale, 5)) {
+		LOG_MESSAGE(FUNCNAME + "(): Arrived!");
+		GoToPosition(x, y, 10, 10, 5);
+		return 1;
+	}
 	char map_data_to_show[kDotWidth * kDotHeight];
 	rep(yi, kDotHeight)
 	{
