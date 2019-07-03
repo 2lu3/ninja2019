@@ -38,6 +38,8 @@ private:
     int searching_object;
     int prev_repeated_num;
 
+    std::random_device rnd;
+
     int kEmergencyPosX = 180;
     int kEmergencyPosY = 135;
 
@@ -82,6 +84,10 @@ private:
             {
                 return kFailure;
             }
+            else if (info == MAP_SWAMPLAND && map[0][y][x] != MAP_UNKNOWN)
+            {
+                return kFailure;
+            }
             else
             {
                 // if(map[0][y][x] == MAP_UNKNOWN) {
@@ -90,6 +96,31 @@ private:
                 // else {
                 //     map[0][y][x] = info;
                 // }
+                map[0][y][x] = info;
+            }
+            return kSuccess;
+        }
+        inline int setMapInfoForce(int x, int y, MapInfo info)
+        {
+            return setMapInfoForce(x, y, info, 1);
+        }
+        inline int setMapInfoForce(int x, int y, MapInfo info, int times)
+        {
+            if (x < 0 || x >= kDotWidth || y < 0 || y >= kDotHeight)
+            {
+                if (MODE_NORMAL <= getRunMode())
+                {
+                    logErrorMessage.errorMessage(FUNCNAME + " Failed; (x, y)=(" + std::to_string(x) + ", " + std::to_string(y) + ")", MODE_NORMAL);
+                }
+                return kFailure;
+            }
+            if (info == MAP_WALL)
+            {
+                map[map_wall_index][y][x] = times;
+            }
+            else
+            {
+
                 map[0][y][x] = info;
             }
             return kSuccess;

@@ -21,9 +21,9 @@ AutoStrategy::~AutoStrategy()
 AutoStrategy::AutoStrategy()
 {
     pt.start();
-    setRunMode(MODE_NORMAL);
+    // setRunMode(MODE_NORMAL);
     //setRunMode(MODE_DEBUG);
-    // setRunMode(MODE_VERBOSE);
+    setRunMode(MODE_VERBOSE);
     setDefaultRunMode(MODE_NORMAL);
     setIsOutputLogMessage2Console(false);
     setIsOutputErrorMessage2Console(false);
@@ -371,7 +371,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
     // int distance_from_wall = 30;
     int big_motor = 5;
     int short_motor = 3;
-    if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale))
+    if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale) || isNearTheFloor(cospaceMap.MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale))
     {
         big_motor = 4;
         short_motor = 2;
@@ -423,7 +423,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
             motor(big_motor, short_motor);
         }
         else if (classification == 4 && angle < 0 && angle > -90)
-        {   //right
+        { //right
             //motor(short_right, 5);
             motor(short_motor, big_motor);
         }
@@ -448,7 +448,7 @@ void AutoStrategy::GoToAngle(int angle, int distance)
             }
         }
         else if (classification == 6 && angle < 30 && angle > -90)
-        {   //front & right
+        { //front & right
             //motor((short_right < short_front) ? (short_right) : (short_right), 5);
             motor(short_motor, big_motor);
         }
@@ -982,7 +982,7 @@ void AutoStrategy::saveColorInfo(void)
     }
     else if (ColorJudgeLeft(gray_zone))
     {
-        cospaceMap.setMapInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SWAMPLAND);
+        cospaceMap.setMapInfoForce(robot_dot_positions[0][0], robot_dot_positions[0][1], cospaceMap.MAP_SWAMPLAND);
         for (int yi = robot_dot_positions[0][1] - TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); yi <= robot_dot_positions[0][1] + TO_INT(cospaceMap.kGuessedMapSize / kCM2DotScale); ++yi)
         {
             if (yi < 0 || yi >= kDotHeight)
@@ -997,7 +997,7 @@ void AutoStrategy::saveColorInfo(void)
                 }
                 if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                 {
-                    cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_MAY_SWAMPLAND);
+                    cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_SWAMPLAND);
                     LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                 }
             }
@@ -1022,11 +1022,6 @@ void AutoStrategy::saveColorInfo(void)
                 {
                     continue;
                 }
-
-
-aaa
-やること
-MAP_MAY_SWAMPLANDの実装
                 cospaceMap.setMapObjInfo(robot_dot_positions[0][0], robot_dot_positions[0][1], BLACK_LOADED_ID);
                 LOG_MESSAGE("black obj " + to_string(robot_dot_positions[0][0]) + " " + to_string(robot_dot_positions[0][1]), MODE_VERBOSE);
             }
@@ -1107,7 +1102,7 @@ MAP_MAY_SWAMPLANDの実装
                 }
                 if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
                 {
-                    cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_SWAMPLAND);
+                    cospaceMap.setMapInfoForce(xj, yi, cospaceMap.MAP_SWAMPLAND);
                     LOG_MESSAGE("swampland " + to_string(xj) + " " + to_string(yi), MODE_VERBOSE);
                 }
             }
