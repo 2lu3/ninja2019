@@ -1362,7 +1362,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 			GoToAngle(315, distance);
 		}
 	}
-	return 1;
+	return 0;
 }
 
 int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
@@ -2004,7 +2004,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				}
 				Duration = 5;
 			}
-			else if (IsNearYellow(2, -1, -1))
+			else if (IsNearYellow(2, -1, -1) && LoadedObjects < 6)
 			{
 				printf("near yellow\n");
 				if (abs(angle) < 10)

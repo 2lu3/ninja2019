@@ -60,7 +60,7 @@ class ProcessingTime
 {
 public:
 	void start(void);
-	double end(void);
+	int end(void);
 	void print(std::string message);
 	void print();
 
