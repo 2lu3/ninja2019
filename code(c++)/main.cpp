@@ -1,8 +1,8 @@
 ﻿#include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
 #include "Hikaru.hpp"
-// #include "Masuda.hpp"
-#include "AutoStrategy2019.hpp"
+#include "Masuda.hpp"
+// #include "AutoStrategy2019.hpp"
 #include <bits/stdc++.h>
 
 // sprintfのエラーを無視するため
@@ -30,29 +30,30 @@
 
 using namespace std;
 
-Game0_Hikaru game0;
+// Game0_Hikaru game0;
 // Game0_Masuda game0;
 // Game1_Nishikawa game1;
-Game1_Hikaru game1;
+// Game1_Hikaru game1;
+Game1_Masuda game1;
 // AutoStrategy game1;
 
 int triger = 0;
 
 void Game0()
 {
-	if (getRepeatedNum() == 0)
-	{
-		game0.setup();
-	}
+	// if (getRepeatedNum() == 0)
+	// {
+	// 	game0.setup();
+	// }
 
-	if (game0.shouldTeleport())
-	{
-		game0.taskOnTeleport();
-	}
-	else
-	{
-		game0.loop();
-	}
+	// if (game0.shouldTeleport())
+	// {
+	// 	game0.taskOnTeleport();
+	// }
+	// else
+	// {
+	// 	game0.loop();
+	// }
 }
 
 void Game1()
