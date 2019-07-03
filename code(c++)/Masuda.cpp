@@ -25,16 +25,6 @@ todo:
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
 	IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
-#define POINT_BLACK 20
-#define POINT_RED 10
-#define POINT_CYAN 15
-#define POINT_SUPERAREA 2
-#define POINT_WHITE 1
-#define POINT_DEPOSIT 0
-#define POINT_SWAMPLAND -1
-#define POINT_WALL -2
-#define POINT_YELLOW -3
-
 #define FUNC_NAME getFuncName(__FUNCTION__)
 
 using namespace std;
@@ -467,7 +457,21 @@ void Game1_Masuda::loop()
 		分岐をする方法
 		if (GoToPosition(275, 45, 5, 5, 5))
 		{
-			process++;
+			if(loaded_objects[0] < kBorderSameObjNum) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
+		}
+		if (GoToPosition(275, 45, 5, 5, 5))
+		{
+			if(rnd() % 100) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
 		}
 
 		 */
