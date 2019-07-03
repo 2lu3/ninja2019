@@ -11,7 +11,10 @@ main.cppで、Game1_Masuda game1;がコメントアウトされていないか�
 
 todo:
 マップの図を書いて、どのような移動経路にするのかを決める
-必ず、目的地を丸として、丸同士をつなぐ経路を矢印で示し、各目的地のprocessの番号と、座標を
+必ず、目的地を丸として、丸同士をつなぐ経路を矢印で示し、各目的地のprocessの番号と、座標を記入すること
+頭の中で補完すると、必ずバグが生じる
+
+
 */
 #include "Masuda.hpp"
 #include <iostream>
@@ -459,6 +462,15 @@ void Game1_Masuda::loop()
 	}
 	else
 	{
+		/*
+		todo:
+		分岐をする方法
+		if (GoToPosition(275, 45, 5, 5, 5))
+		{
+			process++;
+		}
+
+		 */
 		if (process == 0)
 		{
 			if (GoToPosition(275, 45, 5, 5, 5))
