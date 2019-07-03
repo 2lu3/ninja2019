@@ -536,12 +536,12 @@ int AutoStrategy::GoToDot(int x, int y)
 	if (PositionX == -1 && (PLUSMINUS(pos_x, x * kCM2DotScale, (20 < kCM2DotScale ? kCM2DotScale : 20)) && PLUSMINUS(pos_y, y * kCM2DotScale, (20 < kCM2DotScale ? kCM2DotScale : 20))))
 	{
 		LOG_MESSAGE(FUNCNAME + "() end returning 1 because I am in PLA and it's near target(" + to_string(x) + ", " + to_string(y) + ")", MODE_NORMAL);
-		GoToPosition(x, y, 10, 10, 5);
+		GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 10, 10, 5);
 		return 1;
 	}
 	if (PLUSMINUS(pos_x, x * kCM2DotScale, kCM2DotScale) && PLUSMINUS(pos_y, y * kCM2DotScale, kCM2DotScale)) {
 		LOG_MESSAGE(FUNCNAME + "(): Arrived!", MODE_NORMAL);
-		GoToPosition(x, y, 10, 10, 5);
+		GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 10, 10, 5);
 		return 1;
 	}
 	char map_data_to_show[kDotWidth * kDotHeight];
