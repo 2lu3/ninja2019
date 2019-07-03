@@ -46,9 +46,9 @@ void AutoStrategy::loop()
 	{
 		PositionX = -1;
 		int range = 2;
-		for (int wi = 0; wi < range * 2; wi++)
+		for (int wi = 0; wi <= range * 2; ++wi)
 		{
-			for (int hj = 0; hj < range * 2; hj++)
+			for (int hj = 0; hj <= range * 2; ++hj)
 			{
 				int x = pos_x / kCM2DotScale + wi - range;
 				int y = pos_y / kCM2DotScale + hj - range;
@@ -980,9 +980,9 @@ void AutoStrategy::autoSearch(float parameter)
 		is_changed = 1;
 		status = 0;
 	}
-	if (0 <= target_x && target_x <= kAreaWidth && 0 <= target_y && target_y << kAreaHeight) {
+	if (0 <= target_x && target_x < kAreaWidth && 0 <= target_y && target_y < kAreaHeight) {
 		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW
-			|| cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_SWAMPLAND) {
+			|| cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_WALL) {
 			is_changed = 1;
 		}
 	}
