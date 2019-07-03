@@ -530,7 +530,7 @@ void AutoStrategy::loop()
 int AutoStrategy::GoToDot(int x, int y)
 {
 	static int prev_x = -1, prev_y = -1, prev_now_dot_id = -1;
-	static int saved_x = -1, saved_y = -1;
+	// static int saved_x = -1, saved_y = -1;
 
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "): start", MODE_DEBUG);
 
@@ -540,7 +540,8 @@ int AutoStrategy::GoToDot(int x, int y)
 		GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 10, 10, 5);
 		return 1;
 	}
-	if (PLUSMINUS(pos_x, x * kCM2DotScale, kCM2DotScale) && PLUSMINUS(pos_y, y * kCM2DotScale, kCM2DotScale)) {
+	if (PLUSMINUS(pos_x, x * kCM2DotScale, kCM2DotScale) && PLUSMINUS(pos_y, y * kCM2DotScale, kCM2DotScale))
+	{
 		LOG_MESSAGE(FUNCNAME + "(): Arrived!", MODE_NORMAL);
 		GoToPosition(x * kCM2DotScale, y * kCM2DotScale, 10, 10, 5);
 		return 1;
@@ -737,7 +738,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		cout << "out map" << endl;
 		ProcessingTime pt2;
 		pt2.start();
-		FILE* fp = fopen("map_out.txt", "w");
+		FILE *fp = fopen("map_out.txt", "w");
 		if (fp == NULL)
 		{
 			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
@@ -777,7 +778,7 @@ int AutoStrategy::GoToDot(int x, int y)
 }
 
 int AutoStrategy::
-GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+	GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
 
@@ -794,7 +795,7 @@ GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		int max_value = 0;
 		// int max_pos[2] = {-1, -1};
 		int min_value = INT_MAX;
-		int min_pos[2] = { TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale) };
+		int min_pos[2] = {TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale)};
 		int cost;
 		// for (long yi = kDotHeight - 1; yi >= 0; --yi)
 		// {
@@ -986,13 +987,13 @@ void AutoStrategy::autoSearch(float parameter)
 		is_changed = 1;
 		status = 0;
 	}
-	if (0 <= target_x && target_x < kAreaWidth && 0 <= target_y && target_y < kAreaHeight) {
-		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW
-			|| cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_WALL) {
+	if (0 <= target_x && target_x < kAreaWidth && 0 <= target_y && target_y < kAreaHeight)
+	{
+		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_WALL)
+		{
 			is_changed = 1;
 		}
 	}
-
 
 	if (is_changed)
 	{
@@ -1152,13 +1153,14 @@ void AutoStrategy::autoSearch(float parameter)
 
 void AutoStrategy::Astar(int goal_x, int goal_y)
 {
-	static int is_not_finished= 0;
+	static int is_not_finished = 0;
 	static int log_astar[kDotHeight][kDotWidth];
 	static int log_pointer = 0;
 	static int loop_times = 0;
 	ProcessingTime pt2;
 	pt2.start();
-	if (!is_not_finished) {
+	if (!is_not_finished)
+	{
 		cout << "Astar start with init" << endl;
 		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with init", MODE_DEBUG);
 		// 初期化
@@ -1189,15 +1191,11 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			}
 		}
 	}
-	else {
+	else
+	{
 		cout << "Astar start with continue " << is_not_finished << endl;
 		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with no-init " + to_string(is_not_finished), MODE_DEBUG);
-
 	}
-
-
-
-
 
 	// 外に出そうな危険な範囲には行かないようにする
 	int dangerous_range = 10;
@@ -1208,7 +1206,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		dangerous_range = kCM2DotScale;
 	}
 	dangerous_range /= kCM2DotScale;
-	while (loop_times < (is_not_finished+ 1) * 50)
+	while (loop_times < (is_not_finished + 1) * 50)
 	{
 		loop_times++;
 		int investigating_dot_x = -1, investigating_dot_y = -1;
@@ -1225,7 +1223,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 					investigating_dot_x == -1 ||
 					cospaceMap.getMapTotalCost(xj, yi) < cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) ||
 					(cospaceMap.getMapTotalCost(xj, yi) == cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) &&
-						cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
+					 cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
 				{
 					investigating_dot_x = xj;
 					investigating_dot_y = yi;
@@ -1327,7 +1325,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 			}
 		}
 	}
-	if (getRepeatedNum() % 10 == 0) {
+	if (getRepeatedNum() % 10 == 0)
+	{
 		rep(yi, kDotHeight)
 		{
 			rep(xj, kDotWidth)
@@ -1361,10 +1360,11 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 	cospaceMap.getMapFrom(goal_x, goal_y, &goal[0], &goal[1]);
 	if (goal[0] != -1)
 	{
-		is_not_finished= 1;
+		is_not_finished = 1;
 		return;
 	}
-	else {
+	else
+	{
 		++is_not_finished;
 	}
 
@@ -1421,11 +1421,8 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 	// printf("\n");
 }
 
-
-
 AutoStrategy::~AutoStrategy()
 {
-
 }
 
 AutoStrategy::AutoStrategy()
@@ -1437,8 +1434,10 @@ AutoStrategy::AutoStrategy()
 	setDefaultRunMode(MODE_NORMAL);
 	setIsOutputLogMessage2Console(false);
 	setIsOutputErrorMessage2Console(false);
-	rep(yi, kDotHeight) {
-		rep(xj, kDotWidth) {
+	rep(yi, kDotHeight)
+	{
+		rep(xj, kDotWidth)
+		{
 			cospaceMap.setMapInfo(xj, yi, cospaceMap.MAP_UNKNOWN);
 		}
 	}
@@ -1483,11 +1482,11 @@ void AutoStrategy::CheckNowDot()
 	int x[3] = {
 		TO_INT(pos_x + cos((Compass + 90 + 30) * M_PI / 180) * side),
 		pos_x,
-		TO_INT(pos_x + cos((Compass + 90 - 30) * M_PI / 180) * side) };
+		TO_INT(pos_x + cos((Compass + 90 - 30) * M_PI / 180) * side)};
 	int y[3] = {
 		TO_INT(pos_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
 		pos_y,
-		TO_INT(pos_y + sin((Compass + 90 - 30) * M_PI / 180) * side) };
+		TO_INT(pos_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
 
 	rep(i, 3)
 	{
@@ -1524,7 +1523,7 @@ void AutoStrategy::CheckNowDot()
 		{
 			// 近くのドットの中で、壁の中ではないドットにする
 			int range = (10 + kCM2DotScale - 1) / kCM2DotScale;
-			int min_position[2] = { -1, -1 };
+			int min_position[2] = {-1, -1};
 			int min_value = INT_MAX;
 			for (int hi = -range; hi <= range; hi++)
 			{
@@ -2601,162 +2600,17 @@ void AutoStrategy::saveColorInfo(void)
 
 void AutoStrategy::calculateWallPosition(void)
 {
-<<<<<<< HEAD
-    // 初期化
-    rep(i, kDotHeight)
-    {
-        rep(j, kDotWidth)
-        {
-            map_from[i][j][0] = -1;
-            map_from[i][j][1] = -1;
-            map_cost[i][j] = -1;
-            map_status[i][j] = 0;
-            map_total_cost[i][j] = -1;
-        }
-    }
-
-    if (robot_dot_positions[1][0] < 0 || robot_dot_positions[1][0] >= kDotWidth || robot_dot_positions[1][1] < 0 || robot_dot_positions[1][1] >= kDotHeight)
-    {
-        ERROR_MESSAGE(FUNCNAME + "(); now dot is (" + to_string(robot_dot_positions[1][0]) + ", " + to_string(robot_dot_positions[1][1]) + ")", MODE_NORMAL);
-    }
-
-    map_cost[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 0;
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][0] = robot_dot_positions[1][0];
-    map_from[robot_dot_positions[1][1]][robot_dot_positions[1][0]][1] = robot_dot_positions[1][1];
-    map_status[robot_dot_positions[1][1]][robot_dot_positions[1][0]] = 1;
-
-    while (true)
-    {
-        int investigating_dot_x = -1, investigating_dot_y = -1;
-
-        rep(yi, kDotHeight)
-        {
-            rep(xj, kDotWidth)
-            {
-                if (map_status[yi][xj] != 1)
-                {
-                    continue;
-                }
-                if (investigating_dot_x == -1 || map_total_cost[yi][xj] < map_total_cost[investigating_dot_y][investigating_dot_x] || (map_total_cost[yi][xj] == map_total_cost[investigating_dot_y][investigating_dot_x] && map_cost[yi][xj] < map_cost[investigating_dot_y][investigating_dot_x]))
-                {
-                    investigating_dot_x = xj;
-                    investigating_dot_y = yi;
-                }
-            }
-        }
-
-        // goalに到着したとき
-        if (map_from[goal_y][goal_x][0] != -1)
-        {
-            break;
-        }
-
-        map_status[investigating_dot_y][investigating_dot_x] = 2;
-        for (int y = investigating_dot_y - 1; y <= investigating_dot_y + 1; ++y)
-        {
-            for (int x = investigating_dot_x - 1; x <= investigating_dot_x + 1; ++x)
-            {
-                if (0 <= x && x < kDotWidth && 0 <= y && y < kDotHeight)
-                {
-                    if (map_status[y][x] == 2)
-                    {
-                        continue;
-                    }
-                    int cost = kCM2DotScale * 10000;
-                    // cost += map_arrived_times[y][x] * 10;
-
-                    if (map[0][y][x] == MAP_YELLOW || map[0][y][x] == MAP_WALL)
-                    {
-                        cost *= 100000;
-                    }
-                    if (map[0][y][x] == MAP_SWAMPLAND)
-                    {
-                        cost *= 1000;
-                    }
-                    if (map[0][y][x] == MAP_UNKNOWN || map[0][y][x] == MAP_UNKNOWN_NOT_WALL)
-                    {
-                        if (Time < 60)
-                        {
-                            cost /= 100;
-                            // cost -= 100;
-                        }
-                        else
-                        {
-                            cost /= 2;
-                        }
-                    }
-                    if (map[RED_LOADED_ID][y][x] == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (map[CYAN_LOADED_ID][y][x] == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (map[BLACK_LOADED_ID][y][x] == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-                    {
-                        cost /= 10;
-                    }
-                    if (map_status[y][x] == 0 || map_cost[investigating_dot_y][investigating_dot_x] + cost < map_cost[y][x])
-                    {
-                        map_cost[y][x] = map_cost[investigating_dot_y][investigating_dot_x] + cost;
-                        map_total_cost[y][x] = map_cost[y][x] + (abs(goal_x - x) + abs(goal_y - y)) * kCM2DotScale;
-                        map_from[y][x][0] = investigating_dot_x;
-                        map_from[y][x][1] = investigating_dot_y;
-                        map_status[y][x] = 1;
-                    }
-                }
-            }
-        }
-    }
-    // 出力
-    int max_value = -100;
-    rep(yi, kDotHeight)
-    {
-        rep(xj, kDotWidth)
-        {
-            if (map_cost[yi][xj] > max_value)
-            {
-                max_value = map_cost[yi][xj];
-            }
-        }
-    }
-    LOG_MESSAGE(FUNCNAME + "(): max value : " + to_string(max_value), MODE_VERBOSE);
-    if (max_value == 0)
-    {
-        ERROR_MESSAGE(FUNCNAME + "(): max value is 0", MODE_NORMAL);
-        return;
-    }
-
-    // for (long yi = kDotHeight - 1; yi >= 0; --yi)
-    // {
-    //     rep(xj, kDotWidth)
-    //     {
-    //         switch (map[0][yi][xj])
-    //         {
-    //         case MAP_YELLOW:
-    //         case MAP_WALL:
-    //             printf("*");
-    //             break;
-    //         default:
-    //             printf("%d", static_cast<int>(map_cost[yi][xj] * 9 / max_value));
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
-=======
 
 	if (PositionX != -1)
 	{
 		LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
 
 		// 0: left & right 1: front
-		int difference_us_position[2] = { 9, 9 };
-		int us_sensors[3] = { US_Left, US_Front, US_Right };
+		int difference_us_position[2] = {9, 9};
+		int us_sensors[3] = {US_Left, US_Front, US_Right};
 		LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right) + " Compass: " + to_string(Compass), MODE_DEBUG);
-		string us_names[3] = { "Left", "Front", "Right" };
-		int angles[3] = { 40, 0, -40 };
+		string us_names[3] = {"Left", "Front", "Right"};
+		int angles[3] = {40, 0, -40};
 		int calculated_relative_coordinate[3][2];
 		int calculated_absolute_dot_position[3][2];
 		for (int i = 0; i < 3; ++i)
@@ -2803,7 +2657,7 @@ void AutoStrategy::calculateWallPosition(void)
 			{
 				// cospaceMap.MAP_WHITEは登録しない
 				LOG_MESSAGE(FUNCNAME + "(): cospaceMap.MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
-					continue;
+				continue;
 			}
 			if (us_sensors[i] * 0.3 < kRange4Wall)
 			{
@@ -2818,8 +2672,8 @@ void AutoStrategy::calculateWallPosition(void)
 				calculated_relative_coordinate[i][1] = TO_INT(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
 			}
 
-			const int x[2] = { robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale) };
-			const int y[2] = { robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale) };
+			const int x[2] = {robot_dot_positions[1][0], TO_INT((pos_x + calculated_relative_coordinate[i][0] + kCM2DotScale / 2) / kCM2DotScale)};
+			const int y[2] = {robot_dot_positions[1][1], TO_INT((pos_y + calculated_relative_coordinate[i][1] + kCM2DotScale / 2) / kCM2DotScale)};
 
 			LOG_MESSAGE(FUNCNAME + "(): Set MAP_UNKNOWN (" + to_string(x[0]) + ", " + to_string(y[0]) + ") -> (" + to_string(x[1]) + ", " + to_string(y[1]) + ")", MODE_VERBOSE);
 
@@ -3007,5 +2861,4 @@ void AutoStrategy::calculateWallPosition(void)
 
 		// }
 	}
->>>>>>> astar
 }

@@ -3,6 +3,7 @@
 
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
+#include <random>
 
 // World1
 class Game0_Hikaru : public UserGame0
@@ -48,6 +49,8 @@ private:
 
     int large_process = -1;
     int process = 0;
+
+    std::random_device rnd;
 
     struct Dot
     {
@@ -95,7 +98,6 @@ private:
     int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
-    void AutoStrategy(void);
     int IsNearYellow(int num, int x, int y);
 };
 
