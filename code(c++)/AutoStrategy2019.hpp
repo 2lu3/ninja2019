@@ -4,6 +4,7 @@
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
 #include <climits>
+#include <random>
 
 class AutoStrategy : public UserGame1
 {
@@ -39,6 +40,7 @@ private:
 
     int kEmergencyPosX = 180;
     int kEmergencyPosY = 135;
+
 
     ProcessingTime pt;
 
@@ -377,7 +379,7 @@ private:
 
         const static int kSuccess = -1;
         const static int kFailure = INT_MIN;
-        const static int kGuessedMapSize = 5;
+        const static int kGuessedMapSize = 10;
 
     private:
         const static int map_wall_index = 4;

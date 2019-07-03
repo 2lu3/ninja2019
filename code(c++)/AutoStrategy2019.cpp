@@ -4,9 +4,9 @@
 #define TO_INT(VALUE) static_cast<int>((VALUE))
 #define IF if
 #define LOG_MESSAGE(MESSAGE, OPTION) \
-    IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
+	IF((OPTION) <= getRunMode()) { logErrorMessage.logMessage((MESSAGE), (OPTION)); }
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
-    IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
+	IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
 using std::cout;
 using std::endl;
@@ -415,7 +415,7 @@ void AutoStrategy::loop()
 				log_superobj_num = 0;
 				LOG_MESSAGE("There is no superobj", MODE_MATCH);
 			}
-			GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
+			GoToPosition(log_superobj_x[0] - 5 + rnd() % 10, log_superobj_y[0] - 5 + rnd() % 10, 1, 1, 1);
 			same_time++;
 		}
 	}
@@ -432,7 +432,8 @@ void AutoStrategy::loop()
 	case DEFINED:
 		break;
 	case YELLOW_AVOIDANCE:
-		if (IsOnSwampland()) {
+		if (IsOnSwampland())
+		{
 			if (BothColorJudge(trap_line))
 			{
 				motor_no_action_change(5, -5);
@@ -446,12 +447,16 @@ void AutoStrategy::loop()
 				motor_no_action_change(-5, 5);
 			}
 		}
-		else {
-			if (IsOnYellowLine()) {
-				if (Duration >= 3) {
+		else
+		{
+			if (IsOnYellowLine())
+			{
+				if (Duration >= 3)
+				{
 					motor_no_action_change(-3, -3);
 				}
-				else {
+				else
+				{
 
 					if (BothColorJudge(trap_line))
 					{
@@ -467,7 +472,8 @@ void AutoStrategy::loop()
 					}
 				}
 			}
-			else {
+			else
+			{
 				motor(3, 3);
 				Duration = 2;
 				SuperDuration = 0;
@@ -696,7 +702,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		}
 		else if (next_y == now_y)
 		{
-			GoToPosition(pos_x - 3 + rand() % 6, pos_y - 3 + rand() % 6, 6, 6, 3);
+			GoToPosition(pos_x - 3 + rnd() % 6, pos_y - 3 + rnd() % 6, 6, 6, 3);
 			ERROR_MESSAGE(FUNCNAME + "(): next_x == now_x && next_y == now_y; but we alredy passed plusminus; we run GoToPosition() and return 1", MODE_NORMAL);
 			return 1;
 		}
@@ -766,7 +772,7 @@ int AutoStrategy::GoToDot(int x, int y)
 }
 
 int AutoStrategy::
-GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
+	GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 {
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(x) + "," + to_string(y) + "," + to_string(wide_decide_x) + "," + to_string(wide_decide_y) + ")", MODE_VERBOSE);
 
@@ -783,7 +789,7 @@ GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		int max_value = 0;
 		// int max_pos[2] = {-1, -1};
 		int min_value = INT_MAX;
-		int min_pos[2] = { TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale) };
+		int min_pos[2] = {TO_INT(x / kCM2DotScale), TO_INT(y / kCM2DotScale)};
 		int cost;
 		// for (long yi = kDotHeight - 1; yi >= 0; --yi)
 		// {
@@ -890,7 +896,7 @@ GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 				//     continue;
 				// }
 
-				// int costs = TO_INT(map_arrived_times[j][i] * 100 + rand() % 10);
+				// int costs = TO_INT(map_arrived_times[j][i] * 100 + rnd() % 10);
 				// if (option)
 				// {
 				//     // 移動しないとき
@@ -1049,12 +1055,13 @@ void AutoStrategy::autoSearch(float parameter)
 						if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_UNKNOWN)
 						{
 							score *= 2;
-
 						}
-						if (cospaceMap.getMapArrivedTimes(xj, yi) > 0) {
+						if (cospaceMap.getMapArrivedTimes(xj, yi) > 0)
+						{
 							score -= cospaceMap.getMapArrivedTimes(xj, yi);
 						}
-						if (score < 0) {
+						if (score < 0)
+						{
 							score = 0;
 						}
 						break;
@@ -1077,7 +1084,8 @@ void AutoStrategy::autoSearch(float parameter)
 
 			int max_value = INT_MIN;
 			int base_lengh = 80;
-			if (status == 2) {
+			if (status == 2)
+			{
 				base_lengh = kCM2AreaScale;
 			}
 			rep(ayi, kAreaHeight)
@@ -1097,12 +1105,14 @@ void AutoStrategy::autoSearch(float parameter)
 				{
 					double distance = TO_INT(sqrt(pow(abs(ayi * kCM2AreaScale - pos_y) - base_lengh, 2) + pow(abs(axj * kCM2AreaScale - pos_x) - base_lengh, 2)));
 					//cout << axj * kCM2AreaScale << " " << ayi * kCM2AreaScale << " score = " << score_area_map[ayi][axj] << " sigmoid " << i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) << endl;
-					if (status == 2) {
-						score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) / 10;
-					}
-					else {
-						score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value));
-					}
+					// if (status == 2)
+					// {
+					score_area_map[ayi][axj] += i_sigmoid(10.0 - distance / static_cast<double>(max_value) * 20.0, static_cast<double>(max_value)) / 10;
+					// }
+					// else
+					// {
+					// score_area_map[ayi][axj] += i_sigmoid(distance / static_cast<double>(max_value) * 20.0 - 10.0, static_cast<double>(max_value)) + rnd() % 20;
+					// }
 					if (max_score < score_area_map[ayi][axj])
 					{
 						max_score = score_area_map[ayi][axj];
@@ -1189,7 +1199,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 					investigating_dot_x == -1 ||
 					cospaceMap.getMapTotalCost(xj, yi) < cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) ||
 					(cospaceMap.getMapTotalCost(xj, yi) == cospaceMap.getMapTotalCost(investigating_dot_x, investigating_dot_y) &&
-						cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
+					 cospaceMap.getMapCost(xj, yi) < cospaceMap.getMapCost(investigating_dot_x, investigating_dot_y)))
 				{
 					investigating_dot_x = xj;
 					investigating_dot_y = yi;
@@ -1241,7 +1251,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 							cost += kCM2DotScale / 2;
 						}
 						cost += kCM2DotScale / 2 * cospaceMap.getMapCurvedTimes(investigating_dot_x, investigating_dot_y, x, y);
-						//cost += kCM2DotScale / 2 * cospaceMap.getMapArrivedTimes(x, y);
+						cost += cospaceMap.getMapArrivedTimes(x, y) / 5;
 
 						if (cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_YELLOW || cospaceMap.getMapInfo(x, y) == cospaceMap.MAP_WALL)
 						{
