@@ -1158,6 +1158,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 	ProcessingTime pt2;
 	pt2.start();
 	if (!is_not_finished) {
+		cout << "Astar start with init" << endl;
 		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with init", MODE_DEBUG);
 		// 初期化
 		rep(yi, kDotHeight)
@@ -1188,6 +1189,7 @@ void AutoStrategy::Astar(int goal_x, int goal_y)
 		}
 	}
 	else {
+		cout << "Astar start with continue " << is_not_finished << endl;
 		LOG_MESSAGE(FUNCNAME + "(" + to_string(goal_x) + "," + to_string(goal_y) + "): start with no-init " + to_string(is_not_finished), MODE_DEBUG);
 
 	}
