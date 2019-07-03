@@ -981,7 +981,8 @@ void AutoStrategy::autoSearch(float parameter)
 		status = 0;
 	}
 	if (0 <= target_x && target_x <= kAreaWidth && 0 <= target_y && target_y << kAreaHeight) {
-		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW) {
+		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW
+			|| cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_SWAMPLAND) {
 			is_changed = 1;
 		}
 	}
