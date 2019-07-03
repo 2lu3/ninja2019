@@ -980,6 +980,12 @@ void AutoStrategy::autoSearch(float parameter)
 		is_changed = 1;
 		status = 0;
 	}
+	if (0 <= target_x && target_x <= kAreaWidth && 0 <= target_y && target_y << kAreaHeight) {
+		if (cospaceMap.getMapInfo(target_x * kDot2AreaScale, target_y * kDot2AreaScale) == cospaceMap.MAP_YELLOW) {
+			is_changed = 1;
+		}
+	}
+	
 
 	if (is_changed)
 	{
