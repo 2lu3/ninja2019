@@ -416,22 +416,22 @@ void Game1_Hikaru::loop()
 	{
 		SuperDuration--;
 	}
-	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[0]++;
+		loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[1]++;
+		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[2]++;
+		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
 	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
@@ -519,20 +519,21 @@ void Game1_Hikaru::loop()
 	{
 		if (loaded_objects[BLACK_LOADED_ID] < 2)
 		{
-			GoInDots(180, 135, 180, 135, POINT_BLACK);
+			GoToDots(280, 230, 80, 40);
 			searching_object = BLACK_LOADED_ID;
 		}
 		else if (loaded_objects[CYAN_LOADED_ID] < 2)
 		{
-			GoInDots(180, 135, 180, 135, POINT_CYAN);
+			GoToDots(110, 230, 110, 40);
 			searching_object = CYAN_LOADED_ID;
 		}
 		else
 		{
-			GoInDots(180, 135, 180, 135, POINT_RED);
+			GoToDots(180, 80, 180, 80);
 			searching_object = RED_LOADED_ID;
 		}
 	}
+	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(RED_LOADED_ID) << endl;
 
 	switch (static_cast<int>(getAction()))
 	{
@@ -570,7 +571,7 @@ void Game1_Hikaru::loop()
 		}
 		else
 		{
-			if (!IsOnDepositArea())
+			if (!(IsOnDepositArea() == 3))
 			{
 				LoadedObjects = 6;
 				Duration = 0;
@@ -876,7 +877,7 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 	LOG_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
 	GoToAngle(angle_int, static_cast<int>(sqrt(x * x + y * y)));
 
-	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
+	if (repeated_num_log + 1 == getRepeatedNum() && objects_num_log != LoadedObjects)
 	{
 		same_operate++;
 	}
@@ -900,12 +901,44 @@ void Game1_Hikaru::InputDotInformation(void)
 	// 	cout << endl;
 	// }
 	// cout << endl;
-	int map_position_color_data[kDotWidthNum][kDotHeightNum];
+
+	int map_position_color_data[36][27];
+	// for (int i = 0; i < kDotWidthNum; i++)
+	// {
+	// 	for (int j = 0; j < kDotHeightNum; j++)
+	// 	{
+	// 		switch (map_output_data[kDotHeightNum - j - 1][i])
+	// 		{
+	// 		case 0: //white
+	// 			map_position_color_data[i][j] = POINT_WHITE;
+	// 			break;
+	// 		case 1: //yellow
+	// 			map_position_color_data[i][j] = POINT_YELLOW;
+	// 			break;
+	// 		case 2: //wall
+	// 			map_position_color_data[i][j] = POINT_WALL;
+	// 			break;
+	// 		case 4: //swampland
+	// 			map_position_color_data[i][j] = POINT_SWAMPLAND;
+	// 			break;
+	// 		case 3: //deposit
+	// 			map_position_color_data[i][j] = POINT_DEPOSIT;
+	// 			break;
+	// 		case 5: // super area
+	// 			map_position_color_data[i][j] = POINT_SUPERAREA;
+	// 			break;
+	// 		default:
+	// 			map_position_color_data[i][j] = POINT_WHITE;
+	// 			break;
+	// 		}
+	// 	}
+	// }
+
 	for (int i = 0; i < kDotWidthNum; i++)
 	{
 		for (int j = 0; j < kDotHeightNum; j++)
 		{
-			switch (map_output_data[kDotHeightNum - j - 1][i])
+			switch (map_position_data[i][j])
 			{
 			case 0: //white
 				map_position_color_data[i][j] = POINT_WHITE;
@@ -916,10 +949,10 @@ void Game1_Hikaru::InputDotInformation(void)
 			case 2: //wall
 				map_position_color_data[i][j] = POINT_WALL;
 				break;
-			case 3: //swampland
+			case 4: //swampland
 				map_position_color_data[i][j] = POINT_SWAMPLAND;
 				break;
-			case 4: //deposit
+			case 3: //deposit
 				map_position_color_data[i][j] = POINT_DEPOSIT;
 				break;
 			case 5: // super area
@@ -931,6 +964,40 @@ void Game1_Hikaru::InputDotInformation(void)
 			}
 		}
 	}
+	printf("map\n");
+	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
+	{
+		for (int xj = 0; xj < kDotWidthNum; ++xj)
+		{
+			switch (map_position_color_data[yi][xj])
+			{
+			case POINT_WHITE:
+				printf(" ");
+				break;
+			case POINT_YELLOW:
+				printf("Y");
+				break;
+			case POINT_WALL:
+				printf("#");
+				break;
+			case POINT_SWAMPLAND:
+				printf("$");
+				break;
+			case POINT_DEPOSIT:
+				printf("D");
+				break;
+			case POINT_SUPERAREA:
+				printf("S");
+				break;
+			default:
+				printf(" ");
+				break;
+			}
+		}
+		printf("\n");
+	}
+	printf("\n");
+	printf("\n");
 
 	for (long i = 0; i < kMaxDotNum; i++)
 	{
@@ -1495,6 +1562,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		// } while(dot[target_y * kDotWidthNum + target_x].point <= POINT_WALL);
 	}
 	local_same_target++;
+	cout << "target " << target_x * kSize << " " << target_y * kSize << endl;
 	// printf("%d %d\n", local_same_target, same_target_border);
 	if (GoToDot(target_x, target_y) || local_same_target > same_target_border)
 	{

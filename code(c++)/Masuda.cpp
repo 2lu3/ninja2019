@@ -375,22 +375,22 @@ void Game1_Masuda::loop()
 	{
 		SuperDuration--;
 	}
-	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[0] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[0]++;
+		loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[1] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[1]++;
+		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[2] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
-		loaded_objects[2]++;
+		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
 	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
@@ -416,7 +416,7 @@ void Game1_Masuda::loop()
 				log_superobj_x[i] = log_superobj_x[i - 1];
 				log_superobj_y[i] = log_superobj_y[i - 1];
 			}
-			loaded_objects[3]++;
+			loaded_objects[SUPER_LOADED_ID]++;
 			log_superobj_num--;
 		}
 		else
@@ -718,7 +718,7 @@ int Game1_Masuda::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 	LOG_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
 	GoToAngle(angle_int, static_cast<int>(sqrt(x * x + y * y)));
 
-	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
+	if (repeated_num_log + 1 == getRepeatedNum() && objects_num_log != LoadedObjects)
 	{
 		same_operate++;
 	}

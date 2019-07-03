@@ -5,5 +5,5 @@ extern int map_output_data[27][36];
 extern int red_data[27][36];
 extern int cyan_data[27][36];
 extern int black_data[27][36];
-
+extern int map_position_data[36][27];
 #endif // !MAPDATA_H
