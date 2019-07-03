@@ -472,6 +472,14 @@ void Game1_Masuda::loop()
 			else {
 				process+=2;
 			}
+		}if (GoToPosition(275, 45, 5, 5, 5))
+		{
+			if(loadedObject < 6) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
 		}
 
 		 */
