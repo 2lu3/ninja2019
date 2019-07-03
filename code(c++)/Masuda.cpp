@@ -468,7 +468,29 @@ void Game1_Masuda::loop()
 		分岐をする方法
 		if (GoToPosition(275, 45, 5, 5, 5))
 		{
-			process++;
+			if(loaded_objects[0] < kBorderSameObjNum) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
+		}
+		if (GoToPosition(275, 45, 5, 5, 5))
+		{
+			if(rnd() % 100) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
+		}if (GoToPosition(275, 45, 5, 5, 5))
+		{
+			if(loadedObject < 6) {
+				process ++;
+			}
+			else {
+				process+=2;
+			}
 		}
 		todo:
 		process文の最後に必ずelseを付けてprocessを定義する
