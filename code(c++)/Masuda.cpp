@@ -33,6 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
+	
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -40,7 +41,7 @@ void Game0_Masuda::setup(void)
 	InputColorInformation();
 
 	double seconds = pt.end();
-	LOG_MESSAGE("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_NORMAL);
+	LOG_MESSAGE(FUNC_NAME + "(): " + to_string(seconds) + " milliseconds", MODE_NORMAL);
 }
 
 void Game0_Masuda::loop(void)
@@ -296,11 +297,21 @@ void Game0_Masuda::taskOnTeleport(void)
 void Game1_Masuda::setup(void)
 {
 	system("cls");
+	/*
+	todo:
+	エラーが起きた時にチェックする場所
+	 */
 	UserGame1::setup();
+	// 文字コードをUTF-8に
+	// Shift-JISは
 	system("chcp 65001");
-
+	// 初期位置がPositionLostAreaのとき
 	if (PositionX == 0 && PositionY == 0)
 	{
+		/*
+		todo: emergency_xとyに安全な値を入力する
+		壁じゃなくて、罠でもなく、沼地でもない場所
+		 */
 		log_x = emergency_x;
 		log_y = emergency_y;
 	}
@@ -481,6 +492,8 @@ void Game1_Masuda::loop()
 				process+=2;
 			}
 		}
+		todo:
+		process文の最後に必ずelseを付けてprocessを定義する
 
 		 */
 		if (process == 0)
@@ -513,8 +526,8 @@ void Game1_Masuda::loop()
 	switch (static_cast<int>(getAction()))
 	{
 	case DEFINED:
-		//defined motor power by motor(int left, int right)
-		break;
+        //defined motor power by motor(int left, int right)
+        break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
 		{
@@ -546,7 +559,7 @@ void Game1_Masuda::loop()
 		}
 		else
 		{
-			if (!IsOnDepositArea())
+			if (!(IsOnDepositArea()==3))
 			{
 				LoadedObjects = 6;
 				Duration = 0;
@@ -733,6 +746,13 @@ int Game1_Masuda::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 
 void Game1_Masuda::GoToAngle(int angle, int distance)
 {
+	/*
+	・壁を自動でよける
+	・沼の中ではスピードを極力上げる
+	・distanceの距離によってその場所に正確に移動する
+	→二つのカラーセンサの丁度中心が目的地に重なるように動く
+	・distanceの単位はcm(つまりx,yが1つづつ)
+	 */
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
 	angle = angle - Compass;
 
