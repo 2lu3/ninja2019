@@ -539,9 +539,9 @@ int AutoStrategy::GoToDot(int x, int y)
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
-	//char map_data_to_show[kDotWidth * kDotHeight];
-	//rep(yi, kDotHeight)
-	/*{
+	char map_data_to_show[kDotWidth * kDotHeight];
+	rep(yi, kDotHeight)
+	{
 		rep(xj, kDotWidth)
 		{
 			if (cospaceMap.getMapInfo(xj, yi) == cospaceMap.MAP_WALL)
@@ -565,7 +565,7 @@ int AutoStrategy::GoToDot(int x, int y)
 				map_data_to_show[yi * kDotWidth + xj] = ' ';
 			}
 		}
-	}*/
+	}
 
 	//If the node I want to go will be go out
 	if (x < 1 || x >= kDotWidth - 1 || y < 1 || y >= kDotHeight - 1)
@@ -598,13 +598,12 @@ int AutoStrategy::GoToDot(int x, int y)
 	{
 		// Dijkstra();
 		Astar(x, y);
-		// motor(0, 0);
 	}
 	prev_now_dot_id = now_dot_id;
 	prev_x = x;
 	prev_y = y;
 
-	//map_data_to_show[y * kDotWidth + x] = 'T';
+	map_data_to_show[y * kDotWidth + x] = 'T';
 	int i = 0;
 
 	int back_search_x = x;
@@ -645,7 +644,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		LOG_MESSAGE(FUNCNAME + "(): back(" + to_string(back_search_x) + ", " + to_string(back_search_y) + ")", MODE_VERBOSE);
 		cospaceMap.getMapFrom(back_search_x, back_search_y, &temp_x, &temp_y);
 		LOG_MESSAGE(FUNCNAME + "(): temp(" + to_string(temp_x) + ", " + to_string(temp_y) + ")", MODE_VERBOSE);
-		//map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
+		map_data_to_show[temp_y * kDotWidth + temp_x] = '+';
 		i++;
 		if (temp_x < 0 || temp_x >= kDotWidth)
 		{
@@ -671,7 +670,7 @@ int AutoStrategy::GoToDot(int x, int y)
 		LOG_MESSAGE(FUNCNAME + "(): iの値が200です", MODE_NORMAL);
 	}
 
-	//map_data_to_show[now_dot_id] = '@';
+	map_data_to_show[now_dot_id] = '@';
 
 	int next_x = back_search_x, next_y = back_search_y;
 
@@ -727,45 +726,45 @@ int AutoStrategy::GoToDot(int x, int y)
 		}
 	}
 
-	//if (getRepeatedNum() % 5 == 0)
-	//{
-	//	cout << "out map" << endl;
-	//	ProcessingTime pt2;
-	//	pt2.start();
-	//	FILE* fp = fopen("map_out.txt", "w");
-	//	if (fp == NULL)
-	//	{
-	//		ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
-	//	}
-	//	else
-	//	{
-	//		cout << "out map start" << endl;
-	//		rep(xj, kDotWidth + 2)
-	//		{
-	//			fprintf(fp, "#");
-	//			// printf("#");
-	//		}
-	//		rep(yi, kDotHeight)
-	//		{
-	//			fprintf(fp, "#");
-	//			// printf("#");
-	//			rep(xj, kDotWidth)
-	//			{
-	//				fprintf(fp, "%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
-	//			}
-	//			fprintf(fp, "#");
-	//			// printf("#");
-	//			fprintf(fp, "\n");
-	//		}
-	//		rep(xj, kDotWidth + 2)
-	//		{
-	//			fprintf(fp, "#");
-	//		}
-	//		fprintf(fp, "\n");
-	//		fclose(fp);
-	//		cout << "out map end " << pt2.end() << endl;
-	//	}
-	//}
+	if (getRepeatedNum() % 5 == 0)
+	{
+		cout << "out map" << endl;
+		ProcessingTime pt2;
+		pt2.start();
+		FILE *fp = fopen("map_out.txt", "w");
+		if (fp == NULL)
+		{
+			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
+		}
+		else
+		{
+			cout << "out map start" << endl;
+			rep(xj, kDotWidth + 2)
+			{
+				fprintf(fp, "#");
+				// printf("#");
+			}
+			rep(yi, kDotHeight)
+			{
+				fprintf(fp, "#");
+				// printf("#");
+				rep(xj, kDotWidth)
+				{
+					fprintf(fp, "%c", map_data_to_show[(kDotHeight - 1 - yi) * kDotWidth + xj]);
+				}
+				fprintf(fp, "#");
+				// printf("#");
+				fprintf(fp, "\n");
+			}
+			rep(xj, kDotWidth + 2)
+			{
+				fprintf(fp, "#");
+			}
+			fprintf(fp, "\n");
+			fclose(fp);
+			cout << "out map end " << pt2.end() << endl;
+		}
+	}
 
 	LOG_MESSAGE(FUNCNAME + "(): return 0", MODE_DEBUG);
 	return 0;
@@ -971,6 +970,7 @@ void AutoStrategy::autoSearch(float parameter)
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(parameter) + "): start; status = " + to_string(status), MODE_DEBUG);
 	if (LoadedObjects >= 6 && (status != 1 && status != 2))
 	{
+
 		LOG_MESSAGE(FUNCNAME + "(): fully loaded; is_changed = true", MODE_VERBOSE);
 		is_changed = 1;
 	}

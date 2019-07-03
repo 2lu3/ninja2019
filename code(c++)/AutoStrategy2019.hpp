@@ -41,7 +41,6 @@ private:
     int kEmergencyPosX = 180;
     int kEmergencyPosY = 135;
 
-
     ProcessingTime pt;
 
     class CospaceMap
@@ -52,13 +51,14 @@ private:
         {
             MAP_FAILURE = -1000,
             MAP_SUCCESS = -1001,
-            MAP_YELLOW = -2,    // カラーセンサーの値によって決まる
-            MAP_SWAMPLAND = -1, // カラーセンサーの値によって決まる
-            MAP_UNKNOWN = 0,    // 不明な場合
-            MAP_WALL = 1,
-            MAP_WHITE = 2,      // カラーセンサーの値によって決まる
-            MAP_DEPOSIT = 3,    // カラーセンサーの値によって決まる
-            MAP_SUPER_AREA = 4, // カラーセンサーの値によって決まる
+            MAP_YELLOW,    // カラーセンサーの値によって決まる
+            MAP_SWAMPLAND, // カラーセンサーの値によって決まる
+            MAP_MAY_SWAMPLAND,
+            MAP_UNKNOWN, // 不明な場合
+            MAP_WALL,
+            MAP_WHITE,      // カラーセンサーの値によって決まる
+            MAP_DEPOSIT,    // カラーセンサーの値によって決まる
+            MAP_SUPER_AREA, // カラーセンサーの値によって決まる
         };
         inline int setMapInfo(int x, int y, MapInfo info)
         {
