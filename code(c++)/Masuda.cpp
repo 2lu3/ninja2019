@@ -731,7 +731,7 @@ int Game1_Masuda::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 	LOG_MESSAGE("angle " + to_string(angle_int), MODE_NORMAL);
 	GoToAngle(angle_int, static_cast<int>(sqrt(x * x + y * y)));
 
-	if (repeated_num_log + 1 == getRepeatedNum() || objects_num_log != LoadedObjects)
+	if (repeated_num_log + 1 == getRepeatedNum() && objects_num_log != LoadedObjects)
 	{
 		same_operate++;
 	}
@@ -746,6 +746,13 @@ int Game1_Masuda::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 
 void Game1_Masuda::GoToAngle(int angle, int distance)
 {
+	/*
+	・壁を自動でよける
+	・沼の中ではスピードを極力上げる
+	・distanceの距離によってその場所に正確に移動する
+	→二つのカラーセンサの丁度中心が目的地に重なるように動く
+	・distanceの単位はcm(つまりx,yが1つづつ)
+	 */
 	LOG_MESSAGE(FUNCNAME + "(" + to_string(angle) + "," + to_string(distance) + "): start", MODE_VERBOSE);
 	angle = angle - Compass;
 
