@@ -25,16 +25,6 @@ todo:
 #define ERROR_MESSAGE(MESSAGE, OPTION) \
 	IF((OPTION) <= getRunMode()) { logErrorMessage.errorMessage((MESSAGE), (OPTION)); }
 
-#define POINT_BLACK 20
-#define POINT_RED 10
-#define POINT_CYAN 15
-#define POINT_SUPERAREA 2
-#define POINT_WHITE 1
-#define POINT_DEPOSIT 0
-#define POINT_SWAMPLAND -1
-#define POINT_WALL -2
-#define POINT_YELLOW -3
-
 #define FUNC_NAME getFuncName(__FUNCTION__)
 
 using namespace std;
@@ -43,6 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
+	
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -50,7 +41,7 @@ void Game0_Masuda::setup(void)
 	InputColorInformation();
 
 	double seconds = pt.end();
-	LOG_MESSAGE("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_NORMAL);
+	LOG_MESSAGE(FUNC_NAME + "(): " + to_string(seconds) + " milliseconds", MODE_NORMAL);
 }
 
 void Game0_Masuda::loop(void)
@@ -306,11 +297,21 @@ void Game0_Masuda::taskOnTeleport(void)
 void Game1_Masuda::setup(void)
 {
 	system("cls");
+	/*
+	todo:
+	エラーが起きた時にチェックする場所
+	 */
 	UserGame1::setup();
+	// 文字コードをUTF-8に
+	// Shift-JISは
 	system("chcp 65001");
-
+	// 初期位置がPositionLostAreaのとき
 	if (PositionX == 0 && PositionY == 0)
 	{
+		/*
+		todo: emergency_xとyに安全な値を入力する
+		壁じゃなくて、罠でもなく、沼地でもない場所
+		 */
 		log_x = emergency_x;
 		log_y = emergency_y;
 	}
@@ -469,6 +470,8 @@ void Game1_Masuda::loop()
 		{
 			process++;
 		}
+		todo:
+		process文の最後に必ずelseを付けてprocessを定義する
 
 		 */
 		if (process == 0)
@@ -501,8 +504,8 @@ void Game1_Masuda::loop()
 	switch (static_cast<int>(getAction()))
 	{
 	case DEFINED:
-		//defined motor power by motor(int left, int right)
-		break;
+        //defined motor power by motor(int left, int right)
+        break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
 		{
@@ -534,7 +537,7 @@ void Game1_Masuda::loop()
 		}
 		else
 		{
-			if (!IsOnDepositArea())
+			if (!(IsOnDepositArea()==3))
 			{
 				LoadedObjects = 6;
 				Duration = 0;
