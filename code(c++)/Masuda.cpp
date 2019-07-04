@@ -42,6 +42,11 @@ void Game0_Masuda::setup(void)
 
 	double seconds = pt.end();
 	LOG_MESSAGE(FUNC_NAME + "(): " + to_string(seconds) + " milliseconds", MODE_NORMAL);
+	// if (compassJudge(265,275))
+	// {
+		
+	// }
+	
 }
 
 void Game0_Masuda::loop(void)
@@ -77,21 +82,21 @@ void Game0_Masuda::loop(void)
 			break;
 		}
 	}
-	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find black obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find cyan obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find red obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
@@ -128,7 +133,7 @@ void Game0_Masuda::loop(void)
 	else if (Duration > 0)
 	{
 		Duration--;
-	}else if (loaded_objects[RED_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[BLACK_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[CYAN_LOADED_ID]>= kBorderSameObjNum&&IsOnBlueFloor()==3&&((US_Front<155&&US_Front>130)||(US_Front<100&&US_Front>65)))
+	}/*else if (loaded_objects[RED_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[BLACK_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[CYAN_LOADED_ID]>= kBorderSameObjNum&&IsOnBlueFloor()==3&&((US_Front<155&&US_Front>130)||(US_Front<100&&US_Front>65)))
 	{
 		if (Compass<185&&Compass>175)
 		{
@@ -140,7 +145,7 @@ void Game0_Masuda::loop(void)
 		
 		
 		Duration=30;
-	}
+	} */
 	else if (EitherColorJudge(world1_maker)&&LoadedObjects >= 4)
 	{
 		/*if (IsOnWorld1MakerArea() == 3)
@@ -357,16 +362,22 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (getAction() != DEPOSIT_OBJ&&Duration!=0&&SuperDuration!=0)
+	if (Time > 180) {
+		return 1;
+	}else
 	{
-		return UserGame0::shouldTeleport();
+		return 0;
 	}
-	
-	
 }
 void Game0_Masuda::taskOnTeleport(void)
 {
 	UserGame0::taskOnTeleport();
+	LoadedObjects = 0;
+
+	loaded_objects[0] = 0;
+	loaded_objects[1] = 0;
+	loaded_objects[2] = 0;
+	loaded_objects[3] = 0;
 	Teleport = 3;
 }
 

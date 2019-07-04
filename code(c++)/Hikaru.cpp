@@ -16,295 +16,41 @@ todo : 回転するときに、カラーセンサが沼地に入ってしまう�
 #define POINT_BLACK 20
 #define POINT_RED 10
 #define POINT_CYAN 15
+#define POINT_UNKNOWN 3
 #define POINT_SUPERAREA 2
 #define POINT_WHITE 1
 #define POINT_DEPOSIT 0
 #define POINT_SWAMPLAND -1
 #define POINT_WALL -2
 #define POINT_YELLOW -3
+#define POINT_MAY_SWAMPLAND -4
+
+#define SECURE_YELLOW 0
+#define SECURE_SWAMPLAND 1
+#define SECURE_WALL 3
+#define SECURE_WHITE 4
+#define SECURE_DEPOSIT 5
+#define SECURE_SUPERAREA 6
 
 #define FUNC_NAME getFuncName(__FUNCTION__)
 
 using namespace std;
-
-void Game0_Hikaru::setup(void)
-{
-	pt.start();
-
-	UserGame0::setup();
-
-	logErrorMessage.delErrorFile();
-	logErrorMessage.delLogFile();
-	InputColorInformation();
-
-	double seconds = pt.end();
-	LOG_MESSAGE("game0 setup() : " + to_string(seconds) + " milliseconds", MODE_NORMAL);
-}
-
-void Game0_Hikaru::loop(void)
-{
-	UserGame0::loop();
-	pt.start();
-	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
-	if (SuperDuration > 0)
-	{
-		SuperDuration--;
-	}
-	else if (IsOnDepositArea() && LoadedObjects >= 5)
-	{
-		LOG_MESSAGE("find object box", MODE_DEBUG);
-		switch (IsOnDepositArea())
-		{
-		case 1:
-			LOG_MESSAGE("Left Sensor is in object_box", MODE_DEBUG);
-			motor(0, 5);
-			break;
-		case 2:
-			LOG_MESSAGE("Right Sensor is in object_box", MODE_DEBUG);
-			motor(5, 0);
-			break;
-		case 3:
-			LOG_MESSAGE("I am in object_box", MODE_DEBUG);
-			setAction(DEPOSIT_OBJ);
-			SuperDuration = 60;
-			break;
-		default:
-			break;
-		}
-	}
-	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-	{
-		LOG_MESSAGE("find black obj", MODE_NORMAL);
-		setAction(FIND_OBJ);
-		loaded_objects[BLACK_LOADED_ID]++;
-		SuperDuration = kFindObjDuration;
-	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-	{
-		LOG_MESSAGE("find cyan obj", MODE_NORMAL);
-		setAction(FIND_OBJ);
-		loaded_objects[CYAN_LOADED_ID]++;
-		SuperDuration = kFindObjDuration;
-	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
-	{
-		LOG_MESSAGE("find red obj", MODE_NORMAL);
-		setAction(FIND_OBJ);
-		loaded_objects[RED_LOADED_ID]++;
-		SuperDuration = kFindObjDuration;
-	}
-	else if (Duration > 0)
-	{
-		Duration--;
-	}
-	else if (IsOnYellowLine() && LoadedObjects > 0)
-	{
-		if (IsOnYellowLine() == 1)
-		{
-			motor(-1, -3);
-		}
-		else
-		{
-			motor(-3, -1);
-		}
-		setAction(YELLOW_AVOIDANCE);
-		Duration = 3;
-	}
-	else if (obstacle(8, 10, 8))
-	{
-		motor(-3, 2);
-		// int speed = 3;
-		// switch(obstacle(10, 10, 10)) {
-		// 	case 1:// 左のみ
-		// 		motor(speed, -speed);
-		// 		break;
-		// 	case 2:
-		// 		if(US_Left < US_Right) {
-		// 			motor(speed, -speed);
-		// 			break;
-		// 		}
-		// 		else {
-		// 			motor(-speed, speed);
-		// 		}
-		// 		break;
-		// 	case 3:
-		// 		motor(speed, -speed);
-		// 		break;
-		// 	case 4:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	case 5:
-		// 		motor(speed, speed);
-		// 		break;
-		// 	case 6:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	case 7:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	default:
-		// 		LOG_MESSAGE("obstacle value is " + obstacle(10, 10, 10), MODE_NORMAL);
-		// }
-	}
-	else if (LoadedObjects >= 5)
-	{
-		LOG_MESSAGE("deposit", MODE_NORMAL);
-		if (US_Front < 14)
-		{
-			motor(-3, 1);
-		}
-		else if (US_Left < 8)
-		{
-			motor(-3, -1);
-		}
-		else if (US_Right < 8)
-		{
-			motor(-3, -1);
-		}
-		else if (US_Right < 15)
-		{
-			motor(3, 4);
-		}
-		else if (US_Right < 40)
-		{
-			motor(5, 3);
-		}
-		else if (US_Right < 80)
-		{
-			motor(4, 2);
-		}
-		else
-		{
-			motor(4, 2);
-		}
-	}
-	else
-	{
-		// if (US_Front < 14)
-		// {
-		// 	motor(-3, 1);
-		// }
-		// else if (US_Left < 8)
-		// {
-		// 	motor(-3, -1);
-		// }
-		// else if (US_Right < 8)
-		// {
-		// 	motor(-3, -1);
-		// }
-		// else if (US_Right < 15 + rand() % 30)
-		// {
-		// 	motor(4, 5);
-		// }
-		// else if (US_Right < 40 + rand() % 30)
-		// {
-		// 	motor(4, 3);
-		// }
-		// else if (US_Right < 80)
-		// {
-		// 	motor(3, 1);
-		// }
-		// else
-		// {
-		// 	motor(4, 2);
-		// }
-		motor(3, 3);
-	}
-
-	/*if (Time > 180 && getAction() != FIND_OBJ && getAction() != DEPOSIT_OBJ && (!EitherColorJudge(object_box) && LoadedObjects < 3) || Time > 200)
-	{
-		LOG_MESSAGE("Teleport");
-		setAction(TELEPORT);
-	}*/
-
-	switch (getAction())
-	{
-	case DEFINED:
-		break;
-	case YELLOW_AVOIDANCE:
-		break;
-	case FIND_OBJ:
-		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
-		{
-			LOG_MESSAGE("Add 1 to LoadedObjects", MODE_VERBOSE);
-			LoadedObjects++;
-		}
-		LED_1 = 1;
-		MyState = 0;
-		motor_no_action_change(0, 0);
-		if (Duration == 0 && SuperDuration == 0)
-		{
-			LED_1 = 0;
-		}
-		break;
-	case DEPOSIT_OBJ:
-		motor_no_action_change(0, 0);
-		LED_1 = 2;
-		MyState = 0;
-		LoadedObjects = 0;
-		// loaded_objects全体の大きさ / loaded_objects[0]の大きさ
-		resetLoadedObjects();
-
-		motor_no_action_change(0, 0);
-
-		if (Duration == 0 && SuperDuration == 0)
-		{
-			LED_1 = 0;
-		}
-		else if (!BothColorJudge(object_box))
-		{
-			ERROR_MESSAGE("this robot is not in object_box", MODE_NORMAL);
-			LoadedObjects = 6;
-			Duration = 0;
-			for (int i = 0; i < 3; i++)
-			{
-				loaded_objects[i] = 2;
-			}
-		}
-		break;
-	case TELEPORT:
-		Teleport = 2;
-		WheelLeft = 0;
-		WheelRight = 0;
-		LED_1 = 0;
-		MyState = 0;
-		LoadedObjects = 0;
-		SuperDuration = 0;
-		resetLoadedObjects();
-		CurGame = 1;
-		break;
-	case TO_DEPOSIT: // world 1 only
-	default:
-		ERROR_MESSAGE("action is " + to_string(static_cast<int>(getAction())), MODE_NORMAL);
-		break;
-	}
-	LOG_MESSAGE("World1 Loop End", MODE_NORMAL);
-}
-
-int Game0_Hikaru::shouldTeleport(void)
-{
-	return UserGame0::shouldTeleport();
-}
-void Game0_Hikaru::taskOnTeleport(void)
-{
-	UserGame0::taskOnTeleport();
-	Teleport = 3;
-}
-
 void Game1_Hikaru::setup(void)
 {
 	system("cls");
 	UserGame1::setup();
 	InputDotInformation();
 	InputColorInformation();
+	resetLoadedObjects();
 	system("chcp 65001");
-	srand(static_cast<unsigned int>(time(NULL)));
 
-	log_compass = Compass;
 	if (PositionX == 0 && PositionY == 0)
 	{
+
 		int y = emergency_now_dot_id / kDotWidthNum;
 		int x = emergency_now_dot_id - kDotWidthNum * y;
+		dot_x[1] = x;
+		dot_y[1] = y;
 		log_y = y * kSize;
 		log_x = x * kSize;
 		now_dot_id = emergency_now_dot_id;
@@ -325,15 +71,12 @@ void Game1_Hikaru::loop()
 
 	UserGame1::loop();
 
-	// printf("serach %d\n", searching_object);
 	static int same_time = 0;
 	static int prev_repeated_num = 0;
-	// printf("%d %d\n", log_x, log_y);
 	if (PositionX != 0 || PositionY != 0)
 	{
 		log_x = PositionX;
 		log_y = PositionY;
-		log_compass = Compass;
 
 		if (log_x < 0)
 		{
@@ -351,16 +94,15 @@ void Game1_Hikaru::loop()
 		{
 			log_y = kCospaceHeight - 1;
 		}
-		now_dot_id = CheckNowDot();
-		int now_y = now_dot_id / kDotWidthNum;
-		int now_x = now_dot_id - now_y * kDotWidthNum;
+		CheckNowDot();
+
 		int range = 0;
 		rep(hi, range * 2 + 1)
 		{
 			rep(wj, range * 2 + 1)
 			{
-				int y = hi + now_y - range;
-				int x = wj + now_x - range;
+				int y = hi + dot_y[1] - range;
+				int x = wj + dot_x[1] - range;
 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
@@ -377,8 +119,8 @@ void Game1_Hikaru::loop()
 		{
 			for (int hj = 0; hj < range * 2; hj++)
 			{
-				int x = log_x / kSize + wi - range;
-				int y = log_y / kSize + hj - range;
+				int x = dot_x[1] + wi - range;
+				int y = dot_y[1] / kSize + hj - range;
 				if (x < 0 || x >= kDotWidthNum || y < 0 || y >= kDotHeightNum)
 				{
 					continue;
@@ -412,6 +154,9 @@ void Game1_Hikaru::loop()
 		}
 	}
 
+	saveColorInfo();
+	calculateWallPosition();
+
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -420,42 +165,21 @@ void Game1_Hikaru::loop()
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
-		total_loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
-		if (log_x < 180) {
-			area_objects_num[RED_LOADED_ID][0]--;
-		}
-		else {
-			area_objects_num[RED_LOADED_ID][1]--;
-		}
 	}
 	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
-		total_loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
-		if (log_x < 180) {
-			area_objects_num[CYAN_LOADED_ID][1]--;
-		}
-		else {
-			area_objects_num[CYAN_LOADED_ID][0]--;
-		}
 	}
 	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
-		total_loaded_objects[BLACK_LOADED_ID]++;
-		if (log_x < 180) {
-			area_objects_num[BLACK_LOADED_ID][0]--;
-		}
-		else {
-			area_objects_num[BLACK_LOADED_ID][1]--;
-		}
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj()&& SuperObj_Num == 0  && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
+	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -493,7 +217,14 @@ void Game1_Hikaru::loop()
 	}
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
-		motor(-5, -3);
+		if (IsOnYellowLine() == 1)
+		{
+			motor(-1, -3);
+		}
+		else
+		{
+			motor(-3, -1);
+		}
 		Duration = 1;
 	}
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
@@ -513,10 +244,10 @@ void Game1_Hikaru::loop()
 			motor(3, 0);
 		}
 	}
-	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
+	else if (LoadedObjects >= 6 || (Time > 450 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
-		GoToDot(1, 1);
+		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
 	}
 	else if (log_superobj_num > 0)
 	{
@@ -527,7 +258,7 @@ void Game1_Hikaru::loop()
 			{
 				same_time = 0;
 			}
-			if (same_time > 10)
+			if (same_time > 7)
 			{
 				log_superobj_num = 0;
 				LOG_MESSAGE("There is no superobj", MODE_NORMAL);
@@ -538,16 +269,18 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum) {
-			GoInDots(70, 120, 50, 80, POINT_RED);
-		}
-		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum) {
-			GoInDots(270, 225, 90, 45, POINT_CYAN);
-		}
-		else {
+		if (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
+		{
 			GoInDots(270, 35, 90, 35, POINT_BLACK);
 		}
-		//GoToPosition(110, 234, 5, 5, 5);
+		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+		{
+			GoInDots(270, 225, 90, 45, POINT_CYAN);
+		}
+		else
+		{
+			GoInDots(70, 120, 50, 80, POINT_RED);
+		}
 	}
 	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(loaded_objects[RED_LOADED_ID]) << endl;
 
@@ -606,8 +339,6 @@ void Game1_Hikaru::loop()
 		break;
 	}
 
-	//This is for superobj
-	//When there is no superobj, I give up to search superobj
 	super_sameoperate++;
 	if (log_superobj_num == 0)
 	{
@@ -622,22 +353,6 @@ void Game1_Hikaru::loop()
 	LOG_MESSAGE("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
 }
 
-long Game1_Hikaru::WhereIsMotor(void)
-{
-	//fprintf(logfile, "%4d Start WhereIsMotor()\n", getRepeatedNum());
-	long x, y;
-	if (log_x < 0 || log_x >= kCospaceWidth || log_y < 0 || log_y >= kCospaceHeight)
-	{
-		//fprintf(errfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-		//fprintf(logfile, "%4d WhereIsMotor(): log_x, log_y = (%d, %d)\n", getRepeatedNum(), log_x, log_y);
-		log_x = kCospaceWidth / 2;
-		log_y = kCospaceHeight / 2;
-	}
-	x = log_x - static_cast<long>(cos((Compass + 90) * 3.14 / 180)) * 5;
-	y = log_y - static_cast<long>(sin((Compass + 90) * 3.14 / 180)) * 5;
-	//fprintf(logfile, "%4d End WhereIsMotor() with returning %ld * 1000 + %ld = %ld\n", getRepeatedNum(), y, x, y * 1000 + x);
-	return y * 1000 + x;
-}
 long Game1_Hikaru::WhereIsColorSensor(void)
 {
 	//fprintf(logfile, "%4d Start WhereIsColorSensor()\n", getRepeatedNum());
@@ -676,77 +391,91 @@ long Game1_Hikaru::WhereIsColorSensor(void)
 	return y * 1000 + x;
 }
 
-int Game1_Hikaru::CheckNowDot(void)
+void Game1_Hikaru::CheckNowDot(void)
 {
-	//fprintf(logfile, "%4d Start CheckNowDot()\n", getRepeatedNum());
-	int x = WhereIsColorSensor();
-	int y = x / 1000;
-	x = x - y * 1000;
-	//fprintf(logfile, "%4d CheckNowDot(): color sensor is (%d, %d)\n", getRepeatedNum(), x, y);
-	if (x < 0 || x >= kCospaceWidth || y < 0 || y >= kCospaceHeight)
-	{
-		//fprintf(logfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
-		//fprintf(errfile, "%4d CheckNowDot(): (x, y) = (%d, %d)\n", getRepeatedNum(), x, y);
-		if (x < 0)
-		{
-			x = 10;
-		}
-		else
-		{
-			x = kCospaceWidth - 11;
-		}
-		if (y < 0)
-		{
-			y = 10;
-		}
-		else
-		{
-			y = kCospaceHeight - 11;
-		}
-	}
+	// 左のカラーセンサ、右のカラーセンサ、座標の中心点をそれぞれA,B,Cとすると、
+	// 三角形ABCは、一辺5-6の正三角形
+	// x,yはそれぞれ左のカラーセンサ、座標センサの場所、右のカラーセンサの場所のx,y座標
+	int side = 6;
+	int x[3] = {
+		static_cast<int>(log_x + cos((Compass + 90 + 30) * M_PI / 180) * side),
+		log_x,
+		static_cast<int>(log_x + cos((Compass + 90 - 30) * M_PI / 180) * side)};
+	int y[3] = {
+		static_cast<int>(log_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
+		log_y,
+		static_cast<int>(log_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
 
-	x = x / kSize;
-	y = y / kSize;
-
-	//もし、今壁の中の場合
-	if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
+	rep(i, 3)
 	{
-		// printf("%d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
-		//fprintf(logfile, " %d CheckNowDot(): I am in wall or yellow\n", getRepeatedNum());
-		for (int i = 3; i <= 5 && dot[y * kDotWidthNum + x].point <= POINT_WALL; i = i + 2)
+		// 範囲外の場合
+		if (x[i] < 0)
+			x[i] = 0;
+		if (x[i] >= kCospaceWidth)
+			x[i] = kCospaceWidth - 1;
+		if (y[i] < 0)
+			y[i] = 0;
+		if (y[i] >= kCospaceHeight)
+			y[i] = kCospaceHeight - 1;
+
+		x[i] /= kSize;
+		y[i] /= kSize;
+		if (x[i] < 0)
 		{
-			for (int j = 0; j < pow(i, 2); j++)
+			x[i] = 0;
+		}
+		if (x[i] >= kDotWidthNum)
+		{
+			x[i] = kDotWidthNum - 1;
+		}
+		if (y[i] < 0)
+		{
+			y[i] = 0;
+		}
+		if (y[i] >= kDotHeightNum)
+		{
+			y[i] = kDotHeightNum - 1;
+		}
+		// そのドットが壁の場合
+		if (dot[y[i] * kDotWidthNum + x[i]].point == POINT_WALL)
+		{
+			// 近くのドットの中で、壁の中ではないドットにする
+			int range = (10 + kSize - 1) / kSize;
+			int min_position[2] = {-1, -1};
+			int min_value = INT_MAX;
+			for (int hi = -range; hi <= range; hi++)
 			{
-				int temp_x, temp_y;
-				temp_y = j / i;
-				temp_x = j - temp_y * i;
-				temp_x += x - i / 2;
-				temp_y += y - i / 2;
-				if (temp_x < 0 || temp_x >= kDotWidthNum)
+				for (int wj = -range; wj <= range; wj++)
 				{
-					continue;
-				}
-				if (temp_y < 0 || temp_y >= kDotHeightNum)
-				{
-					continue;
-				}
-				if (dot[temp_y * kDotWidthNum + temp_x].point >= POINT_DEPOSIT)
-				{
-					x = temp_x;
-					y = temp_y;
-					break;
+					int temp_x = x[i] + wj, temp_y = y[i] + hi;
+					if (temp_y < 0 || temp_y >= kCospaceHeight || temp_x < 0 || temp_x >= kCospaceWidth)
+					{
+						continue;
+					}
+					if (dot[temp_y * kDotWidthNum + temp_x].point != POINT_WALL)
+					{
+						if (min_value > ABS(hi) + ABS(wj))
+						{
+							min_value = ABS(hi) + ABS(wj);
+							min_position[0] = temp_x;
+							min_position[1] = temp_y;
+						}
+					}
 				}
 			}
+			if (min_position[0] < 0)
+			{
+				// y * kDotWidth + x -> -1
+				ERROR_MESSAGE(FUNCNAME + "(): i = " + to_string(i) + " there is no not wall dot near " + to_string(x[i]) + " " + to_string(y[i]), MODE_NORMAL);
+
+				y[i] = static_cast<int>(emergency_now_dot_id / kDotWidthNum);
+				x[i] = emergency_now_dot_id - y[i] * kDotWidthNum;
+			}
 		}
-		if (dot[y * kDotWidthNum + x].point <= POINT_WALL)
-		{
-			LOG_MESSAGE("CheckNowDot(): I(" + to_string(x) + "," + to_string(y) + ") and around me are in wall or yellow", MODE_NORMAL);
-			//fprintf(logfile, "%4d End CheckNowDot() with returning %d\n", getRepeatedNum(), emergency_now_dot_id);
-			return emergency_now_dot_id;
-		}
+		dot_x[i] = x[i];
+		dot_y[i] = y[i];
 	}
-	//fprintf(logfile, "%4d End CheckNowDot() with returning (%d, %d) = %d\n", getRepeatedNum(), x, y, y * kDotWidthNum + x);
-	return y * kDotWidthNum + x;
+	now_dot_id = dot_y[1] * kDotWidthNum + dot_x[1];
 }
 
 int Game1_Hikaru::IsNearYellow(int num, int x, int y)
@@ -791,13 +520,11 @@ int Game1_Hikaru::IsNearYellow(int num, int x, int y)
 		}
 
 		int id = temp_y * kDotWidthNum + temp_x;
-		if (dot[id].point == POINT_YELLOW)
+		if (dot[id].point == POINT_YELLOW || map_secure[SECURE_YELLOW][id] == 1)
 		{
-			//fprintf(logfile, "%4d End IsNearYellow() with returning 1\n", getRepeatedNum());
 			return 1;
 		}
 	}
-	//fprintf(logfile, "%4d End IsNearYellow() with returning 0\n", getRepeatedNum());
 	return 0;
 }
 
@@ -910,16 +637,6 @@ int Game1_Hikaru::GoToPosition(int x, int y, int wide_decide_x, int wide_decide_
 
 void Game1_Hikaru::InputDotInformation(void)
 {
-	// rep(hi, kDotHeightNum)
-	// {
-	// 	rep(wj, kDotWidthNum)
-	// 	{
-	// 		cout << map_output_data[hi][wj];
-	// 	}
-	// 	cout << endl;
-	// }
-	// cout << endl;
-
 	for (int i = 0; i < kDotWidthNum; i++)
 	{
 		for (int j = 0; j < kDotHeightNum; j++)
@@ -927,7 +644,7 @@ void Game1_Hikaru::InputDotInformation(void)
 			switch (map_output_data[kDotHeightNum - j - 1][i])
 			{
 			case 0: //white
-				map_position_color_data[i][j] = POINT_WHITE;
+				map_position_color_data[i][j] = POINT_UNKNOWN;
 				break;
 			case 1: //yellow
 				map_position_color_data[i][j] = POINT_YELLOW;
@@ -951,36 +668,23 @@ void Game1_Hikaru::InputDotInformation(void)
 		}
 	}
 
-	/*for (int i = 0; i < kDotWidthNum; i++)
+	rep(kind, 7)
 	{
-		for (int j = 0; j < kDotHeightNum; j++)
+		rep(ysi, 5)
 		{
-			switch (map_position_data[i][j])
+			rep(xsj, 6)
 			{
-			case 0: //white
-				map_position_color_data[i][j] = POINT_WHITE;
-				break;
-			case 1: //yellow
-				map_position_color_data[i][j] = POINT_YELLOW;
-				break;
-			case 2: //wall
-				map_position_color_data[i][j] = POINT_WALL;
-				break;
-			case 4: //swampland
-				map_position_color_data[i][j] = POINT_SWAMPLAND;
-				break;
-			case 3: //deposit
-				map_position_color_data[i][j] = POINT_DEPOSIT;
-				break;
-			case 5: // super area
-				map_position_color_data[i][j] = POINT_SUPERAREA;
-				break;
-			default:
-				map_position_color_data[i][j] = POINT_WHITE;
-				break;
+				for (int yi = ysi * kDotHeightNum / 5; yi < (ysi + 1) * kDotHeightNum / 5; ++yi)
+				{
+					for (int xj = xsj * kDotWidthNum / 6; xj < (xsj + 1) * kDotWidthNum / 6; ++xj)
+					{
+						map_secure[kind][yi * kDotWidthNum + xj] = map_secure_lite_data[kind][4 - ysi][xsj];
+					}
+				}
 			}
 		}
-	}*/
+	}
+
 	printf("map\n");
 	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
 	{
@@ -1090,7 +794,7 @@ void Game1_Hikaru::InputDotInformation(void)
 				dot[i].edge_num--;
 			}
 			//swampland
-			else if (dot[i].point == POINT_SWAMPLAND || dot[target_id].point == POINT_SWAMPLAND)
+			else if (dot[i].point == POINT_SWAMPLAND || dot[target_id].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND || dot[target_id].point == POINT_MAY_SWAMPLAND)
 			{
 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) * 1000 * 1000;
 			}
@@ -1104,7 +808,7 @@ void Game1_Hikaru::InputDotInformation(void)
 				//others
 				dot[i].edge_cost[dot[i].edge_num] = (dot[i].wide + dot[target_id].wide) / 2;
 			}
-			if (j % 2 == 0 && dot[i].edge_num >= 0 && dot[i].point != POINT_SWAMPLAND && dot[target_id].point != POINT_SWAMPLAND)
+			if (j % 2 == 0 && dot[i].edge_num >= 0 && dot[i].point != POINT_SWAMPLAND && dot[i].point != POINT_MAY_SWAMPLAND && dot[target_id].point != POINT_SWAMPLAND && dot[target_id].point != POINT_MAY_SWAMPLAND)
 			{
 				dot[i].edge_cost[dot[i].edge_num] = static_cast<int>(dot[i].edge_cost[dot[i].edge_num] * 1.4);
 			}
@@ -1200,7 +904,7 @@ void Game1_Hikaru::Dijkstra()
 			// }
 
 			//If the dot is yellow or wall
-			if (dot[i].point < POINT_SWAMPLAND)
+			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND || dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
 			{
 				continue;
 			}
@@ -1241,7 +945,7 @@ void Game1_Hikaru::Dijkstra()
 			}
 
 			//If target_dot is yellow or wall
-			if (dot[target_id].point < POINT_SWAMPLAND)
+			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND || dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
 			{
 				continue;
 			}
@@ -1310,18 +1014,34 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
-	// char map_data_to_show[kMaxDotNum];
-	// for (int i = 0; i < kMaxDotNum; i++)
-	// {
-	// 	if (dot[i].point <= POINT_WALL)
-	// 	{
-	// 		map_data_to_show[i] = '*';
-	// 	}
-	// 	else
-	// 	{
-	// 		map_data_to_show[i] = ' ';
-	// 	}
-	// }
+	char map_data_to_show[kMaxDotNum];
+	for (int i = 0; i < kMaxDotNum; i++)
+	{
+		if (dot[i].point == POINT_YELLOW)
+		{
+			map_data_to_show[i] = 'Y';
+		}
+		else if (dot[i].point == POINT_WALL)
+		{
+			map_data_to_show[i] = '#';
+		}
+		else if (dot[i].point == POINT_DEPOSIT)
+		{
+			map_data_to_show[i] = 'D';
+		}
+		else if (dot[i].point == POINT_SWAMPLAND)
+		{
+			map_data_to_show[i] = '$';
+		}
+		else if (dot[i].point == POINT_SUPERAREA)
+		{
+			map_data_to_show[i] = 'S';
+		}
+		else
+		{
+			map_data_to_show[i] = ' ';
+		}
+	}
 
 	//If the node I want to go will be go out
 	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
@@ -1348,7 +1068,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	}
 
 	int temp = goal_dot;
-	// map_data_to_show[goal_dot] = 'T';
+	map_data_to_show[goal_dot] = 'T';
 	int i = 0;
 
 	while (dot[temp].from != now_dot_id && i < 200)
@@ -1357,7 +1077,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		// go_y = temp / kDotWidthNum;
 		// go_x = temp - (int)go_y * kDotWidthNum;
 		temp = dot[temp].from;
-		// map_data_to_show[temp] = '#';
+		map_data_to_show[temp] = '#';
 		// printf("%d\n", dot[temp].point);
 		i++;
 		if (temp < 0 || temp >= kMaxDotNum)
@@ -1373,7 +1093,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		LOG_MESSAGE(FUNC_NAME + "(): iの値が200です", MODE_NORMAL);
 	}
 
-	// map_data_to_show[now_dot_id] = '@';
+	map_data_to_show[now_dot_id] = '@';
 
 	int next_x, next_y;
 	next_y = temp / kDotWidthNum;
@@ -1381,6 +1101,47 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	int now_y = now_dot_id / kDotWidthNum;
 	int now_x = now_dot_id - now_y * kDotWidthNum;
+
+	if (getRepeatedNum() % 5 == 0)
+	{
+		cout << "out map" << endl;
+		ProcessingTime pt2;
+		pt2.start();
+		FILE *fp = fopen("map_out.txt", "w");
+		if (fp == NULL)
+		{
+			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
+		}
+		else
+		{
+			cout << "out map start" << endl;
+			rep(xj, kDotWidthNum + 2)
+			{
+				fprintf(fp, "#");
+				// printf("#");
+			}
+			fprintf(fp, "\n");
+			rep(yi, kDotHeightNum)
+			{
+				fprintf(fp, "#");
+				// printf("#");
+				rep(xj, kDotWidthNum)
+				{
+					fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
+				}
+				fprintf(fp, "#");
+				// printf("#");
+				fprintf(fp, "\n");
+			}
+			rep(xj, kDotWidthNum + 2)
+			{
+				fprintf(fp, "#");
+			}
+			fprintf(fp, "\n");
+			fclose(fp);
+			cout << "out map end " << pt2.end() << endl;
+		}
+	}
 
 	int distance = 20;
 	if (next_x < now_x)
@@ -1911,12 +1672,12 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		classification = obstacle(5, 7, 5);
 	}
 
-	int big_motor = 5;
-	int short_motor = 3;
+	int big_motor = 4;
+	int short_motor = 2;
 	if (IsNearYellow(2, -1, -1))
 	{
-		big_motor = 4;
-		short_motor = 2;
+		big_motor = 3;
+		short_motor = 1;
 	}
 	switch (classification)
 	{
@@ -2005,7 +1766,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					}
 					else
 					{
-						motor(5, 5);
+						motor(4, 4);
 					}
 				}
 				else if (abs(angle) < 100)
@@ -2044,7 +1805,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			}
 			else if (IsOnSwampland())
 			{
-				if (abs(angle) < 30)
+				if (abs(angle) < 20)
 				{
 					motor(5, 5);
 				}
@@ -2083,11 +1844,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(4, 3);
+						motor(3, 2);
 					}
 					else
 					{
-						motor(3, 4);
+						motor(2, 3);
 					}
 				}
 				else if (abs(angle) < 80 && LoadedObjects != 6)
@@ -2105,22 +1866,22 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -3);
+						motor(4, 1);
 					}
 					else
 					{
-						motor(-3, 2);
+						motor(1, 4);
 					}
 				}
 				else
 				{
 					if (angle < 0)
 					{
-						motor(3, -4);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-4, 3);
+						motor(-3, 2);
 					}
 				}
 			}
@@ -2130,33 +1891,33 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (rand() % 4)
 					{
-						motor(4, 4);
+						motor(3, 3);
 					}
 					else
 					{
-						motor(5, 5);
+						motor(4, 4);
 					}
 				}
 				else if (abs(angle) < 80)
 				{
 					if (angle < 0)
 					{
-						motor(5, 2);
+						motor(3, 1);
 					}
 					else
 					{
-						motor(2, 5);
+						motor(1, 3);
 					}
 				}
 				else if (abs(angle) < 120)
 				{
 					if (angle < 0)
 					{
-						motor(5, 0);
+						motor(3, 0);
 					}
 					else
 					{
-						motor(0, 5);
+						motor(0, 3);
 					}
 				}
 				else
@@ -2179,11 +1940,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					{
 						if (angle < 0)
 						{
-							motor(3, 2);
+							motor(4, 3);
 						}
 						else
 						{
-							motor(2, 3);
+							motor(3, 4);
 						}
 					}
 					else
@@ -2201,7 +1962,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 						}
 						else
 						{
-							motor(5, 5);
+							motor(4, 4);
 						}
 					}
 				}
@@ -2209,46 +1970,34 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(5, 3);
+						motor(4, 2);
 					}
 					else
 					{
-						motor(3, 5);
+						motor(2, 4);
 					}
 				}
 				else if (abs(angle) < 120)
 				{
 					if (angle < 0)
 					{
-						motor(5, 2);
+						motor(5, 1);
 					}
 					else
 					{
-						motor(2, 5);
-					}
-				}
-				else if (distance < 20)
-				{
-					if (angle < 0)
-					{
-						motor(0, -3);
-					}
-					else
-					{
-						motor(-3, 0);
+						motor(1, 5);
 					}
 				}
 				else
 				{
 					if (angle < 0)
 					{
-						motor(4, -5);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-5, 4);
+						motor(-3, 2);
 					}
-					// Duration = 3;
 				}
 			}
 		}
@@ -2290,5 +2039,307 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		break;
 	default:
 		break;
+	}
+}
+
+void Game1_Hikaru::saveColorInfo(void)
+{
+	/*
+	最上位
+	POINT_DEPOSIT
+	POINT_YELLOW
+	POINT_SWAMPLAND
+
+	中位
+	POINT_SUPERAREA
+	POINT_WHITE
+	
+	下位
+	POINT_WALL
+	POINT_MAY_SWAMPLAND
+	POINT_UNKNWON
+	 */
+	cout << "log " << log_x << ", " << log_y << " dot" << dot_x[1] << ", " << dot_y[1] << " " << now_dot_id << endl;
+	if (ColorJudgeLeft(object_box))
+	{
+		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_DEPOSIT;
+	}
+	else if (ColorJudgeLeft(trap_line))
+	{
+		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_YELLOW;
+	}
+	else if (ColorJudgeLeft(gray_zone))
+	{
+		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SWAMPLAND;
+	
+		for (int yi = dot_y[0] - 1; yi <= dot_y[0] + 1; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeightNum)
+			{
+				continue;
+			}
+			for (int xj = dot_x[0] - 1; xj <= dot_x[0] + 1; ++xj)
+			{
+				if (xj < 0 || xj >= kDotWidthNum)
+				{
+					continue;
+				}
+				if(dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
+					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+				}
+			}
+		}
+		cout << log_x << " " << log_y << " "
+			 << "Swampland" << endl;
+	}
+	else if (ColorJudgeLeft(blue_zone))
+	{
+		if(dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT && dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW && dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND && )
+		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SUPERAREA;
+	}
+	else
+	{
+		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point == POINT_MAY_SWAMPLAND)
+		{
+			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
+		}
+	}
+
+	if (ColorJudgeRight(object_box))
+	{
+		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_DEPOSIT;
+	}
+	else if (ColorJudgeRight(trap_line))
+	{
+		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_YELLOW;
+	}
+	else if (ColorJudgeRight(gray_zone))
+	{
+		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SWAMPLAND;
+		for (int yi = dot_y[2] - 1; yi <= dot_y[2] + 1; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeightNum)
+			{
+				continue;
+			}
+			for (int xj = dot_x[2] - 1; xj <= dot_x[2] + 1; ++xj)
+			{
+				if (xj < 0 || xj >= kDotWidthNum)
+				{
+					continue;
+				}
+				dot[yi * kDotWidthNum + xj].point = POINT_SWAMPLAND;
+			}
+		}
+		cout << log_x << " " << log_y << " "
+			 << "Swampland" << endl;
+	}
+	else if (ColorJudgeRight(blue_zone))
+	{
+		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SUPERAREA;
+	}
+	else
+	{
+		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point == POINT_MAY_SWAMPLAND)
+		{
+			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;
+		}
+	}
+}
+
+void Game1_Hikaru::calculateWallPosition(void)
+{
+	if (PositionX != -1)
+	{
+		LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
+
+		// 0: left & right 1: front
+		int difference_us_position[2] = {9, 9};
+		int us_sensors[3] = {US_Left, US_Front, US_Right};
+		LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right) + " Compass: " + to_string(Compass), MODE_DEBUG);
+		string us_names[3] = {"Left", "Front", "Right"};
+		int angles[3] = {40, 0, -40};
+		int calculated_relative_coordinate[3][2];
+		int calculated_absolute_dot_position[3][2];
+		for (int i = 0; i < 3; ++i)
+		{
+
+			angles[i] += Compass + 90;
+			angles[i] %= 360;
+			if (us_sensors[i] > kUSLimit - 1)
+			{
+				us_sensors[i] = kUSLimit;
+			}
+			us_sensors[i] += difference_us_position[i % 2];
+			// 壁の位置とロボットの相対座標
+			calculated_relative_coordinate[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i]);
+			calculated_relative_coordinate[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i]);
+
+			// ドット上での壁の絶対座標
+			calculated_absolute_dot_position[i][0] = static_cast<int>((log_x + calculated_relative_coordinate[i][0] + kSize / 2) / kSize);
+			calculated_absolute_dot_position[i][1] = static_cast<int>((log_y + calculated_relative_coordinate[i][1] + kSize / 2) / kSize);
+			if (0 <= calculated_absolute_dot_position[i][0] && calculated_absolute_dot_position[i][0] < kDotWidthNum && 0 <= calculated_absolute_dot_position[i][1] && calculated_absolute_dot_position[i][1] < kDotHeightNum)
+			{
+				// 壁はないときは、MAP_WALLを登録する必要がない
+				if (us_sensors[i] < kUSLimit + difference_us_position[i % 2])
+				{
+					// if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == cospaceMap.MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
+					{
+						cout << calculated_absolute_dot_position[i][0] << " " << calculated_absolute_dot_position[i][1] << " wall" << endl;
+						dot[calculated_absolute_dot_position[i][1] * kDotWidthNum + calculated_absolute_dot_position[i][0]].color = POINT_WALL;
+					}
+				}
+			}
+
+			// x[0], y[0] -> x[1], y[1]までMAP_WALLをcospaceMap.MAP_WHITEに変更する
+			// 壁の位置(壁から多少離れた位置)とロボットそれぞれの絶対座標
+			// 基本的に、実際の壁との距離から0.7倍程度にするが、kSizeが最低2つはあけないといけない
+			// 1cm先に壁がある場合、cospaceMap.MAP_WHITEは登録しない
+			const int kRange4Wall = 20;
+
+			if (us_sensors[i] < kRange4Wall + difference_us_position[i % 2])
+			{
+				// cospaceMap.MAP_WHITEは登録しない
+				LOG_MESSAGE(FUNCNAME + "(): cospaceMap.MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
+				continue;
+			}
+			if (us_sensors[i] * 0.3 < kRange4Wall)
+			{
+				LOG_MESSAGE(FUNCNAME + "(): us_sensors[i](" + to_string(us_sensors[i]) + ") * 0.3 < kRange4Wall(" + to_string(kRange4Wall) + ")", MODE_VERBOSE);
+				calculated_relative_coordinate[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
+				calculated_relative_coordinate[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * (us_sensors[i] - kRange4Wall));
+			}
+			else
+			{
+				LOG_MESSAGE(FUNCNAME + "(): us_sensors[i](" + to_string(us_sensors[i]) + ") * 0.3 >= kRange4Wall(" + to_string(kRange4Wall) + ")", MODE_VERBOSE);
+				calculated_relative_coordinate[i][0] = static_cast<int>(cos(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
+				calculated_relative_coordinate[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
+			}
+
+			const int x[2] = {static_cast<int>(log_x / kSize), static_cast<int>((log_x + calculated_relative_coordinate[i][0] + kSize / 2) / kSize)};
+			const int y[2] = {static_cast<int>(log_y / kSize), static_cast<int>((log_y + calculated_relative_coordinate[i][1] + kSize / 2) / kSize)};
+
+			LOG_MESSAGE(FUNCNAME + "(): Set MAP_UNKNOWN (" + to_string(x[0]) + ", " + to_string(y[0]) + ") -> (" + to_string(x[1]) + ", " + to_string(y[1]) + ")", MODE_VERBOSE);
+
+			// (x[0], y[0]) -> (x[1], y[1])まで、MAP_WALLをMAP_UNKNOWN_NOT_WALLに変更する
+			if (x[0] == x[1]) // 縦方向の直線の場合
+			{
+				if (0 <= x[0] && x[0] < kDotWidthNum)
+				{
+					int y_start = y[0], y_end = y[1];
+					if (y_end == calculated_absolute_dot_position[i][1])
+					{
+						if (y_start < y_end)
+						{
+							--y_end;
+						}
+						else if (y_start > y_end)
+						{
+							++y_end;
+						}
+						else
+						{
+							LOG_MESSAGE(FUNCNAME + "(): 壁近くのドットを保護した結果、MAP_WHITEは設定できません", MODE_VERBOSE);
+							continue;
+						}
+					}
+					// 上から変更しようと、下から変更しようと変わらない
+					if (y[0] > y[1])
+					{
+						int temp = y_start;
+						y_start = y_end;
+						y_end = temp;
+					}
+					for (int yi = y_start; yi <= y_end; ++yi)
+					{
+						if (yi < 0)
+						{
+							yi = -1;
+							continue;
+						}
+						if (yi >= kDotHeightNum)
+						{
+							break;
+						}
+						if (dot[yi * kDotWidthNum + x[0]].color == POINT_WALL && map_position_color_data[x[0]][yi] != POINT_WALL)
+						{
+							cout << x[0] * kSize << " " << yi * kSize << " not wall";
+							dot[yi * kDotWidthNum + x[0]].color = map_position_color_data[x[0]][yi];
+						}
+					}
+				}
+			}
+			else
+			{
+				double tilt = static_cast<double>(y[1] - y[0]) / static_cast<double>(x[1] - x[0]);
+				int x_start = x[0], x_end = x[1];
+				if (x_end == calculated_absolute_dot_position[i][0])
+				{
+					if (x_start < x_end)
+					{
+						--x_end;
+					}
+					else if (x_start > x_end)
+					{
+						++x_end;
+					}
+					else
+					{
+						LOG_MESSAGE(FUNCNAME + "(): 壁近くのドットを保護した結果、MAP_WHITEは設定できません", MODE_VERBOSE);
+						continue;
+					}
+				}
+				if (x_start > x_end)
+				{
+					int temp = x_start;
+					x_start = x_end;
+					x_end = temp;
+					tilt = -tilt;
+				}
+				LOG_MESSAGE(FUNCNAME + "(): tilt is " + to_string(tilt), MODE_VERBOSE);
+				for (int xi = x_start; xi < x_end; ++xi)
+				{
+					if (xi < 0)
+					{
+						xi = -1;
+						continue;
+					}
+					if (xi >= kDotWidthNum)
+					{
+						break;
+					}
+					int y_start = y[0] + static_cast<int>(tilt * static_cast<double>(xi - x_start));
+					int y_end = y[0] + static_cast<int>(floor(tilt * (static_cast<double>(xi + 1 - x_start))));
+					if ((y_start - calculated_absolute_dot_position[i][1]) * (y_end - calculated_absolute_dot_position[i][1]) <= 0)
+					{
+						LOG_MESSAGE(FUNCNAME + "(): 壁近くのドットを保護した結果、MAP_WHITEは設定できません", MODE_VERBOSE);
+						continue;
+					}
+					if (y_start > y_end)
+					{
+						int temp = y_start;
+						y_start = y_end;
+						y_end = temp;
+					}
+					for (int yj = y_start; yj <= y_end; ++yj)
+					{
+						if (yj < 0)
+						{
+							yj = -1;
+							continue;
+						}
+						if (yj >= kDotHeightNum)
+						{
+							break;
+						}
+						if (dot[yj * kDotWidthNum + xi].color == POINT_WALL && map_position_color_data[xi][yj] != POINT_WALL)
+						{
+							cout << xi * kSize << " " << yj * kSize << " not wall" << endl;
+							dot[yj * kDotWidthNum + xi].color = map_position_color_data[xi][yj];
+						}
+					}
+				}
+			}
+		}
 	}
 }

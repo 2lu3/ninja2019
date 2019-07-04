@@ -5,21 +5,6 @@
 #include "CommonTools.hpp"
 #include <random>
 
-// World1
-class Game0_Hikaru : public UserGame0
-{
-public:
-    void setup(void) override;
-    void loop(void) override;
-    int shouldTeleport(void) override;
-    void taskOnTeleport(void) override;
-    const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = 44;
-
-private:
-    ProcessingTime pt;
-};
-
 // World2
 class Game1_Hikaru : public UserGame1
 {
@@ -28,7 +13,6 @@ public:
     void loop(void) override;
 
 private:
-	int map_position_color_data[36][27];
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
     const static int kSize = 10;
@@ -37,19 +21,20 @@ private:
     const static int kMaxDotNum = kCospaceWidth * kCospaceHeight / kSize / kSize;
     const static int kMaxEdgeNum = 25;
     const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = Game0_Hikaru::kFindObjDuration;
+    const static int kFindObjDuration = 44;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     int now_dot_id;
     int emergency_now_dot_id = 292;
     int super_sameoperate = 0;
     int searching_object;
-    int log_compass;
     int same_target_num = 5;
     int same_target = 0;
+    const int kUSLimit = 185;
     int log_x = -1, log_y = -1;
-	int total_loaded_objects[5];
-	int area_objects_num[4][2] = { {0, 0}, {9, 9}, {6, 3}, {8, 3} };
-	
+    int map_position_color_data[36][27];
+    int map_secure[7][kMaxDotNum];
+
+    int dot_x[3], dot_y[3];
 
     int large_process = -1;
     int process = 0;
@@ -95,14 +80,16 @@ private:
     void Dijkstra(void);
     void Astar(void);
     int GoToDot(int x, int y);
-    int CheckNowDot(void);
-    long WhereIsMotor(void);
+    void CheckNowDot(void);
     long WhereIsColorSensor(void);
     void InputDotInformation(void);
     int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
     int IsNearYellow(int num, int x, int y);
+
+    void saveColorInfo(void);
+    void calculateWallPosition(void);
 };
 
 #endif // !HIKARU
