@@ -86,6 +86,7 @@ void InputColorInformation(void)
 	ColorInformationInputer(COLOR_DEPOSIT, object_box);
 	ColorInformationInputer(COLOR_SWAMPLAND, gray_zone);
 	ColorInformationInputer(COLOR_WHITE, white_zone);
+	ColorInformationInputer(COLOR_MAKER1, world1_maker);
 	logErrorMessage.logMessage("End InputColorInformation\n", MODE_VERBOSE);
 }
 

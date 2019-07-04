@@ -222,9 +222,12 @@ void Game1_Hikaru::loop()
 			{
 				motor(-1, -5);
 			}
-			else
+			else if (IsOnYellowLine() == 2)
 			{
 				motor(-5, -1);
+			}
+			else {
+				motor(-5, -5);
 			}
 			Duration = 15;
 		}
@@ -233,9 +236,12 @@ void Game1_Hikaru::loop()
 			{
 				motor(-1, -5);
 			}
-			else
+			else if (IsOnYellowLine() == 2)
 			{
 				motor(-5, -1);
+			}
+			else {
+				motor(-5, -5);
 			}
 			Duration = 2;
 		}
@@ -257,7 +263,7 @@ void Game1_Hikaru::loop()
 			motor(3, 0);
 		}
 	}
-	else if (LoadedObjects >= 6 || (Time > 450 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
+	else if (LoadedObjects >= 6 || (Time > 430 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
 		GoInDots(180, 135, 180, 135, POINT_DEPOSIT);
@@ -1798,7 +1804,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				printf("log_superobj_num > 0 %d\n", angle);
 				if (abs(angle) < 30)
 				{
-					if (distance < 5)
+					if (distance < 5 + static_cast<int>(rnd() % 5))
 					{
 						motor(-big_motor, -big_motor);
 					}
@@ -1843,32 +1849,43 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			}
 			else if (IsOnSwampland())
 			{
-				if (abs(angle) < 20)
-				{
-					motor(5, 5);
+				if (IsOnSwampland() == 1 && angle > 0 && angle < 90) {
+					// left
+					motor(5, 1);
 				}
-				else if (abs(angle) < 90)
-				{
-					if (angle < 0)
+				else if (IsOnSwampland() == 2 && angle < 0 && angle > -90) {
+					motor(1, 5);
+				}
+				else {
+
+					if (abs(angle) < 30)
 					{
-						motor(5, 1);
+						motor(5, 5);
+					}
+					else if (abs(angle) < 90)
+					{
+						if (angle < 0)
+						{
+							motor(5, 1);
+						}
+						else
+						{
+							motor(1, 5);
+						}
 					}
 					else
 					{
-						motor(1, 5);
+						if (angle < 0)
+						{
+							motor(5, -5);
+						}
+						else
+						{
+							motor(-5, 5);
+						}
 					}
 				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(5, -5);
-					}
-					else
-					{
-						motor(-5, 5);
-					}
-				}
+
 				Duration = 5;
 			}
 			else if (IsNearYellow(2, -1, -1) && LoadedObjects != 0)
@@ -2132,9 +2149,11 @@ void Game1_Hikaru::saveColorInfo(void)
 	POINT_WHITE
 
 	下位
-	POINT_WALL
 	POINT_MAY_SWAMPLAND
 	POINT_UNKNWON
+
+	その他
+	POINT_WALL
 	 */
 	cout << "log " << log_x << ", " << log_y << " dot" << dot_x[1] << ", " << dot_y[1] << " " << now_dot_id << endl;
 	if (ColorJudgeLeft(object_box))
@@ -2145,34 +2164,47 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else if (ColorJudgeLeft(trap_line))
 	{
-		int range = 2;
+		int range = 1;
 		if (PositionX == -1) {
-			int left = 0, right = 0, up = 0, down = 0;
-			if (Compass < 180) {
-				left += range;
-			}
-			else {
-				right += range;
-			}
-			if (90 <= Compass && Compass < 270) {
-				down += range;
-			}
-			else {
-				up += range;
-			}
-			for (int yi = dot_y[0] - down; yi <= dot_y[0] + up; ++yi)
+			range = 2;
+		}
+		int left = 0, right = 0, up = 0, down = 0;
+		if (Compass < 180) {
+			left += range;
+		}
+		else {
+			right += range;
+		}
+		if (90 <= Compass && Compass < 270) {
+			down += range;
+		}
+		else {
+			up += range;
+		}
+		for (int yi = dot_y[0] - down; yi <= dot_y[0] + up; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeightNum)
 			{
-				if (yi < 0 || yi >= kDotHeightNum)
+				continue;
+			}
+			for (int xj = dot_x[0] - left; xj <= dot_x[0] + right; ++xj)
+			{
+				if (xj < 0 || xj >= kDotWidthNum)
 				{
 					continue;
 				}
-				for (int xj = dot_x[0] - left; xj <= dot_x[0] + right; ++xj)
-				{
-					if (xj < 0 || xj >= kDotWidthNum)
-					{
+
+
+				if (PositionX == -1) {
+					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+				}
+				else {
+					if (yi != dot_y[0] && xj != dot_x[0]) {
 						continue;
 					}
-					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					if (map_secure[SECURE_YELLOW][yi * kDotWidthNum + xj] == 1) {
+						dot[yi * kDotWidthNum + xj].point = POINT_YELLOW;
+					}
 				}
 			}
 		}
@@ -2219,9 +2251,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else
 	{
-		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT
-			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW
-			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND)
+		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT)
 		{
 			if (map_secure[SECURE_WHITE][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
 				dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
@@ -2237,35 +2267,47 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else if (ColorJudgeRight(trap_line))
 	{
-		int range = 2;
+		int range = 1;
 		int left = 0, right = 0, up = 0, down = 0;
 		if (PositionX == -1) {
-			if (Compass < 180) {
-				left += range;
-			}
-			else {
-				right += range;
-			}
-			if (90 <= Compass && Compass < 270) {
-				down += range;
-			}
-			else {
-				up += range;
-			}
-			for (int yi = dot_y[0] - down; yi <= dot_y[0] + up; ++yi)
+			range = 2;
+		}
+		if (Compass < 180) {
+			left += range;
+		}
+		else {
+			right += range;
+		}
+		if (90 <= Compass && Compass < 270) {
+			down += range;
+		}
+		else {
+			up += range;
+		}
+		for (int yi = dot_y[0] - down; yi <= dot_y[0] + up; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeightNum)
 			{
-				if (yi < 0 || yi >= kDotHeightNum)
+				continue;
+			}
+			for (int xj = dot_x[0] - left; xj <= dot_x[0] + right; ++xj)
+			{
+				if (xj < 0 || xj >= kDotWidthNum)
 				{
 					continue;
 				}
-				for (int xj = dot_x[0] - left; xj <= dot_x[0] + right; ++xj)
-				{
-					if (xj < 0 || xj >= kDotWidthNum)
-					{
+
+				if (PositionX == -1) {
+					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+
+				}
+				else {
+					if (yi != dot_y[2] && xj != dot_x[2]) {
 						continue;
 					}
-
-					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					if (map_secure[SECURE_YELLOW][yi * kDotWidthNum + xj] == 1) {
+						dot[yi * kDotWidthNum + xj].point = POINT_YELLOW;
+					}
 				}
 			}
 		}
@@ -2310,9 +2352,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else
 	{
-		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT
-			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_YELLOW
-			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_SWAMPLAND)
+		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT)
 		{
 			if (map_secure[SECURE_WHITE][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
 				dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;

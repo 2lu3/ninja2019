@@ -103,7 +103,6 @@ void Game0_Masuda::loop(void)
 		loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	
 	else if (Duration > 0)
 	{
 		Duration--;
@@ -120,6 +119,22 @@ void Game0_Masuda::loop(void)
 		}
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
+	}
+	else if (IsOnWorld1MakerArea() && LoadedObjects >= 4) {
+		if (compassJudge(0, 90)) {
+			motor(-3, 3);
+		}
+		else if(compassJudge(90, 120)){
+			motor(2, 4);
+		}
+		else if (compassJudge(120, 150)) {
+			motor(4, 2);
+		}
+		else {
+			motor(3, -3);
+		}
+		cout << "marker" << endl;
+		Duration = 2;
 	}
 	else if (LoadedObjects >= 5)
 	{
@@ -173,11 +188,11 @@ void Game0_Masuda::loop(void)
 		}
 		else if (US_Right < 80)
 		{
-			motor(3, 1);
+			motor(4, 1);
 		}
 		else
 		{
-			motor(4, 2);
+			motor(4, 3);
 		}
 	}
 
