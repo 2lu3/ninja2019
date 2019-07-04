@@ -217,15 +217,28 @@ void Game1_Hikaru::loop()
 	}
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
-		if (IsOnYellowLine() == 1)
-		{
-			motor(-1, -3);
+		if (IsOnSwampland()) {
+			if (IsOnYellowLine() == 1)
+			{
+				motor(-3, -5);
+			}
+			else
+			{
+				motor(-5, -3);
+			}
+			Duration = 10;
 		}
-		else
-		{
-			motor(-3, -1);
-		}
+		else {
+			if (IsOnYellowLine() == 1)
+			{
+				motor(-1, -3);
+			}
+			else
+			{
+				motor(-3, -1);
+			}
 		Duration = 1;
+		}
 	}
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
@@ -400,11 +413,11 @@ void Game1_Hikaru::CheckNowDot(void)
 	int x[3] = {
 		static_cast<int>(log_x + cos((Compass + 90 + 30) * M_PI / 180) * side),
 		log_x,
-		static_cast<int>(log_x + cos((Compass + 90 - 30) * M_PI / 180) * side)};
+		static_cast<int>(log_x + cos((Compass + 90 - 30) * M_PI / 180) * side) };
 	int y[3] = {
 		static_cast<int>(log_y + sin((Compass + 90 + 30) * M_PI / 180) * side),
 		log_y,
-		static_cast<int>(log_y + sin((Compass + 90 - 30) * M_PI / 180) * side)};
+		static_cast<int>(log_y + sin((Compass + 90 - 30) * M_PI / 180) * side) };
 
 	rep(i, 3)
 	{
@@ -441,7 +454,7 @@ void Game1_Hikaru::CheckNowDot(void)
 		{
 			// 近くのドットの中で、壁の中ではないドットにする
 			int range = (10 + kSize - 1) / kSize;
-			int min_position[2] = {-1, -1};
+			int min_position[2] = { -1, -1 };
 			int min_value = INT_MAX;
 			for (int hi = -range; hi <= range; hi++)
 			{
@@ -1029,7 +1042,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		{
 			map_data_to_show[i] = 'D';
 		}
-		else if (dot[i].point == POINT_SWAMPLAND)
+		else if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND)
 		{
 			map_data_to_show[i] = '$';
 		}
@@ -1077,7 +1090,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		// go_y = temp / kDotWidthNum;
 		// go_x = temp - (int)go_y * kDotWidthNum;
 		temp = dot[temp].from;
-		map_data_to_show[temp] = '#';
+		map_data_to_show[temp] = '+';
 		// printf("%d\n", dot[temp].point);
 		i++;
 		if (temp < 0 || temp >= kMaxDotNum)
@@ -1107,7 +1120,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		cout << "out map" << endl;
 		ProcessingTime pt2;
 		pt2.start();
-		FILE *fp = fopen("map_out.txt", "w");
+		FILE* fp = fopen("map_out.txt", "w");
 		if (fp == NULL)
 		{
 			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
@@ -2053,7 +2066,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	中位
 	POINT_SUPERAREA
 	POINT_WHITE
-	
+
 	下位
 	POINT_WALL
 	POINT_MAY_SWAMPLAND
@@ -2071,7 +2084,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	else if (ColorJudgeLeft(gray_zone))
 	{
 		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SWAMPLAND;
-	
+
 		for (int yi = dot_y[0] - 1; yi <= dot_y[0] + 1; ++yi)
 		{
 			if (yi < 0 || yi >= kDotHeightNum)
@@ -2084,22 +2097,27 @@ void Game1_Hikaru::saveColorInfo(void)
 				{
 					continue;
 				}
-				if(dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
+				if (dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
 					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
 				}
 			}
 		}
 		cout << log_x << " " << log_y << " "
-			 << "Swampland" << endl;
+			<< "Swampland" << endl;
 	}
 	else if (ColorJudgeLeft(blue_zone))
 	{
-		if(dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT && dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW && dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND && )
-		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SUPERAREA;
+		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT
+			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW
+			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND) {
+			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SUPERAREA;
+		}
 	}
 	else
 	{
-		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point == POINT_MAY_SWAMPLAND)
+		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT
+			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW
+			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND)
 		{
 			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
 		}
@@ -2128,19 +2146,27 @@ void Game1_Hikaru::saveColorInfo(void)
 				{
 					continue;
 				}
-				dot[yi * kDotWidthNum + xj].point = POINT_SWAMPLAND;
+				if (dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
+					dot[yi * kDotWidthNum + xj].point = POINT_SWAMPLAND;
+				}
 			}
 		}
 		cout << log_x << " " << log_y << " "
-			 << "Swampland" << endl;
+			<< "Swampland" << endl;
 	}
 	else if (ColorJudgeRight(blue_zone))
 	{
-		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SUPERAREA;
+		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT
+			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_YELLOW
+			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_SWAMPLAND) {
+			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SUPERAREA;
+		}
 	}
 	else
 	{
-		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point == POINT_MAY_SWAMPLAND)
+		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT
+			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_YELLOW
+			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_SWAMPLAND)
 		{
 			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;
 		}
@@ -2154,11 +2180,11 @@ void Game1_Hikaru::calculateWallPosition(void)
 		LOG_MESSAGE(FUNCNAME + "():" + "壁の位置の計算を開始", MODE_DEBUG);
 
 		// 0: left & right 1: front
-		int difference_us_position[2] = {9, 9};
-		int us_sensors[3] = {US_Left, US_Front, US_Right};
+		int difference_us_position[2] = { 9, 9 };
+		int us_sensors[3] = { US_Left, US_Front, US_Right };
 		LOG_MESSAGE(FUNCNAME + "(): " + "US " + to_string(US_Left) + " " + to_string(US_Front) + " " + to_string(US_Right) + " Compass: " + to_string(Compass), MODE_DEBUG);
-		string us_names[3] = {"Left", "Front", "Right"};
-		int angles[3] = {40, 0, -40};
+		string us_names[3] = { "Left", "Front", "Right" };
+		int angles[3] = { 40, 0, -40 };
 		int calculated_relative_coordinate[3][2];
 		int calculated_absolute_dot_position[3][2];
 		for (int i = 0; i < 3; ++i)
@@ -2186,7 +2212,7 @@ void Game1_Hikaru::calculateWallPosition(void)
 					// if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == cospaceMap.MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
 					{
 						cout << calculated_absolute_dot_position[i][0] << " " << calculated_absolute_dot_position[i][1] << " wall" << endl;
-						dot[calculated_absolute_dot_position[i][1] * kDotWidthNum + calculated_absolute_dot_position[i][0]].color = POINT_WALL;
+						dot[calculated_absolute_dot_position[i][1] * kDotWidthNum + calculated_absolute_dot_position[i][0]].point = POINT_WALL;
 					}
 				}
 			}
@@ -2201,7 +2227,7 @@ void Game1_Hikaru::calculateWallPosition(void)
 			{
 				// cospaceMap.MAP_WHITEは登録しない
 				LOG_MESSAGE(FUNCNAME + "(): cospaceMap.MAP_WHITEは、壁との距離が非常に近いため設定しません", MODE_VERBOSE)
-				continue;
+					continue;
 			}
 			if (us_sensors[i] * 0.3 < kRange4Wall)
 			{
@@ -2216,8 +2242,8 @@ void Game1_Hikaru::calculateWallPosition(void)
 				calculated_relative_coordinate[i][1] = static_cast<int>(sin(angles[i] * M_PI / 180) * us_sensors[i] * 0.7);
 			}
 
-			const int x[2] = {static_cast<int>(log_x / kSize), static_cast<int>((log_x + calculated_relative_coordinate[i][0] + kSize / 2) / kSize)};
-			const int y[2] = {static_cast<int>(log_y / kSize), static_cast<int>((log_y + calculated_relative_coordinate[i][1] + kSize / 2) / kSize)};
+			const int x[2] = { static_cast<int>(log_x / kSize), static_cast<int>((log_x + calculated_relative_coordinate[i][0] + kSize / 2) / kSize) };
+			const int y[2] = { static_cast<int>(log_y / kSize), static_cast<int>((log_y + calculated_relative_coordinate[i][1] + kSize / 2) / kSize) };
 
 			LOG_MESSAGE(FUNCNAME + "(): Set MAP_UNKNOWN (" + to_string(x[0]) + ", " + to_string(y[0]) + ") -> (" + to_string(x[1]) + ", " + to_string(y[1]) + ")", MODE_VERBOSE);
 
