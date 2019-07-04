@@ -493,7 +493,12 @@ void Game1_Hikaru::loop()
 	}
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
-		motor(-5, -3);
+		if (IsOnYellowLine() == 1) {
+			motor(-1, -3);
+		}
+		else {
+			motor(-3, -1);
+		}
 		Duration = 1;
 	}
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
@@ -513,10 +518,10 @@ void Game1_Hikaru::loop()
 			motor(3, 0);
 		}
 	}
-	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
+	else if (LoadedObjects >= 6 || (Time > 450 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
 	{
 		searching_object = -1;
-		GoToDot(1, 1);
+		GoToDot(1, 26);
 	}
 	else if (log_superobj_num > 0)
 	{
@@ -538,14 +543,15 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum) {
-			GoInDots(70, 120, 50, 80, POINT_RED);
+		if (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum) {
+
+			GoInDots(270, 35, 90, 35, POINT_BLACK);
 		}
 		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum) {
 			GoInDots(270, 225, 90, 45, POINT_CYAN);
 		}
 		else {
-			GoInDots(270, 35, 90, 35, POINT_BLACK);
+			GoInDots(70, 120, 50, 80, POINT_RED);
 		}
 		//GoToPosition(110, 234, 5, 5, 5);
 	}
@@ -1911,12 +1917,12 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		classification = obstacle(5, 7, 5);
 	}
 
-	int big_motor = 5;
-	int short_motor = 3;
+	int big_motor = 4;
+	int short_motor = 2;
 	if (IsNearYellow(2, -1, -1))
 	{
-		big_motor = 4;
-		short_motor = 2;
+		big_motor = 3;
+		short_motor = 1;
 	}
 	switch (classification)
 	{
@@ -2005,7 +2011,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					}
 					else
 					{
-						motor(5, 5);
+						motor(4, 4);
 					}
 				}
 				else if (abs(angle) < 100)
@@ -2083,11 +2089,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(4, 3);
+						motor(3, 2);
 					}
 					else
 					{
-						motor(3, 4);
+						motor(2, 3);
 					}
 				}
 				else if (abs(angle) < 80 && LoadedObjects != 6)
@@ -2105,22 +2111,22 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(2, -3);
+						motor(4, 1);
 					}
 					else
 					{
-						motor(-3, 2);
+						motor(1, 4);
 					}
 				}
 				else
 				{
 					if (angle < 0)
 					{
-						motor(3, -4);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-4, 3);
+						motor(-3, 2);
 					}
 				}
 			}
@@ -2130,33 +2136,33 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (rand() % 4)
 					{
-						motor(4, 4);
+						motor(2, 2);
 					}
 					else
 					{
-						motor(5, 5);
+						motor(4, 4);
 					}
 				}
 				else if (abs(angle) < 80)
 				{
 					if (angle < 0)
 					{
-						motor(5, 2);
+						motor(3, 1);
 					}
 					else
 					{
-						motor(2, 5);
+						motor(1, 3);
 					}
 				}
 				else if (abs(angle) < 120)
 				{
 					if (angle < 0)
 					{
-						motor(5, 0);
+						motor(3, 0);
 					}
 					else
 					{
-						motor(0, 5);
+						motor(0, 3);
 					}
 				}
 				else
@@ -2201,7 +2207,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 						}
 						else
 						{
-							motor(5, 5);
+							motor(4, 4);
 						}
 					}
 				}
@@ -2209,47 +2215,35 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(5, 3);
+						motor(3, 1);
 					}
 					else
 					{
-						motor(3, 5);
+						motor(1, 3);
 					}
 				}
 				else if (abs(angle) < 120)
 				{
 					if (angle < 0)
 					{
-						motor(5, 2);
+						motor(3, 1);
 					}
 					else
 					{
-						motor(2, 5);
+						motor(1, 3);
 					}
 				}
-				else if (distance < 20)
-				{
+				else {
 					if (angle < 0)
 					{
-						motor(0, -3);
+						motor(2, -3);
 					}
 					else
 					{
-						motor(-3, 0);
+						motor(-3, 2);
 					}
 				}
-				else
-				{
-					if (angle < 0)
-					{
-						motor(4, -5);
-					}
-					else
-					{
-						motor(-5, 4);
-					}
-					// Duration = 3;
-				}
+
 			}
 		}
 		break;
