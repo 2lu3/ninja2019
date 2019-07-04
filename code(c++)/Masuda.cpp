@@ -82,21 +82,21 @@ void Game0_Masuda::loop(void)
 			break;
 		}
 	}
-	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
+	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find black obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
+	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find cyan obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum + 1 && LoadedObjects < 6)
+	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
 	{
 		LOG_MESSAGE("find red obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
@@ -106,10 +106,10 @@ void Game0_Masuda::loop(void)
 	else if (Duration > 0)
 	{
 		Duration--;
-	}else if (Time < 10)
+	}else if (Time < 1)
 	{
-		motor(1,5);
-		Duration=5;
+		motor(5,1);
+		Duration=2;
 	}
 	
 	else if (IsOnYellowLine() && LoadedObjects > 0)
@@ -125,17 +125,17 @@ void Game0_Masuda::loop(void)
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
 	}
-	else if ((IsOnWorld1MakerArea() && LoadedObjects >= 4)||depo == 1) {
-		if (compassJudge(45, 90)) {
+	/* else if ((IsOnWorld1MakerArea() && LoadedObjects >= 4)||depo == 1) {
+		if (compassJudge(75, 90)) {
 			motor(2, 4);
 		}
-		else if(compassJudge(90, 135)){
+		else if(compassJudge(90, 105)){
 			motor(4, 2);
 		}
-		else if (compassJudge(225, 270)) {
+		else if (compassJudge(255, 270)) {
 			motor(2, 4);
 		}
-		else if (compassJudge(270, 315)) {
+		else if (compassJudge(270, 285)) {
 			motor(4, 2);
 		}
 		else {
@@ -143,7 +143,8 @@ void Game0_Masuda::loop(void)
 		}
 		cout << "marker" << endl;
 		Duration = 2;
-	}
+	}*/
+	
 	else if (LoadedObjects >= 5)
 	{
 		LOG_MESSAGE("deposit", MODE_NORMAL);
