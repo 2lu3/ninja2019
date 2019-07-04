@@ -15,6 +15,7 @@ extern int sp_obj[3][2];
 extern int purple_line[3][2];
 extern int white_zone[3][2];
 extern int world1_maker[3][2];
+extern int world2_object_box[3][2];
 
 int ColorJudgeLeft(int col[3][2]);
 int ColorJudgeRight(int col[3][2]);
@@ -33,5 +34,6 @@ int IsOnDepositArea(void);
 int IsOnSwampland(void);
 int IsOnWhiteArea(void);
 int IsOnWorld1MakerArea(void);
+int IsOnWorldDepositArea(void);
 
 #endif // !JUDGE_COLOR_TOOLS

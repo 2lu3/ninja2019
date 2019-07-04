@@ -9,8 +9,8 @@ int cyan_obj[3][2] = {{29, 39}, {249, 255}, {249, 255}};
 int black_obj[3][2] = {{29, 39}, {29, 39}, {29, 39}};
 int trap_line[3][2] = {{200, 235}, {215, 250}, {0, 0}};
 int blue_zone[3][2] = {{0, 0}, {150, 175}, {255, 255}};
-int object_box[3][2] = {{204, 235}, {109, 124}, {0, 0}};
-//int object_box[3][2] = {{204, 235}, {130, 148}, {0, 0}};
+int object_box[3][2] = {{204, 235}, {130, 148}, {0, 0}};
+int world2_object_box[3][2] = {{204, 235}, {109, 124}, {0, 0}};
 // int object_box[3][2] = {{204, 235}, {163, 186}, {0, 0}};
 // int gray_zone[3][2] = {{130, 160}, {140, 165}, {185, 210}};
 int gray_zone[3][2] = {{133, 153}, {141, 161}, {187, 207}};
@@ -41,7 +41,7 @@ int BothColorJudge(int col[3][2])
 	return ColorJudgeLeft(col) && ColorJudgeRight(col);
 }
 
-#define COLOR_TYPE_NUMBER 10
+#define COLOR_TYPE_NUMBER 11
 #define COLOR_YELLOW 0
 #define COLOR_RED 1
 #define COLOR_CYAN 2
@@ -52,6 +52,7 @@ int BothColorJudge(int col[3][2])
 #define COLOR_SWAMPLAND 7
 #define COLOR_WHITE 8
 #define COLOR_MAKER1 9
+#define COLOR_DEPOSIT2 10
 int color_world2[COLOR_TYPE_NUMBER][6];
 int ColorInformationInputer(int num, int col[3][2])
 {
@@ -88,6 +89,7 @@ void InputColorInformation(void)
 	ColorInformationInputer(COLOR_SWAMPLAND, gray_zone);
 	ColorInformationInputer(COLOR_WHITE, white_zone);
 	ColorInformationInputer(COLOR_MAKER1, world1_maker);
+	ColorInformationInputer(COLOR_DEPOSIT2, world2_object_box);
 	logErrorMessage.logMessage("End InputColorInformation\n", MODE_VERBOSE);
 }
 
@@ -148,4 +150,8 @@ int IsOnWhiteArea(void)
 int IsOnWorld1MakerArea(void)
 {
 	return IsOnStuff(COLOR_MAKER1);
+}
+int IsOnWorld2DepositArea(void)
+{
+	return IsOnStuff(COLOR_DEPOSIT2);
 }
