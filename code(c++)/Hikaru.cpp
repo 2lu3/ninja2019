@@ -455,7 +455,7 @@ void Game1_Hikaru::loop()
 		}
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj()  && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
+	else if (IsOnSuperObj()&& SuperObj_Num == 0  && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -542,9 +542,44 @@ void Game1_Hikaru::loop()
 		{
 			if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
 				//左上
-				if (GoToDots(120, 195, 30, 25)) {
-					cout << "return" << endl;
+				/*if (PLUSMINUS(log_x, 120, 30) && PLUSMINUS(log_y, 195, 25)) {
+					if (process == 0) {
+						if (GoToPosition(90, 170, 2, 2, 5)) {
+							process++;
+						}
+					}
+					else if (process == 1) {
+						if (GoToPosition(90, 220, 2, 2, 5)) {
+							process++;
+						}
+					}
+					else if (process == 2) {
+						if (GoToPosition(145, 217, 2, 2, 5)) {
+							process++;
+						}
+					}
+					else if (process == 3) {
+						if (GoToPosition(140, 170, 5, 5, 5)) {
+							process++;
+						}
+					}
+					else if (process == 4) {
+						if (GoToPosition(120, 170, 5, 5, 5)) {
+							process++;
+						}
+					}
+					else if (process == 5) {
+						if (GoToPosition(120, 200, 5, 5, 5)) {
+							process = 0;
+						}
+					}
+					else {
+						process = 0;
+					}
 				}
+				else {*/
+					GoToDots(120, 195, 30, 20);
+				//}
 			}
 			else {
 				//右下
@@ -554,7 +589,7 @@ void Game1_Hikaru::loop()
 			}
 			searching_object = RED_LOADED_ID;
 		}
-		else if (loaded_objects[CYAN_LOADED_ID] < 2 && total_loaded_objects[CYAN_LOADED_ID] < 9 && (9 - total_loaded_objects[CYAN_LOADED_ID] >= (11 - total_loaded_objects[BLACK_LOADED_ID])))
+		else if (loaded_objects[CYAN_LOADED_ID] < 2 && total_loaded_objects[CYAN_LOADED_ID] < 9 && (9 - total_loaded_objects[CYAN_LOADED_ID] >= 11 - total_loaded_objects[BLACK_LOADED_ID] || loaded_objects[BLACK_LOADED_ID] >= kBorderSameObjNum))
 		{
 			if ((log_x < 180 && area_objects_num[CYAN_LOADED_ID][1] > 0) || (log_x >= 180 && area_objects_num[CYAN_LOADED_ID][0] <= 0)) {
 				//左上
@@ -563,10 +598,32 @@ void Game1_Hikaru::loop()
 				}
 			}
 			else {
-				//右上
-				if (GoToDots(340, 220, 5, 70)) {
-					cout << "return" << endl;
+				if (PLUSMINUS(log_x, 320, 40) && PLUSMINUS(log_y, 210, 60)) {
+					if (process == 0) {
+						if (GoToPosition(340, 165, 3, 3, 8)) {
+							process++;
+						}
+					}
+					else if (process == 1) {
+						if (GoToPosition(340, 250, 5, 5, 8)) {
+							process++;
+						}
+					}
+					else if (process == 2) {
+						if (GoToPosition(290, 255, 5, 5, 8)) {
+							process = 0;
+						}
+					}
+					else {
+
+						process = 0;
+					}
 				}
+				else {
+					//右上
+					GoToDots(340, 220, 5, 70);
+				}
+				
 			}
 			searching_object = CYAN_LOADED_ID;
 		}
@@ -591,8 +648,43 @@ void Game1_Hikaru::loop()
 			if (total_loaded_objects[RED_LOADED_ID] < 18) {
 				if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
 					//左上
-					if (GoToDots(120, 195, 30, 25)) {
-						cout << "return" << endl;
+					if (PLUSMINUS(log_x, 120, 30) && PLUSMINUS(log_y, 195, 25)) {
+						if (process == 0) {
+							if (GoToPosition(90, 170, 2, 2, 5)) {
+								process++;
+							}
+						}
+						else if (process == 1) {
+							if (GoToPosition(90, 220, 2, 2, 5)) {
+								process++;
+							}
+						}
+						else if (process == 2) {
+							if (GoToPosition(145, 217, 2, 2, 5)) {
+								process++;
+							}
+						}
+						else if (process == 3) {
+							if (GoToPosition(140, 170, 5, 5, 5)) {
+								process++;
+							}
+						}
+						else if (process == 4) {
+							if (GoToPosition(120, 170, 5, 5, 5)) {
+								process++;
+							}
+						}
+						else if (process == 5) {
+							if (GoToPosition(120, 200, 5, 5, 5)) {
+								process = 0;
+							}
+						}
+						else {
+							process = 0;
+						}
+					}
+					else{
+						GoToDots(120, 195, 30, 25);
 					}
 				}
 				else {
@@ -1996,7 +2088,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(5, 5, 5);
+	int classification = obstacle(7, 8, 7);
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
@@ -2012,7 +2104,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	switch (classification)
 	{
 	case 0:
-		classification = obstacle(20, 20, 20);
+		classification = obstacle(25, 25, 25);
 		if (log_superobj_num > 0)
 		{
 			classification = obstacle(15, 20, 15);
