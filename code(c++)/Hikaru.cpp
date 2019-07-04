@@ -231,13 +231,13 @@ void Game1_Hikaru::loop()
 		else {
 			if (IsOnYellowLine() == 1)
 			{
-				motor(-2, -5);
+				motor(-1, -5);
 			}
 			else
 			{
-				motor(-5, -2);
+				motor(-5, -1);
 			}
-			Duration = 1;
+			Duration = 2;
 		}
 	}
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
@@ -1069,6 +1069,9 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		{
 			map_data_to_show[i] = 'S';
 		}
+		else if (dot[i].point == POINT_UNKNOWN) {
+			map_data_to_show[i] = '\'';
+		}
 		else
 		{
 			map_data_to_show[i] = ' ';
@@ -1761,11 +1764,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			{
 				if (angle < 0)
 				{
-					motor(short_motor, -short_motor);
+					motor(big_motor, -big_motor);
 				}
 				else
 				{
-					motor(-short_motor, short_motor);
+					motor(-big_motor, big_motor);
 				}
 				// Duration = 5;
 			}
@@ -1943,22 +1946,22 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(short_motor, 0);
+						motor(big_motor, 0);
 					}
 					else
 					{
-						motor(0, short_motor);
+						motor(0, big_motor);
 					}
 				}
 				else
 				{
 					if (angle < 0)
 					{
-						motor(short_motor, -short_motor);
+						motor(big_motor, -big_motor);
 					}
 					else
 					{
-						motor(-short_motor, short_motor);
+						motor(-big_motor, big_motor);
 					}
 				}
 			}
@@ -2022,11 +2025,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				{
 					if (angle < 0)
 					{
-						motor(short_motor, -short_motor);
+						motor(big_motor, -big_motor);
 					}
 					else
 					{
-						motor(-short_motor, short_motor);
+						motor(-big_motor, big_motor);
 					}
 				}
 			}
@@ -2136,11 +2139,13 @@ void Game1_Hikaru::saveColorInfo(void)
 	cout << "log " << log_x << ", " << log_y << " dot" << dot_x[1] << ", " << dot_y[1] << " " << now_dot_id << endl;
 	if (ColorJudgeLeft(object_box))
 	{
-		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_DEPOSIT;
+		if (map_secure[SECURE_DEPOSIT][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
+			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_DEPOSIT;
+		}
 	}
 	else if (ColorJudgeLeft(trap_line))
 	{
-		int range = 1;
+		int range = 2;
 		if (PositionX == -1) {
 			int left = 0, right = 0, up = 0, down = 0;
 			if (Compass < 180) {
@@ -2171,12 +2176,12 @@ void Game1_Hikaru::saveColorInfo(void)
 				}
 			}
 		}
-		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_YELLOW;
+		if (map_secure[SECURE_YELLOW][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
+			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_YELLOW;
+		}
 	}
 	else if (ColorJudgeLeft(gray_zone))
 	{
-		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SWAMPLAND;
-
 		for (int yi = dot_y[0] - 1; yi <= dot_y[0] + 1; ++yi)
 		{
 			if (yi < 0 || yi >= kDotHeightNum)
@@ -2190,9 +2195,14 @@ void Game1_Hikaru::saveColorInfo(void)
 					continue;
 				}
 				if (dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
-					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					if (map_secure[SECURE_SWAMPLAND][yi * kDotWidthNum + xj] == 1) {
+						dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					}
 				}
 			}
+		}
+		if (map_secure[SECURE_SWAMPLAND][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
+			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SWAMPLAND;
 		}
 		cout << log_x << " " << log_y << " "
 			<< "Swampland" << endl;
@@ -2202,7 +2212,9 @@ void Game1_Hikaru::saveColorInfo(void)
 		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT
 			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW
 			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND) {
-			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SUPERAREA;
+			if (map_secure[SECURE_SUPERAREA][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
+				dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SUPERAREA;
+			}
 		}
 	}
 	else
@@ -2211,17 +2223,21 @@ void Game1_Hikaru::saveColorInfo(void)
 			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_YELLOW
 			&& dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_SWAMPLAND)
 		{
-			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
+			if (map_secure[SECURE_WHITE][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
+				dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
+			}
 		}
 	}
 
 	if (ColorJudgeRight(object_box))
 	{
-		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_DEPOSIT;
+		if (map_secure[SECURE_DEPOSIT][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
+			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_DEPOSIT;
+		}
 	}
 	else if (ColorJudgeRight(trap_line))
 	{
-		int range = 1;
+		int range = 2;
 		int left = 0, right = 0, up = 0, down = 0;
 		if (PositionX == -1) {
 			if (Compass < 180) {
@@ -2253,11 +2269,12 @@ void Game1_Hikaru::saveColorInfo(void)
 				}
 			}
 		}
-		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_YELLOW;
+		if (map_secure[SECURE_YELLOW][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
+			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_YELLOW;
+		}
 	}
 	else if (ColorJudgeRight(gray_zone))
 	{
-		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SWAMPLAND;
 		for (int yi = dot_y[2] - 1; yi <= dot_y[2] + 1; ++yi)
 		{
 			if (yi < 0 || yi >= kDotHeightNum)
@@ -2271,19 +2288,24 @@ void Game1_Hikaru::saveColorInfo(void)
 					continue;
 				}
 				if (dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
-					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					if (map_secure[SECURE_SWAMPLAND][yi * kDotWidthNum + xj] == 1) {
+						dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+					}
 				}
 			}
 		}
-		cout << log_x << " " << log_y << " "
-			<< "Swampland" << endl;
+		if (map_secure[SECURE_SWAMPLAND][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
+			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SWAMPLAND;
+		}
 	}
 	else if (ColorJudgeRight(blue_zone))
 	{
 		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT
 			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_YELLOW
 			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_SWAMPLAND) {
-			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SUPERAREA;
+			if (map_secure[SECURE_SUPERAREA][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
+				dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_SUPERAREA;
+			}
 		}
 	}
 	else
@@ -2292,7 +2314,9 @@ void Game1_Hikaru::saveColorInfo(void)
 			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_YELLOW
 			&& dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_SWAMPLAND)
 		{
-			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;
+			if (map_secure[SECURE_WHITE][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
+				dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;
+			}
 		}
 	}
 }
