@@ -18,6 +18,7 @@ public:
 
 private:
     ProcessingTime pt;
+    int depo = 0;
 };
 
 // World2

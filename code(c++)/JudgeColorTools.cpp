@@ -17,6 +17,9 @@ int gray_zone[3][2] = {{133, 153}, {141, 161}, {187, 207}};
 int sp_obj[3][2] = {{200, 255}, {0, 41}, {200, 255}};
 int purple_line[3][2] = {{150, 180}, {80, 100}, {180, 220}};
 int white_zone[3][2] = {{204, 235}, {217, 248}, {255, 255}};
+int world1_maker[3][2] = {{188, 216}, {58, 66}, {230, 254}};
+
+
 
 int ColorJudgeLeft(int col[3][2])
 {
@@ -37,7 +40,7 @@ int BothColorJudge(int col[3][2])
 	return ColorJudgeLeft(col) && ColorJudgeRight(col);
 }
 
-#define COLOR_TYPE_NUMBER 9
+#define COLOR_TYPE_NUMBER 10
 #define COLOR_YELLOW 0
 #define COLOR_RED 1
 #define COLOR_CYAN 2
@@ -47,6 +50,7 @@ int BothColorJudge(int col[3][2])
 #define COLOR_DEPOSIT 6
 #define COLOR_SWAMPLAND 7
 #define COLOR_WHITE 8
+#define COLOR_MAKER1 9
 int color_world2[COLOR_TYPE_NUMBER][6];
 int ColorInformationInputer(int num, int col[3][2])
 {
@@ -138,4 +142,8 @@ int IsOnSwampland(void)
 int IsOnWhiteArea(void)
 {
 	return IsOnStuff(COLOR_WHITE);
+}
+int IsOnWorld1MakerArea(void)
+{
+	return IsOnStuff(COLOR_MAKER1);
 }

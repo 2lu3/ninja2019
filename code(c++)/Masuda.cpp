@@ -49,6 +49,7 @@ void Game0_Masuda::loop(void)
 	UserGame0::loop();
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
+	cout<<depo<<endl;
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -69,7 +70,8 @@ void Game0_Masuda::loop(void)
 		case 3:
 			LOG_MESSAGE("I am in object_box", MODE_DEBUG);
 			setAction(DEPOSIT_OBJ);
-			SuperDuration = 50;
+			SuperDuration = 65;
+			Duration = 0;
 			break;
 		default:
 			break;
@@ -95,11 +97,72 @@ void Game0_Masuda::loop(void)
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
+	}else if (depo==1 &&Compass >260)
+	{
+		if (Compass>265&&Compass<275)
+		{
+			motor(3,3);
+		}else if (Compass>=275)
+		{
+			motor(1,-1);
+		}else{
+			motor(-1,1);
+		}
+		if (US_Front<10&&US_Left<15&&US_Right<15)
+		{
+			setAction(DEPOSIT_OBJ);
+			SuperDuration = 65;
+			Duration = 0;
+		}
+		
+		
+		
+		
+		
+	}else if (depo==1 &&(Duration==15) )
+	{
+		motor(-1,1);
+		Duration--;
 	}
+	
 	else if (Duration > 0)
 	{
 		Duration--;
+	}else if (loaded_objects[RED_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[BLACK_LOADED_ID]>= kBorderSameObjNum&&loaded_objects[CYAN_LOADED_ID]>= kBorderSameObjNum&&IsOnBlueFloor()==3&&((US_Front<155&&US_Front>130)||(US_Front<100&&US_Front>65)))
+	{
+		if (Compass<185&&Compass>175)
+		{
+			motor(5,5);
+		}else
+		{
+			motor(-2,2);
+		}
+		
+		
+		Duration=30;
 	}
+	else if (EitherColorJudge(world1_maker)&&LoadedObjects >= 4)
+	{
+		/*if (IsOnWorld1MakerArea() == 3)
+		{
+			depo = 1;
+			Duration = 50;
+			motor(3,3);
+		}
+		else if (IsOnWorld1MakerArea() == 1)
+		{
+			motor(0, 5);
+		}
+		else
+		{
+			motor(5, 0);
+		} */
+		depo = 1;
+			Duration = 25;
+			motor(3,3);
+		
+	}
+	
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
 		if (IsOnYellowLine() == 1)
@@ -113,45 +176,81 @@ void Game0_Masuda::loop(void)
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
 	}
-	else if (obstacle(8, 10, 8))
+	/*else if (obstacle(8, 10, 8))
 	{
-		motor(-3, 2);
-		// int speed = 3;
-		// switch(obstacle(10, 10, 10)) {
-		// 	case 1:// 左のみ
-		// 		motor(speed, -speed);
-		// 		break;
-		// 	case 2:
-		// 		if(US_Left < US_Right) {
-		// 			motor(speed, -speed);
-		// 			break;
-		// 		}
-		// 		else {
-		// 			motor(-speed, speed);
-		// 		}
-		// 		break;
-		// 	case 3:
-		// 		motor(speed, -speed);
-		// 		break;
-		// 	case 4:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	case 5:
-		// 		motor(speed, speed);
-		// 		break;
-		// 	case 6:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	case 7:
-		// 		motor(-speed, speed);
-		// 		break;
-		// 	default:
-		// 		LOG_MESSAGE("obstacle value is " + obstacle(10, 10, 10), MODE_NORMAL);
-		// }
-	}
-	else if (LoadedObjects >= 5)
+		
+		int speed = 3;
+		switch(obstacle(10, 10, 10)) {
+			case 1:// 左のみ
+				motor(speed, -speed);
+				break;
+			case 2:
+				if(US_Left < US_Right) {
+					motor(speed, -speed);
+					break;
+				}
+				else {
+					motor(-speed, speed);
+				}
+				break;
+			case 3:
+				motor(speed, -speed);
+				break;
+			case 4:
+				motor(-speed, speed);
+				break;
+			case 5:
+				motor(speed, speed);
+				break;
+			case 6:
+				motor(-speed, speed);
+				break;
+			case 7:
+				motor(-speed, speed);
+				break;
+			default:
+				LOG_MESSAGE("obstacle value is " + obstacle(10, 10, 10), MODE_NORMAL);
+		}
+	} */
+	
+	
+	else if (LoadedObjects >= 5 && loaded_objects[RED_LOADED_ID] >= kBorderSameObjNum)
 	{
 		LOG_MESSAGE("deposit", MODE_NORMAL);
+		if (US_Right < 15&& US_Left < 15&&US_Front<20)
+		{
+			motor(3, 3);
+		}else if (US_Front < 10)
+		{
+			motor(-3, 3);
+		}
+		else if (US_Left < 5)
+		{
+			motor(2, -2);
+		}
+		else if (US_Right < 8)
+		{
+			motor(-3, -1);
+		}
+		else if (US_Right < 15)
+		{
+			motor(3, 4);
+		}
+		else if (US_Right < 30)
+		{
+			motor(5, 3);
+		}
+		else if (US_Right < 60)
+		{
+			motor(4, 2);
+		}
+		else
+		{
+			motor(4, 2);
+		}
+	}
+	else
+	{
 		if (US_Front < 14)
 		{
 			motor(-3, 1);
@@ -164,54 +263,22 @@ void Game0_Masuda::loop(void)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 15)
+		else if (US_Right < 15 + rand() % 30)
 		{
-			motor(3, 4);
+			motor(4, 5);
 		}
-		else if (US_Right < 40)
+		else if (US_Right < 40 + rand() % 30)
 		{
-			motor(5, 3);
+			motor(4, 3);
 		}
 		else if (US_Right < 80)
 		{
-			motor(4, 2);
+			motor(3, 1);
 		}
 		else
 		{
 			motor(4, 2);
 		}
-	}
-	else
-	{
-		// if (US_Front < 14)
-		// {
-		// 	motor(-3, 1);
-		// }
-		// else if (US_Left < 8)
-		// {
-		// 	motor(-3, -1);
-		// }
-		// else if (US_Right < 8)
-		// {
-		// 	motor(-3, -1);
-		// }
-		// else if (US_Right < 15 + rand() % 30)
-		// {
-		// 	motor(4, 5);
-		// }
-		// else if (US_Right < 40 + rand() % 30)
-		// {
-		// 	motor(4, 3);
-		// }
-		// else if (US_Right < 80)
-		// {
-		// 	motor(3, 1);
-		// }
-		// else
-		// {
-		// 	motor(4, 2);
-		// }
-		motor(3, 3);
 	}
 
 	/*if (Time > 180 && getAction() != FIND_OBJ && getAction() != DEPOSIT_OBJ && (!EitherColorJudge(object_box) && LoadedObjects < 3) || Time > 200)
@@ -249,10 +316,14 @@ void Game0_Masuda::loop(void)
 		resetLoadedObjects();
 
 		motor_no_action_change(0, 0);
-
+		depo = 0;
 		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
+		}else if (SuperDuration<15)
+		{
+			WheelLeft = -5;
+			WheelRight = -5;
 		}
 		else if (!BothColorJudge(object_box))
 		{
@@ -266,7 +337,7 @@ void Game0_Masuda::loop(void)
 		}
 		break;
 	case TELEPORT:
-		Teleport = 2;
+		Teleport = 3;
 		WheelLeft = 0;
 		WheelRight = 0;
 		LED_1 = 0;
@@ -286,7 +357,12 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	return UserGame0::shouldTeleport();
+	if (getAction() != DEPOSIT_OBJ&&Duration!=0&&SuperDuration!=0)
+	{
+		return UserGame0::shouldTeleport();
+	}
+	
+	
 }
 void Game0_Masuda::taskOnTeleport(void)
 {

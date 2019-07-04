@@ -28,6 +28,7 @@ public:
     void loop(void) override;
 
 private:
+	int map_position_color_data[36][27];
     const static int kCospaceWidth = 360;
     const static int kCospaceHeight = 270;
     const static int kSize = 10;
@@ -39,7 +40,7 @@ private:
     const static int kFindObjDuration = Game0_Hikaru::kFindObjDuration;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     int now_dot_id;
-    int emergency_now_dot_id = 80;
+    int emergency_now_dot_id = 292;
     int super_sameoperate = 0;
     int searching_object;
     int log_compass;
