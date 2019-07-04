@@ -114,7 +114,7 @@ void Game1_Hikaru::loop()
 	else
 	{
 		PositionX = -1;
-		int range = 2;
+		int range = 3;
 		for (int wi = 0; wi < range * 2; wi++)
 		{
 			for (int hj = 0; hj < range * 2; hj++)
@@ -125,7 +125,7 @@ void Game1_Hikaru::loop()
 				{
 					continue;
 				}
-				dot[y * kDotWidthNum + x].arrived_times += 2;
+				dot[y * kDotWidthNum + x].arrived_times += 10;
 			}
 		}
 	}
@@ -962,21 +962,24 @@ void Game1_Hikaru::Dijkstra()
 			{
 				continue;
 			}
-			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
-				cost *= 100;
-			}
+			
 
 			int remember_from = dot[target_id].from;
 			dot[target_id].from = investigating_node.id;
 			int target_curved_times = HowManyCurved(target_id);
 			int target_cost = investigating_node.cost + investigating_node.edge_cost[i];
+			
 			target_cost += target_curved_times * 10;
+
 			if (LoadedObjects >= 6)
 			{
 			}
 			else
 			{
 				target_cost += static_cast<int>(dot[target_id].arrived_times * 10);
+			}
+			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
+				target_cost *= 100;
 			}
 
 			// if (dot[target_id].point < -1) {
@@ -2082,6 +2085,24 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else if (ColorJudgeLeft(trap_line))
 	{
+		int range = 2;
+		if (PositionX == -1) {
+			for (int yi = dot_y[0] - range; yi <= dot_y[0] + range; ++yi)
+			{
+				if (yi < 0 || yi >= kDotHeightNum)
+				{
+					continue;
+				}
+				for (int xj = dot_x[0] - range; xj <= dot_x[0] + range; ++xj)
+				{
+					if (xj < 0 || xj >= kDotWidthNum)
+					{
+						continue;
+					}
+					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+				}
+			}
+		}
 		dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_YELLOW;
 	}
 	else if (ColorJudgeLeft(gray_zone))
@@ -2132,6 +2153,22 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else if (ColorJudgeRight(trap_line))
 	{
+		int range = 2;
+		for (int yi = dot_y[2] - range; yi <= dot_y[2] + range; ++yi)
+		{
+			if (yi < 0 || yi >= kDotHeightNum)
+			{
+				continue;
+			}
+			for (int xj = dot_x[2] - range; xj <= dot_x[2] + range; ++xj)
+			{
+				if (xj < 0 || xj >= kDotWidthNum)
+				{
+					continue;
+				}
+				dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
+			}
+		}
 		dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_YELLOW;
 	}
 	else if (ColorJudgeRight(gray_zone))
@@ -2150,7 +2187,7 @@ void Game1_Hikaru::saveColorInfo(void)
 					continue;
 				}
 				if (dot[yi * kDotWidthNum + xj].point == POINT_UNKNOWN) {
-					dot[yi * kDotWidthNum + xj].point = POINT_SWAMPLAND;
+					dot[yi * kDotWidthNum + xj].point = POINT_MAY_SWAMPLAND;
 				}
 			}
 		}
