@@ -106,7 +106,7 @@ void Game0_Masuda::loop(void)
 	else if (Duration > 0)
 	{
 		Duration--;
-	}else if (time<10)
+	}else if (Time < 10)
 	{
 		motor(1,5);
 		Duration=5;
@@ -126,17 +126,20 @@ void Game0_Masuda::loop(void)
 		Duration = 3;
 	}
 	else if ((IsOnWorld1MakerArea() && LoadedObjects >= 4)||depo == 1) {
-		if (compassJudge(0, 90)) {
-			motor(-3, 3);
-		}
-		else if(compassJudge(90, 120)){
+		if (compassJudge(45, 90)) {
 			motor(2, 4);
 		}
-		else if (compassJudge(120, 150)) {
+		else if(compassJudge(90, 135)){
+			motor(4, 2);
+		}
+		else if (compassJudge(225, 270)) {
+			motor(2, 4);
+		}
+		else if (compassJudge(270, 315)) {
 			motor(4, 2);
 		}
 		else {
-			motor(3, -3);
+			motor(-3, 3);
 		}
 		cout << "marker" << endl;
 		Duration = 2;
