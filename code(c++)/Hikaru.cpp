@@ -66,7 +66,7 @@ void Game0_Hikaru::loop(void)
 		case 3:
 			LOG_MESSAGE("I am in object_box", MODE_DEBUG);
 			setAction(DEPOSIT_OBJ);
-			SuperDuration = 50;
+			SuperDuration = 60;
 			break;
 		default:
 			break;
@@ -455,7 +455,7 @@ void Game1_Hikaru::loop()
 		}
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
+	else if (IsOnSuperObj()  && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -502,15 +502,15 @@ void Game1_Hikaru::loop()
 		if (IsOnDepositArea() == 3)
 		{
 			setAction(DEPOSIT_OBJ);
-			Duration = kFindObjDuration;
+			Duration = kFindObjDuration + 10;
 		}
 		else if (IsOnDepositArea() == 1)
 		{
-			motor(0, 5);
+			motor(0, 3);
 		}
 		else
 		{
-			motor(5, 0);
+			motor(3, 0);
 		}
 	}
 	else if (LoadedObjects >= 6 || (Time > 270 && log_superobj_num == 0 && (LoadedObjects > 2 || loaded_objects[SUPER_LOADED_ID] > 0)))
@@ -538,44 +538,104 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[RED_LOADED_ID] < 2)
+		if (loaded_objects[RED_LOADED_ID] < 2 && total_loaded_objects[RED_LOADED_ID] < 18)
 		{
 			if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
-
 				//左上
-				GoToDots(120, 195, 30, 25);
+				if (GoToDots(120, 195, 30, 25)) {
+					cout << "return" << endl;
+				}
 			}
 			else {
 				//右下
-				GoToDots(245, 80, 35, 30);
+				if (GoToDots(245, 80, 35, 30)) {
+					cout << "return" << endl;
+				}
 			}
 			searching_object = RED_LOADED_ID;
 		}
-
-		else if (loaded_objects[CYAN_LOADED_ID] < 2)
+		else if (loaded_objects[CYAN_LOADED_ID] < 2 && total_loaded_objects[CYAN_LOADED_ID] < 9 && (9 - total_loaded_objects[CYAN_LOADED_ID] >= (11 - total_loaded_objects[BLACK_LOADED_ID])))
 		{
 			if ((log_x < 180 && area_objects_num[CYAN_LOADED_ID][1] > 0) || (log_x >= 180 && area_objects_num[CYAN_LOADED_ID][0] <= 0)) {
 				//左上
-				GoToDots(40, 255, 35, 5);
+				if (GoToDots(40, 255, 35, 5)) {
+					cout << "return" << endl;
+				}
 			}
 			else {
 				//右上
-				GoToDots(340, 220, 5, 70);
+				if (GoToDots(340, 220, 5, 70)) {
+					cout << "return" << endl;
+				}
 			}
 			searching_object = CYAN_LOADED_ID;
 		}
-		else 
+		else if (loaded_objects[BLACK_LOADED_ID] < 2 && total_loaded_objects[BLACK_LOADED_ID] < 11)
 		{
 			if ((log_x < 180 && area_objects_num[BLACK_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[BLACK_LOADED_ID][1] <= 0)) {
 				//左下
-				GoToDots(25, 55, 15, 45);
+				if (GoToDots(25, 55, 15, 45)) {
+					cout << "return" << endl;
+				}
 			}
 			else
 			{
 				//右下
-				GoToDots(305, 15, 35, 5);
+				if (GoToDots(305, 15, 35, 5)) {
+					cout << "return" << endl;
+				}
 			}
 			searching_object = BLACK_LOADED_ID;
+		}
+		else {
+			if (total_loaded_objects[RED_LOADED_ID] < 18) {
+				if ((log_x < 180 && area_objects_num[RED_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[RED_LOADED_ID][1] <= 0)) {
+					//左上
+					if (GoToDots(120, 195, 30, 25)) {
+						cout << "return" << endl;
+					}
+				}
+				else {
+					//右下
+					if (GoToDots(245, 80, 35, 30)) {
+						cout << "return" << endl;
+					}
+				}
+				searching_object = RED_LOADED_ID;
+			}
+			else if (total_loaded_objects[CYAN_LOADED_ID] < 9) {
+				if ((log_x < 180 && area_objects_num[CYAN_LOADED_ID][1] > 0) || (log_x >= 180 && area_objects_num[CYAN_LOADED_ID][0] <= 0)) {
+					//左上
+					if (GoToDots(40, 255, 35, 5)) {
+						cout << "return" << endl;
+					}
+				}
+				else {
+					//右上
+					if (GoToDots(340, 220, 5, 70)) {
+						cout << "return" << endl;
+					}
+				}
+				searching_object = CYAN_LOADED_ID;
+			}
+			else if(total_loaded_objects[BLACK_LOADED_ID] < 11) {
+				if ((log_x < 180 && area_objects_num[BLACK_LOADED_ID][0] > 0) || (log_x >= 180 && area_objects_num[BLACK_LOADED_ID][1] <= 0)) {
+					//左下
+					if (GoToDots(25, 55, 15, 45)) {
+						cout << "return" << endl;
+					}
+				}
+				else
+				{
+					//右下
+					if (GoToDots(305, 15, 35, 5)) {
+						cout << "return" << endl;
+					}
+				}
+			}
+			else {
+				LoadedObjects = 6;
+			}
 		}
 
 	}
