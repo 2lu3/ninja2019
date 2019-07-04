@@ -106,7 +106,12 @@ void Game0_Masuda::loop(void)
 	else if (Duration > 0)
 	{
 		Duration--;
+	}else if (time<10)
+	{
+		motor(1,5);
+		Duration=5;
 	}
+	
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
 		if (IsOnYellowLine() == 1)
@@ -120,7 +125,7 @@ void Game0_Masuda::loop(void)
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
 	}
-	else if (IsOnWorld1MakerArea() && LoadedObjects >= 4) {
+	else if ((IsOnWorld1MakerArea() && LoadedObjects >= 4)||depo == 1) {
 		if (compassJudge(0, 90)) {
 			motor(-3, 3);
 		}
