@@ -220,13 +220,13 @@ void Game1_Hikaru::loop()
 		if (IsOnSwampland()) {
 			if (IsOnYellowLine() == 1)
 			{
-				motor(-3, -5);
+				motor(-1, -5);
 			}
 			else
 			{
-				motor(-5, -3);
+				motor(-5, -1);
 			}
-			Duration = 10;
+			Duration = 15;
 		}
 		else {
 			if (IsOnYellowLine() == 1)
@@ -958,9 +958,12 @@ void Game1_Hikaru::Dijkstra()
 			}
 
 			//If target_dot is yellow or wall
-			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND || dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
+			if (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
 			{
 				continue;
+			}
+			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
+				cost *= 100;
 			}
 
 			int remember_from = dot[target_id].from;
@@ -968,7 +971,7 @@ void Game1_Hikaru::Dijkstra()
 			int target_curved_times = HowManyCurved(target_id);
 			int target_cost = investigating_node.cost + investigating_node.edge_cost[i];
 			target_cost += target_curved_times * 10;
-			if (LoadedObjects == 6)
+			if (LoadedObjects >= 6)
 			{
 			}
 			else
@@ -2287,10 +2290,10 @@ void Game1_Hikaru::calculateWallPosition(void)
 						{
 							break;
 						}
-						if (dot[yi * kDotWidthNum + x[0]].color == POINT_WALL && map_position_color_data[x[0]][yi] != POINT_WALL)
+						if (dot[yi * kDotWidthNum + x[0]].point == POINT_WALL && map_position_color_data[x[0]][yi] != POINT_WALL)
 						{
 							cout << x[0] * kSize << " " << yi * kSize << " not wall";
-							dot[yi * kDotWidthNum + x[0]].color = map_position_color_data[x[0]][yi];
+							dot[yi * kDotWidthNum + x[0]].point = map_position_color_data[x[0]][yi];
 						}
 					}
 				}
@@ -2358,10 +2361,10 @@ void Game1_Hikaru::calculateWallPosition(void)
 						{
 							break;
 						}
-						if (dot[yj * kDotWidthNum + xi].color == POINT_WALL && map_position_color_data[xi][yj] != POINT_WALL)
+						if (dot[yj * kDotWidthNum + xi].point == POINT_WALL && map_position_color_data[xi][yj] != POINT_WALL)
 						{
 							cout << xi * kSize << " " << yj * kSize << " not wall" << endl;
-							dot[yj * kDotWidthNum + xi].color = map_position_color_data[xi][yj];
+							dot[yj * kDotWidthNum + xi].point = map_position_color_data[xi][yj];
 						}
 					}
 				}
