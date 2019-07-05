@@ -249,6 +249,7 @@ void Game1_Hikaru::loop()
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
 		process = 0;
+		large_process = -1;
 		if (IsOnDepositArea() == 3)
 		{
 			setAction(DEPOSIT_OBJ);
@@ -320,7 +321,7 @@ void Game1_Hikaru::loop()
 		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 		{
 			if (large_process != 1) {
-				if (PositionX < 100) {
+				if (PositionX < 50) {
 					process = 0;
 				}
 				else {
@@ -1802,6 +1803,9 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 	if (IsOnSwampland()) {
 		big_motor = 5;
+		if (!IsOnRedObj() && !IsOnCyanObj() && !IsOnBlackObj() && !IsOnSuperObj()) {
+			Duration += 20;
+		}
 	}
 	switch (classification)
 	{
