@@ -21,7 +21,8 @@ private:
     const static int kMaxDotNum = kCospaceWidth * kCospaceHeight / kSize / kSize;
     const static int kMaxEdgeNum = 25;
     const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = 44;
+    const static int kFindObjDuration = 48;
+	int process_times = 0;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     int now_dot_id;
     int emergency_now_dot_id = 292;
@@ -33,6 +34,7 @@ private:
     int log_x = -1, log_y = -1;
     int map_position_color_data[36][27];
     int map_secure[7][kMaxDotNum];
+	LogErrorMessage logErrorMessage;
 
     int dot_x[3], dot_y[3];
 
@@ -62,6 +64,7 @@ private:
         int cyan;                             //もし、Cyanがとれないなら0
         int black;                            //もし、Blackが...
         int color;
+		int near_swampland;
     };
     struct Dot dot[kMaxDotNum];
 
