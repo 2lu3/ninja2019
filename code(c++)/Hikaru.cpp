@@ -803,7 +803,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		}
 	}
 
-	/*rep(kind, 7)
+	rep(kind, 7)
 	{
 		rep(ysi, 5)
 		{
@@ -818,7 +818,7 @@ void Game1_Hikaru::InputDotInformation(void)
 				}
 			}
 		}
-	}*/
+	}
 
 	printf("map\n");
 	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
