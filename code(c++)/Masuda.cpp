@@ -249,7 +249,6 @@ void Game0_Masuda::loop(void)
 		if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
 		{
 			motor(-1, -2);
-			Duration = 3;
 		}
 
 		else if (US_Front < 14)
@@ -267,7 +266,7 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 10) {
 			motor(3, 5);
 		}
-		else if (US_Right < 15 + (deposit_num % 2) * 10+  rnd() % 10)
+		else if (US_Right < 15 + (deposit_num % 2) * 10 +  rnd() % 10)
 		{
 			motor(2, 4);
 		}
