@@ -33,7 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
-	setRunMode(MODE_MATCH);
+	setRunMode( MODE_DEBUG);
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -55,13 +55,7 @@ void Game0_Masuda::loop(void)
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
-	//cout<<IsOnDepositArea()<<endl;
-	if (Time > 60 &&Time<70&& !should_deposit
-	&&!(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0))
-	{
-		should_deposit = true;
-	}
-	
+	cout<<IsOnDepositArea()<<endl;
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -170,8 +164,8 @@ void Game0_Masuda::loop(void)
 			motor(1, 3);
 		}
 	}
-	else if ((IsOnWorld1MakerArea() && LoadedObjects>5)||(IsOnWorld1MakerArea() && should_deposit &&(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)))
-	 {
+	else if ((IsOnWorld1MakerArea() && 
+	(LoadedObjects > 5||(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)))) {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
 				depo = 2;
@@ -229,7 +223,7 @@ void Game0_Masuda::loop(void)
 	{
 		if (US_Front<37&&US_Left<20&&US_Right<20)
 		{
-			motor(-4,-5);
+			motor(-3,-5);
 			Duration = 3;
 		}
 		
@@ -297,7 +291,6 @@ void Game0_Masuda::loop(void)
 		LED_1 = 2;
 		MyState = 0;
 		LoadedObjects = 0;
-		
 		// loaded_objects全体の大きさ / loaded_objects[0]の大きさ
 		resetLoadedObjects();
 
@@ -306,7 +299,6 @@ void Game0_Masuda::loop(void)
 		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
-			already_deposit++;
 		}else if (SuperDuration<15)
 		{
 			WheelLeft = -5;
@@ -360,7 +352,7 @@ void Game0_Masuda::taskOnTeleport(void)
 	loaded_objects[1] = 0;
 	loaded_objects[2] = 0;
 	loaded_objects[3] = 0;
-	Teleport = 4;
+	Teleport = 3;
 }
 
 void Game1_Masuda::setup(void)
