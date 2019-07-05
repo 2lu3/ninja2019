@@ -60,7 +60,7 @@ void Game0_Masuda::loop(void)
 	{
 		SuperDuration--;
 	}
-	else if (IsOnDepositArea() && LoadedObjects >= 5)
+	else if (IsOnDepositArea() && LoadedObjects >= 1)
 	{
 		LOG_MESSAGE("find object box", MODE_DEBUG);
 		switch (IsOnDepositArea())
@@ -179,6 +179,12 @@ void Game0_Masuda::loop(void)
 	}
 	else
 	{
+		if (US_Front<37&&US_Left<20&&US_Right<20)
+		{
+			motor(-3,-5);
+			Duration = 3;
+		}
+		
 		if (US_Front < 14)
 		{
 			motor(-3, 1);
