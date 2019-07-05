@@ -248,11 +248,14 @@ void Game0_Masuda::loop(void)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 15 + rand() % 30)
-		{
-			motor(4, 5);
+		else if (US_Right < 15) {
+			motor(2, 4);
 		}
-		else if (US_Right < 40 + rand() % 30)
+		else if (US_Right < 25 + rnd() % 20)
+		{
+			motor(2, 4);
+		}
+		else if (US_Right < 40 + rnd() % 20)
 		{
 			motor(4, 3);
 		}
@@ -335,7 +338,6 @@ void Game0_Masuda::loop(void)
 		LoadedObjects = 0;
 		SuperDuration = 0;
 		resetLoadedObjects();
-		CurGame = 1;
 		break;
 	case TO_DEPOSIT: // world 1 only
 	default:
