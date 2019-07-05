@@ -1785,12 +1785,12 @@ void AutoStrategy::GoToAngle(int angle, int distance)
 
 	// double magnification = 0.5;
 	// int distance_from_wall = 30;
-	int big_motor = 5;
-	int short_motor = 3;
+	int big_motor = 4;
+	int short_motor = 2;
 	if (isNearTheFloor(cospaceMap.MAP_YELLOW, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale) || isNearTheFloor(cospaceMap.MAP_UNKNOWN, robot_dot_positions[1][0], robot_dot_positions[1][1], kCM2DotScale))
 	{
-		big_motor = 4;
-		short_motor = 2;
+		big_motor = 3;
+		short_motor = 1;
 	}
 	// int short_front = 3; //TO_INT(pow(US_Front, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
 	// int short_left = 3;  //TO_INT(pow(US_Left, magnification) * (5 - (WheelLeft * WheelLeft + WheelRight * WheelRight) / 10) / pow(distance_from_wall, magnification));
