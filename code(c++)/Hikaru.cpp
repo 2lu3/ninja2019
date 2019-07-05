@@ -2336,7 +2336,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else
 	{
-		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT)
+		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT && map_position_color_data[dot_x[0]][dot_y[0]] != POINT_SWAMPLAND)
 		{
 			if (map_secure[SECURE_WHITE][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
 				dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_WHITE;
@@ -2437,7 +2437,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else
 	{
-		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT)
+		if (dot[dot_y[2] * kDotWidthNum + dot_x[2]].point != POINT_DEPOSIT && map_position_color_data[dot_x[2]][dot_y[2]] != POINT_SWAMPLAND)
 		{
 			if (map_secure[SECURE_WHITE][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
 				dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_WHITE;
