@@ -62,6 +62,7 @@ void Game0_Masuda::loop(void)
 	}
 	else if (IsOnDepositArea() && LoadedObjects >= 1)
 	{
+		depo = 0;
 		LOG_MESSAGE("find object box", MODE_DEBUG);
 		switch (IsOnDepositArea())
 		{

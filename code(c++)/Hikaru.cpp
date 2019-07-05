@@ -1544,7 +1544,7 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 					continue;
 				}
 				//yellow or wall or deposit
-				if (dot[investigating_dot_id].point < POINT_DEPOSIT)
+				if (dot[investigating_dot_id].point == POINT_YELLOW || dot[investigating_dot_id].point == POINT_MAY_SWAMPLAND || dot[investigating_dot_id].point == POINT_SWAMPLAND || dot[investigating_dot_id].point == POINT_WALL)
 				{
 					continue;
 				}
