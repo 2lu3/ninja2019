@@ -1871,8 +1871,8 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	switch (classification)
 	{
 	case 0:
-		classification = obstacle(25, 25, 25);
-		if (log_superobj_num > 0)
+		classification = obstacle(35, 35, 35);
+		if (log_superobj_num > 0 && abs(log_superobj_x[0] - log_x) + abs(log_superobj_y[0] - log_y) < 30)
 		{
 			classification = obstacle(15, 20, 15);
 		}

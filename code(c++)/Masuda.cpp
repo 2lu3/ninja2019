@@ -148,7 +148,10 @@ void Game0_Masuda::loop(void)
 		if (US_Front < 5) {
 			depo = 0;
 		}
-		if (compassJudge(85, 95)) {
+		else if (obstacle(8, 8, 8)) {
+			motor(-3, -5);
+		}
+		else if (compassJudge(85, 95)) {
 			motor(3, 3);
 		}
 		else if (compassJudge(-90, 90)) {
@@ -175,10 +178,14 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if (depo == 3) {
-		if (compassJudge(265, 275)) {
-			if (US_Front < 5) {
-				depo = 0;
-			}
+		if (US_Front < 5) {
+			depo = 0;
+		}
+		else if (obstacle(8, 8, 8)) {
+			motor(-3, -5);
+		}
+		else if (compassJudge(265, 275)) {
+			
 			motor(3, 3);
 		}
 		else if (compassJudge(-90, 90)) {
@@ -251,15 +258,15 @@ void Game0_Masuda::loop(void)
 			motor(-1, -2);
 		}
 
-		else if (US_Front < 14)
+		else if (US_Front < 16)
 		{
 			motor(-2, 1);
 		}
-		else if (US_Left < 5)
+		else if (US_Left < 10)
 		{
 			motor(-2, -1);
 		}
-		else if (US_Right < 5)
+		else if (US_Right < 10)
 		{
 			motor(-2, -1);
 		}
