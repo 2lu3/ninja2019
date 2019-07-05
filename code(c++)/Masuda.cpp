@@ -431,7 +431,7 @@ void Game1_Masuda::loop()
 {
 	ProcessingTime pt;
 	pt.start();
-
+	intrap();
 	UserGame1::loop();
 
 	if (PositionX != 0 || PositionY != 0)
