@@ -33,7 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
-	
+	setRunMode( MODE_DEBUG);
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -54,7 +54,8 @@ void Game0_Masuda::loop(void)
 	UserGame0::loop();
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
-	cout<<depo<<endl;
+	//cout<<depo<<endl;
+	cout<<IsOnDepositArea()<<endl;
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -167,6 +168,9 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 60)
 		{
 			motor(4, 2);
+		}else if (US_Right > 120)
+		{
+			motor(4, 0);
 		}
 		else
 		{
@@ -198,6 +202,9 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 80)
 		{
 			motor(4, 1);
+		}else if (US_Right > 120)
+		{
+			motor(4, 0);
 		}
 		else
 		{
