@@ -20,6 +20,7 @@ int sp_obj[3][2] = {{200, 255}, {0, 41}, {200, 255}};
 int purple_line[3][2] = {{150, 180}, {80, 100}, {180, 220}};
 int white_zone[3][2] = {{204, 235}, {217, 248}, {255, 255}};
 int world1_maker[3][2] = {{188, 216}, {58, 66}, {230, 254}};
+int blue_trap[3][2] = {{54, 62}, {97, 111}, {221, 245}};
 
 
 
@@ -42,7 +43,7 @@ int BothColorJudge(int col[3][2])
 	return ColorJudgeLeft(col) && ColorJudgeRight(col);
 }
 
-#define COLOR_TYPE_NUMBER 11
+#define COLOR_TYPE_NUMBER 12
 #define COLOR_YELLOW 0
 #define COLOR_RED 1
 #define COLOR_CYAN 2
@@ -54,6 +55,7 @@ int BothColorJudge(int col[3][2])
 #define COLOR_WHITE 8
 #define COLOR_MAKER1 9
 #define COLOR_DEPOSIT2 10
+#define COLOR_BLUE_TRAP 11
 int color_world2[COLOR_TYPE_NUMBER][6];
 int ColorInformationInputer(int num, int col[3][2])
 {
@@ -91,6 +93,7 @@ void InputColorInformation(void)
 	ColorInformationInputer(COLOR_WHITE, white_zone);
 	ColorInformationInputer(COLOR_MAKER1, world1_maker);
 	ColorInformationInputer(COLOR_DEPOSIT2, object_box2);
+	ColorInformationInputer(COLOR_BLUE_TRAP, blue_trap);
 	logErrorMessage.logMessage("End InputColorInformation\n", MODE_VERBOSE);
 }
 
@@ -155,6 +158,10 @@ int IsOnWhiteArea(void)
 	return IsOnStuff(COLOR_WHITE);
 }
 int IsOnWorld1MakerArea(void)
+{
+	return IsOnStuff(COLOR_MAKER1);
+}
+int IsOnTrapBlue(void)
 {
 	return IsOnStuff(COLOR_MAKER1);
 }
