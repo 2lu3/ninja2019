@@ -127,6 +127,9 @@ void Game0_Masuda::loop(void)
 		Duration = 3;
 	}
 	else if (depo == 1) {
+		if (US_Front < 5) {
+			depo = 0;
+		}
 		if (compassJudge(85, 95)) {
 			motor(3, 3);
 		}
@@ -138,6 +141,9 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if (depo == 2) {
+		if (US_Front < 5) {
+			depo = 0;
+		}
 		if (compassJudge(260, 280)) {
 			if (US_Front < 25) {
 				depo = 0;
