@@ -273,11 +273,11 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 10) {
 			motor(3, 5);
 		}
-		else if (US_Right < 15 + (deposit_num % 2) * 10 +  rnd() % 10)
+		else if (US_Right < 15 + (deposit_num % 2) * 10 + static_cast<int>(rnd() % 10))
 		{
 			motor(2, 4);
 		}
-		else if (US_Right < 30 + (deposit_num % 2) * 10 +  rnd() % 10)
+		else if (US_Right < 30 + (deposit_num % 2) * 10 + static_cast<int>(rnd() % 10))
 		{
 			motor(5, 3);
 		}
@@ -367,6 +367,7 @@ void Game0_Masuda::loop(void)
 		resetLoadedObjects();
 		break;
 	case TO_DEPOSIT: // world 1 only
+	case MAY_SUPER_FIND: // world 2 only
 	default:
 		ERROR_MESSAGE("action is " + to_string(static_cast<int>(getAction())), MODE_NORMAL);
 		break;

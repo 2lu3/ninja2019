@@ -181,7 +181,7 @@ void Game1_Hikaru::loop()
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnSuperObj() && SuperObj_Num == 0 && log_superobj_num > 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
+	else if (IsOnSuperObj() && SuperObj_Num == 0 && !(IsOnRedObj() || IsOnBlackObj() || IsOnCyanObj()))
 	{
 		same_time = 0;
 		setAction(FIND_OBJ);
@@ -210,7 +210,9 @@ void Game1_Hikaru::loop()
 		}
 		else
 		{
-			motor(3, 3);
+			// 念のためとるが、loaded_objectsは増やさない
+			setAction(MAY_SUPER_FIND);
+			SuperDuration += 6;
 		}
 	}
 	else if (Duration > 0)
@@ -450,6 +452,19 @@ void Game1_Hikaru::loop()
 		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
+		}
+		break;
+	case MAY_SUPER_FIND:
+		LED_1 = 1;
+		MyState = 0;
+		WheelLeft = 0;
+		WheelRight = 0;
+		if (Duration == 0 && SuperDuration == 0)
+		{
+			LED_1 = 0;
+		}
+		if (Duration < 4 && SuperDuration < 4) {
+			motor(3, 3);
 		}
 		break;
 	case DEPOSIT_OBJ:
@@ -1297,50 +1312,50 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (getRepeatedNum() % 3 == 0)
 	{
-		cout << "out map" << endl;
-		ProcessingTime pt2;
-		pt2.start();
-		FILE* fp = fopen("map_out.txt", "w");
-		if (fp == NULL)
-		{
-			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
-		}
-		else
-		{
-			cout << "out map start" << endl;
-			rep(xj, kDotWidthNum + 2)
-			{
-				fprintf(fp, "#");
-				//printf("#");
-			}
-			fprintf(fp, "\n");
-			printf("\n");
-			rep(yi, kDotHeightNum)
-			{
-				fprintf(fp, "#");
-				//printf("#");
+		//cout << "out map" << endl;
+		//ProcessingTime pt2;
+		//pt2.start();
+		//FILE* fp = fopen("map_out.txt", "w");
+		//if (fp == NULL)
+		//{
+		//	ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
+		//}
+		//else
+		//{
+		//	cout << "out map start" << endl;
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		fprintf(fp, "#");
+		//		//printf("#");
+		//	}
+		//	fprintf(fp, "\n");
+		//	printf("\n");
+		//	rep(yi, kDotHeightNum)
+		//	{
+		//		fprintf(fp, "#");
+		//		//printf("#");
 
-				rep(xj, kDotWidthNum)
-				{
-					fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
-					//printf("%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
-				}
-				fprintf(fp, "#");
-				//printf("#");
+		//		rep(xj, kDotWidthNum)
+		//		{
+		//			fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
+		//			//printf("%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
+		//		}
+		//		fprintf(fp, "#");
+		//		//printf("#");
 
-				fprintf(fp, "\n");
-				//printf("\n");
-			}
-			rep(xj, kDotWidthNum + 2)
-			{
-				//printf("\n");
-				fprintf(fp, "#");
-			}
-			//printf("\n");
-			fprintf(fp, "\n");
-			fclose(fp);
-			cout << "out map end " << pt2.end() << endl;
-		}
+		//		fprintf(fp, "\n");
+		//		//printf("\n");
+		//	}
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		//printf("\n");
+		//		fprintf(fp, "#");
+		//	}
+		//	//printf("\n");
+		//	fprintf(fp, "\n");
+		//	fclose(fp);
+		//	cout << "out map end " << pt2.end() << endl;
+		//}
 	}
 
 	int distance = 20;
@@ -1971,7 +1986,6 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		{
 			if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 800)
 			{
-				printf("log_superobj_num > 0 %d\n", angle);
 				if (abs(angle) < 30)
 				{
 					if (distance < 5 + static_cast<int>(rnd() % 5))
@@ -2061,12 +2075,11 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 				Duration = 5;
 			}
-			else if (IsNearYellow(1, -1, -1) && LoadedObjects != 0)
+			else if (IsNearYellow(2, -1, -1) && LoadedObjects != 0)
 			{
-				printf("near yellow\n");
 				if (abs(angle) < 10)
 				{
-					motor(4, 4);
+					motor(3, 3);
 				}
 				else if (abs(angle) < 30)
 				{
@@ -2119,17 +2132,24 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			{
 				if (abs(angle) < 10)
 				{
-					motor(5, 5);
+					if (angle < 0) {
+					motor(4, 1);
+
+					}
+					else {
+					motor(1, 4);
+
+					}
 				}
 				else if (abs(angle) < 80)
 				{
 					if (angle < 0)
 					{
-						motor(5, 3);
+						motor(4, 2);
 					}
 					else
 					{
-						motor(3, 5);
+						motor(2, 4);
 					}
 				}
 				else if (abs(angle) < 120)
@@ -2157,7 +2177,6 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			}
 			else
 			{
-				cout << "normal" << endl;
 				if (abs(angle) < 30)
 				{
 					if (distance < 20)
@@ -2361,7 +2380,6 @@ void Game1_Hikaru::saveColorInfo(void)
 	その他
 	POINT_WALL
 	 */
-	cout << "log " << log_x << ", " << log_y << " dot" << dot_x[1] << ", " << dot_y[1] << " " << now_dot_id << endl;
 	if (ColorJudgeLeft(object_box2))
 	{
 		if (map_secure[SECURE_DEPOSIT][dot_y[0] * kDotWidthNum + dot_x[0]] == 1)
@@ -2455,8 +2473,6 @@ void Game1_Hikaru::saveColorInfo(void)
 		{
 			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_SWAMPLAND;
 		}
-		cout << log_x << " " << log_y << " "
-			<< "Swampland" << endl;
 	}
 	else if (ColorJudgeLeft(blue_zone))
 	{
@@ -2633,7 +2649,6 @@ void Game1_Hikaru::calculateWallPosition(void)
 				{
 					// if (map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == cospaceMap.MAP_UNKNOWN || map[0][calculated_absolute_dot_position[i][1]][calculated_absolute_dot_position[i][0]] == MAP_UNKNOWN_NOT_WALL)
 					{
-						cout << calculated_absolute_dot_position[i][0] << " " << calculated_absolute_dot_position[i][1] << " wall" << endl;
 						if (map_secure[SECURE_WALL][calculated_absolute_dot_position[i][1] * kDotWidthNum + calculated_absolute_dot_position[i][0]] == 1)
 						{
 							dot[calculated_absolute_dot_position[i][1] * kDotWidthNum + calculated_absolute_dot_position[i][0]].point = POINT_WALL;
@@ -2714,7 +2729,6 @@ void Game1_Hikaru::calculateWallPosition(void)
 						}
 						if (dot[yi * kDotWidthNum + x[0]].point == POINT_WALL && map_position_color_data[x[0]][yi] != POINT_WALL)
 						{
-							cout << x[0] * kSize << " " << yi * kSize << " not wall";
 							dot[yi * kDotWidthNum + x[0]].point = map_position_color_data[x[0]][yi];
 						}
 					}
@@ -2785,7 +2799,6 @@ void Game1_Hikaru::calculateWallPosition(void)
 						}
 						if (dot[yj * kDotWidthNum + xi].point == POINT_WALL && map_position_color_data[xi][yj] != POINT_WALL)
 						{
-							cout << xi * kSize << " " << yj * kSize << " not wall" << endl;
 							dot[yj * kDotWidthNum + xi].point = map_position_color_data[xi][yj];
 						}
 					}
