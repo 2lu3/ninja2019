@@ -28,6 +28,7 @@ void motor(int left, int right);
 void motor_no_action_change(int left, int right);
 int obstacle(int left, int front, int right);
 void resetLoadedObjects(void);
+void intrap(void);
 
 // __FUNCTION__(const char) -> strinのへの変換
 std::string getFuncName(const char *name);
