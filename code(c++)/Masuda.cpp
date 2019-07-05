@@ -171,7 +171,7 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if ((IsOnWorld1MakerArea() && 
-	(LoadedObjects > 5||(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)&&should_deposit))) {
+	(LoadedObjects > 5||((loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)&&should_deposit)))) {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
 				depo = 2;
