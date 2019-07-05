@@ -154,8 +154,8 @@ void Game1_Hikaru::loop()
 		}
 	}
 
-	saveColorInfo();
-	calculateWallPosition();
+	/*saveColorInfo();
+	calculateWallPosition();*/
 
 	if (SuperDuration > 0)
 	{
