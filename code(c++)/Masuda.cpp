@@ -267,11 +267,11 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 10) {
 			motor(2, 4);
 		}
-		else if (US_Right < 15 + (deposit_num % 3) * 4 +  rnd() % 10)
+		else if (US_Right < 15 + (deposit_num % 2) * 5 +  rnd() % 10)
 		{
 			motor(2, 4);
 		}
-		else if (US_Right < 30 + (deposit_num % 3) * 4 +  rnd() % 10)
+		else if (US_Right < 30 + (deposit_num % 2) * 5 +  rnd() % 10)
 		{
 			motor(4, 3);
 		}

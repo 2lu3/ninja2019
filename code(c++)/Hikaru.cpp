@@ -1084,6 +1084,10 @@ void Game1_Hikaru::Dijkstra()
 				continue;
 			}
 
+			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
+				continue;
+			}
+
 			int remember_from = dot[target_id].from;
 			dot[target_id].from = investigating_node.id;
 			int target_curved_times = HowManyCurved(target_id);
