@@ -654,7 +654,7 @@ int Game1_Hikaru::IsNearYellow(int num, int x, int y)
 		}
 
 		int id = temp_y * kDotWidthNum + temp_x;
-		if (map_secure[SECURE_YELLOW][id] == 1)
+		if (map_secure[SECURE_YELLOW][id] == 1 || dot[id].point == POINT_YELLOW)
 		{
 			return 1;
 		}
@@ -778,7 +778,8 @@ void Game1_Hikaru::InputDotInformation(void)
 			switch (map_output_data[kDotHeightNum - j - 1][i])
 			{
 			case 0: //white
-				map_position_color_data[i][j] = POINT_UNKNOWN;
+				//map_position_color_data[i][j] = POINT_UNKNOWN;
+				map_position_color_data[i][j] = POINT_WHITE;
 				break;
 			case 1: //yellow
 				map_position_color_data[i][j] = POINT_YELLOW;
@@ -802,7 +803,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		}
 	}
 
-	rep(kind, 7)
+	/*rep(kind, 7)
 	{
 		rep(ysi, 5)
 		{
@@ -817,7 +818,7 @@ void Game1_Hikaru::InputDotInformation(void)
 				}
 			}
 		}
-	}
+	}*/
 
 	printf("map\n");
 	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
