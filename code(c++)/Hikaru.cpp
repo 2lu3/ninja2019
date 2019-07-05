@@ -1987,6 +1987,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		{
 			if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 400)
 			{
+				cout << "near super" << endl;
 				if (abs(angle) < 30)
 				{
 					if (distance < 5 + static_cast<int>(rnd() % 5))
@@ -2034,6 +2035,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			}
 			else if (IsOnSwampland())
 			{
+				cout << "in swampland" << endl;
 				if (IsOnSwampland() == 1 && angle > 0 && angle < 90)
 				{
 					// left
@@ -2078,6 +2080,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 			}
 			else if (IsNearYellow(2, -1, -1) && LoadedObjects != 0)
 			{
+				cout << "near yellow" << endl;
 				if (abs(angle) < 10)
 				{
 					motor(3, 3);
