@@ -84,21 +84,29 @@ void Game0_Masuda::loop(void)
 			break;
 		}
 	}
-	else if (EitherColorJudge(black_obj) && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(black_obj) && LoadedObjects < 6
+		&& (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum 
+			|| 
+			(loaded_objects[BLACK_LOADED_ID] >= 1 
+				&& loaded_objects[CYAN_LOADED_ID] >= 1 
+				&& loaded_objects[RED_LOADED_ID] >= 1)))
 	{
 		LOG_MESSAGE("find black obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(cyan_obj) && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(cyan_obj) && LoadedObjects < 6
+		&& (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum || (loaded_objects[BLACK_LOADED_ID] >= 1 && loaded_objects[CYAN_LOADED_ID] >= 1 && loaded_objects[RED_LOADED_ID] >= 1)))
 	{
 		LOG_MESSAGE("find cyan obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(red_obj) && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && LoadedObjects < 6)
+	else if (EitherColorJudge(red_obj) && LoadedObjects < 6
+		&& (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum ||
+		(loaded_objects[BLACK_LOADED_ID] >= 1 && loaded_objects[CYAN_LOADED_ID] >= 1 && loaded_objects[RED_LOADED_ID] >= 1)))
 	{
 		LOG_MESSAGE("find red obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
@@ -117,14 +125,14 @@ void Game0_Masuda::loop(void)
 
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
-		if (IsOnYellowLine() == 1)
+		/*if (IsOnYellowLine() == 1)
 		{
 			motor(-1, -3);
 		}
 		else
-		{
+		{*/
 			motor(-3, -1);
-		}
+		//}
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
 	}
@@ -230,9 +238,9 @@ void Game0_Masuda::loop(void)
 	}
 	else
 	{
-		if (US_Front < 37 && US_Left < 20 && US_Right < 20)
+		if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
 		{
-			motor(-3, -5);
+			motor(-1, -3);
 			Duration = 3;
 		}
 
@@ -240,22 +248,22 @@ void Game0_Masuda::loop(void)
 		{
 			motor(-3, 1);
 		}
-		else if (US_Left < 8)
+		else if (US_Left < 5)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 8)
+		else if (US_Right < 5)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 15) {
+		else if (US_Right < 10) {
 			motor(2, 4);
 		}
-		else if (US_Right < 25 + rnd() % 20)
+		else if (US_Right < 15 + rnd() % 10)
 		{
 			motor(2, 4);
 		}
-		else if (US_Right < 40 + rnd() % 20)
+		else if (US_Right < 30 + rnd() % 10)
 		{
 			motor(4, 3);
 		}
