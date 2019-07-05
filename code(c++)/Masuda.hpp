@@ -19,6 +19,7 @@ public:
 private:
     ProcessingTime pt;
     int depo = 0;
+    int should_deposit =1;
 };
 
 // World2
