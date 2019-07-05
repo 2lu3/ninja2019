@@ -77,7 +77,7 @@ private:
 
     void GoToAngle(int angle, int distance);
     int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
-    void Dijkstra(void);
+    void Dijkstra(int option);
     void Astar(void);
     int GoToDot(int x, int y);
     void CheckNowDot(void);

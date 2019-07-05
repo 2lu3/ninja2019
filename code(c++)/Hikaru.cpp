@@ -995,7 +995,7 @@ void Game1_Hikaru::InputDotInformation(void)
 	// cout << endl;
 }
 
-void Game1_Hikaru::Dijkstra()
+void Game1_Hikaru::Dijkstra(int option)
 {
 	//fprintf(logfile, " %d Start Dijkstra()\n", getRepeatedNum());
 	for (int i = 0; i < kMaxDotNum; i++)
@@ -1008,6 +1008,10 @@ void Game1_Hikaru::Dijkstra()
 	}
 
 	int now_node_id = now_dot_id;
+
+	if (dot[now_dot_id].point == POINT_SWAMPLAND || dot[now_dot_id].point == POINT_MAY_SWAMPLAND) {
+		option = 1;
+	}
 
 	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
 	{
@@ -1038,8 +1042,12 @@ void Game1_Hikaru::Dijkstra()
 			// }
 
 			//If the dot is yellow or wall
-			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND || dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
+			if (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
 			{
+				continue;
+			}
+
+			if (option == 0 && (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND)) {
 				continue;
 			}
 
@@ -1084,7 +1092,7 @@ void Game1_Hikaru::Dijkstra()
 				continue;
 			}
 
-			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
+			if (option == 0 && (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND)) {
 				continue;
 			}
 
@@ -1212,7 +1220,12 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (prev_now_dot_id != now_dot_id || prev_x != x || prev_y != y)
 	{
-		Dijkstra();
+		if (dot[y * kDotWidthNum + x].point == POINT_SWAMPLAND || dot[y * kDotWidthNum + x].point == POINT_MAY_SWAMPLAND) {
+			Dijkstra(1);
+		}
+		else {
+			Dijkstra(0);
+		}
 	}
 	prev_now_dot_id = now_dot_id;
 	prev_x = x;

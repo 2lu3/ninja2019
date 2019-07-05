@@ -139,10 +139,10 @@ void Game0_Masuda::loop(void)
 		}
 		else
 		{*/
-			motor(-3, -1);
+			//motor(-3, -1);
 		//}
 		setAction(YELLOW_AVOIDANCE);
-		Duration = 3;
+		Duration = 8;
 	}
 	else if (depo == 1) {
 		if (US_Front < 5) {
@@ -248,30 +248,30 @@ void Game0_Masuda::loop(void)
 	{
 		if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
 		{
-			motor(-1, -3);
+			motor(-1, -2);
 			Duration = 3;
 		}
 
 		else if (US_Front < 14)
 		{
-			motor(-3, 1);
+			motor(-2, 1);
 		}
 		else if (US_Left < 5)
 		{
-			motor(-3, -1);
+			motor(-2, -1);
 		}
 		else if (US_Right < 5)
 		{
-			motor(-3, -1);
+			motor(-2, -1);
 		}
 		else if (US_Right < 10) {
 			motor(2, 4);
 		}
-		else if (US_Right < 15 + (deposit_num % 2) * 5 +  rnd() % 10)
+		else if (US_Right < 15 + (deposit_num % 2) * 10+  rnd() % 10)
 		{
 			motor(2, 4);
 		}
-		else if (US_Right < 30 + (deposit_num % 2) * 5 +  rnd() % 10)
+		else if (US_Right < 30 + (deposit_num % 2) * 10 +  rnd() % 10)
 		{
 			motor(4, 3);
 		}
@@ -300,6 +300,12 @@ void Game0_Masuda::loop(void)
 	case DEFINED:
 		break;
 	case YELLOW_AVOIDANCE:
+		if (Duration < 4) {
+			motor(-3, 3);
+		}
+		else {
+			motor(-3, 3);
+		}
 		break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
@@ -346,7 +352,6 @@ void Game0_Masuda::loop(void)
 		}
 		break;
 	case TELEPORT:
-		Teleport = 3;
 		WheelLeft = 0;
 		WheelRight = 0;
 		LED_1 = 0;
@@ -383,6 +388,7 @@ void Game0_Masuda::taskOnTeleport(void)
 	loaded_objects[2] = 0;
 	loaded_objects[3] = 0;
 	Teleport = 4;
+	cout << "teleport " << endl;
 }
 
 void Game1_Masuda::setup(void)
@@ -532,8 +538,9 @@ void Game1_Masuda::loop()
 	}
 	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
-		motor(-5, -3);
-		Duration = 3;
+		//motor(-5, -2);
+		setAction(YELLOW_AVOIDANCE);
+		Duration = 6;
 	}
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
