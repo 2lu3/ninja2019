@@ -55,7 +55,13 @@ void Game0_Masuda::loop(void)
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
-	cout<<IsOnDepositArea()<<endl;
+	//cout<<IsOnDepositArea()<<endl;
+	if (Time > 60 &&Time<70&& !should_deposit
+	&&!(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0))
+	{
+		should_deposit = true;
+	}
+	
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -164,8 +170,7 @@ void Game0_Masuda::loop(void)
 			motor(1, 3);
 		}
 	}
-	else if ((IsOnWorld1MakerArea() && LoadedObjects>5))
-	//(LoadedObjects > 5||(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0))
+	else if ((IsOnWorld1MakerArea() && LoadedObjects>5)||(IsOnWorld1MakerArea() && should_deposit &&(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)))
 	 {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
@@ -292,6 +297,7 @@ void Game0_Masuda::loop(void)
 		LED_1 = 2;
 		MyState = 0;
 		LoadedObjects = 0;
+		
 		// loaded_objects全体の大きさ / loaded_objects[0]の大きさ
 		resetLoadedObjects();
 
@@ -300,6 +306,7 @@ void Game0_Masuda::loop(void)
 		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
+			already_deposit++;
 		}else if (SuperDuration<15)
 		{
 			WheelLeft = -5;
