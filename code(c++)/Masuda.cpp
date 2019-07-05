@@ -131,7 +131,7 @@ void Game0_Masuda::loop(void)
 		Duration = 2;
 	}
 
-	else if (IsOnYellowLine())
+	else if (IsOnYellowLine() && (LoadedObjects != 0 || deposit_num % 2 == 1))
 	{
 		/*if (IsOnYellowLine() == 1)
 		{

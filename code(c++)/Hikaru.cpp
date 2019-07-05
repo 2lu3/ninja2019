@@ -323,7 +323,8 @@ void Game1_Hikaru::loop()
 					}
 					process_times++;
 				}
-			}
+				//goInArea(30, 180, 20, 45, 10);
+ 			}
 			else if (process == 1)
 			{
 				if (GoInDots(180, 250, 120, 30, POINT_BLACK))
@@ -1912,7 +1913,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	{
 	case 0:
 		classification = obstacle(35, 35, 35);
-		if (log_superobj_num > 0 && abs(log_superobj_x[0] - log_x) + abs(log_superobj_y[0] - log_y) < 30)
+		if (log_superobj_num > 0 && abs(log_superobj_x[0] - log_x) + abs(log_superobj_y[0] - log_y) < 400)
 		{
 			classification = obstacle(15, 20, 15);
 		}
@@ -1984,7 +1985,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		}
 		else
 		{
-			if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 800)
+			if (log_superobj_num > 0 && pow(log_y - log_superobj_y[0], 2) + pow(log_x - log_superobj_x[0], 2) < 400)
 			{
 				if (abs(angle) < 30)
 				{
@@ -2806,4 +2807,67 @@ void Game1_Hikaru::calculateWallPosition(void)
 			}
 		}
 	}
+}
+
+
+int Game1_Hikaru::goInArea(int x, int y, int wide_decide_x, int wide_decide_y, int times) {
+	static int prev_x = -1, prev_y = -1, prev_wide_x = -1, prev_wide_y = -1;
+	static int arrived_times = 0;
+	static int log_compass = 0;
+	static int is_turning = 0;
+	if (x < 0 || x >= kCospaceWidth || y < 0 || y >= kCospaceHeight) {
+		ERROR_MESSAGE(FUNCNAME + "(): x or y range is invalid", MODE_NORMAL);
+	}
+	if (prev_x != x || prev_y != y || prev_wide_x != wide_decide_x || prev_wide_y != wide_decide_y) {
+		GoToDots(x, y, wide_decide_x, wide_decide_y);
+		prev_x = x;
+		prev_y = y;
+		prev_wide_x = wide_decide_x;
+		prev_wide_y = wide_decide_y;
+		arrived_times = 0;
+		is_turning = 0;
+	}
+
+	int range = 5;
+	if (wide_decide_x <= range) {
+		ERROR_MESSAGE(FUNCNAME + "rase wide_x", MODE_NORMAL);
+		wide_decide_x = range + 1;
+	}
+	if (wide_decide_y <= range) {
+		ERROR_MESSAGE(FUNCNAME + "rase wide_y", MODE_NORMAL);
+		wide_decide_y = range + 1;
+
+	}
+
+	
+	if (PLUSMINUS(log_x, x, wide_decide_x) && PLUSMINUS(log_y, y, wide_decide_y)) {
+		if (PLUSMINUS(log_x, x, wide_decide_x - range) && PLUSMINUS(log_y, y, wide_decide_y - range)) {
+			GoToAngle(log_compass - 3, 30);
+			is_turning = 0;
+		}
+		else {
+			motor(-2, 2);
+			if (is_turning == 0) {
+
+				arrived_times++;
+				is_turning = 1;
+			}
+			Duration = 2;
+		}
+		if (PositionX == -1) {
+			GoToAngle(180 + log_compass, 30);
+		}
+		else {
+			log_compass = Compass;
+		}
+	}
+	else {
+		GoToDots(x, y, wide_decide_x, wide_decide_y);
+	}
+
+	if (arrived_times >= times) {
+		return 1;
+	}
+	return 0;
+	
 }

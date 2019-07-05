@@ -90,7 +90,7 @@ private:
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
     int IsNearYellow(int num, int x, int y);
-
+	int goInArea(int x, int y, int wide_decide_x, int wide_decide_y, int times);
     void saveColorInfo(void);
     void calculateWallPosition(void);
 };
