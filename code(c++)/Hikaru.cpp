@@ -359,7 +359,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(335, 180, 15, 30, POINT_CYAN))
 				{
-					if (rnd() % 3 == 0)
+					if (rnd() % 6 == 0)
 					{
 						process = 0;
 					}
