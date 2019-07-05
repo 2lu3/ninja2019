@@ -1226,43 +1226,43 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (getRepeatedNum() % 5 == 0)
 	{
-		cout << "out map" << endl;
-		ProcessingTime pt2;
-		pt2.start();
-		FILE* fp = fopen("map_out.txt", "w");
-		if (fp == NULL)
-		{
-			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
-		}
-		else
-		{
-			cout << "out map start" << endl;
-			rep(xj, kDotWidthNum + 2)
-			{
-				fprintf(fp, "#");
-				// printf("#");
-			}
-			fprintf(fp, "\n");
-			rep(yi, kDotHeightNum)
-			{
-				fprintf(fp, "#");
-				// printf("#");
-				rep(xj, kDotWidthNum)
-				{
-					fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
-				}
-				fprintf(fp, "#");
-				// printf("#");
-				fprintf(fp, "\n");
-			}
-			rep(xj, kDotWidthNum + 2)
-			{
-				fprintf(fp, "#");
-			}
-			fprintf(fp, "\n");
-			fclose(fp);
-			cout << "out map end " << pt2.end() << endl;
-		}
+		//cout << "out map" << endl;
+		//ProcessingTime pt2;
+		//pt2.start();
+		//FILE* fp = fopen("map_out.txt", "w");
+		//if (fp == NULL)
+		//{
+		//	ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
+		//}
+		//else
+		//{
+		//	cout << "out map start" << endl;
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//	}
+		//	fprintf(fp, "\n");
+		//	rep(yi, kDotHeightNum)
+		//	{
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//		rep(xj, kDotWidthNum)
+		//		{
+		//			fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
+		//		}
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//		fprintf(fp, "\n");
+		//	}
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		fprintf(fp, "#");
+		//	}
+		//	fprintf(fp, "\n");
+		//	fclose(fp);
+		//	cout << "out map end " << pt2.end() << endl;
+		//}
 	}
 
 	int distance = 20;
