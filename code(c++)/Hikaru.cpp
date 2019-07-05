@@ -308,7 +308,7 @@ void Game1_Hikaru::loop()
 			}
 			else if (process == 1) {
 				if (GoInDots(180, 250, 120, 30, POINT_BLACK)) {
-					if (rnd() % 3 == 0) {
+					if (rnd() % 5 == 0) {
 					process = 0;
 					}
 				}
@@ -1803,7 +1803,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 	if (IsOnSwampland()) {
 		big_motor = 5;
-		if (!IsOnRedObj() && !IsOnCyanObj() && !IsOnBlackObj() && !IsOnSuperObj()) {
+		if (!IsOnRedObj() && !IsOnCyanObj() && !IsOnBlackObj() && !IsOnSuperObj() && log_superobj_num == 0) {
 			Duration += 20;
 		}
 	}
