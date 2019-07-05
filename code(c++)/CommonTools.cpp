@@ -188,7 +188,7 @@ void resetLoadedObjects(void)
 }
 
 void intrap(void){
-	if (IsOnTrapBlue)
+	if (IsOnTrapBlue())
 	{
 		resetLoadedObjects();
 	}
