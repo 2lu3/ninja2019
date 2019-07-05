@@ -33,7 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
-	setRunMode( MODE_DEBUG);
+	setRunMode(MODE_MATCH);
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -360,7 +360,7 @@ void Game0_Masuda::taskOnTeleport(void)
 	loaded_objects[1] = 0;
 	loaded_objects[2] = 0;
 	loaded_objects[3] = 0;
-	Teleport = 3;
+	Teleport = 4;
 }
 
 void Game1_Masuda::setup(void)

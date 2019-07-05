@@ -249,6 +249,7 @@ void Game1_Hikaru::loop()
 	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
 	{
 		process = 0;
+		large_process = -1;
 		if (IsOnDepositArea() == 3)
 		{
 			setAction(DEPOSIT_OBJ);
@@ -307,7 +308,7 @@ void Game1_Hikaru::loop()
 			}
 			else if (process == 1) {
 				if (GoInDots(180, 250, 120, 30, POINT_BLACK)) {
-					if (rnd() % 3 == 0) {
+					if (rnd() % 5 == 0) {
 					process = 0;
 					}
 				}
@@ -320,7 +321,7 @@ void Game1_Hikaru::loop()
 		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 		{
 			if (large_process != 1) {
-				if (PositionX < 100) {
+				if (PositionX < 50) {
 					process = 0;
 				}
 				else {
@@ -1068,7 +1069,8 @@ void Game1_Hikaru::Dijkstra()
 				target_cost += static_cast<int>(dot[target_id].arrived_times * 10);
 			}
 			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
-				target_cost *= 100;
+				cout << "s" << endl;
+				target_cost *= 1000;
 			}
 
 			// if (dot[target_id].point < -1) {
@@ -1077,21 +1079,21 @@ void Game1_Hikaru::Dijkstra()
 			// 	// }
 			// }
 			double k = 0.8;
-			if (dot[investigating_node.id].black == 1)
+			if (dot[investigating_node.id].black == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == BLACK_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
 				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (dot[investigating_node.id].cyan == 1)
+			if (dot[investigating_node.id].cyan == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == CYAN_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
 				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (dot[investigating_node.id].red == 1)
+			if (dot[investigating_node.id].red == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == RED_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
@@ -1224,43 +1226,43 @@ int Game1_Hikaru::GoToDot(int x, int y)
 
 	if (getRepeatedNum() % 5 == 0)
 	{
-		cout << "out map" << endl;
-		ProcessingTime pt2;
-		pt2.start();
-		FILE* fp = fopen("map_out.txt", "w");
-		if (fp == NULL)
-		{
-			ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
-		}
-		else
-		{
-			cout << "out map start" << endl;
-			rep(xj, kDotWidthNum + 2)
-			{
-				fprintf(fp, "#");
-				// printf("#");
-			}
-			fprintf(fp, "\n");
-			rep(yi, kDotHeightNum)
-			{
-				fprintf(fp, "#");
-				// printf("#");
-				rep(xj, kDotWidthNum)
-				{
-					fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
-				}
-				fprintf(fp, "#");
-				// printf("#");
-				fprintf(fp, "\n");
-			}
-			rep(xj, kDotWidthNum + 2)
-			{
-				fprintf(fp, "#");
-			}
-			fprintf(fp, "\n");
-			fclose(fp);
-			cout << "out map end " << pt2.end() << endl;
-		}
+		//cout << "out map" << endl;
+		//ProcessingTime pt2;
+		//pt2.start();
+		//FILE* fp = fopen("map_out.txt", "w");
+		//if (fp == NULL)
+		//{
+		//	ERROR_MESSAGE(FUNCNAME + "(): failed to make map_out.txt", MODE_NORMAL);
+		//}
+		//else
+		//{
+		//	cout << "out map start" << endl;
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//	}
+		//	fprintf(fp, "\n");
+		//	rep(yi, kDotHeightNum)
+		//	{
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//		rep(xj, kDotWidthNum)
+		//		{
+		//			fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
+		//		}
+		//		fprintf(fp, "#");
+		//		// printf("#");
+		//		fprintf(fp, "\n");
+		//	}
+		//	rep(xj, kDotWidthNum + 2)
+		//	{
+		//		fprintf(fp, "#");
+		//	}
+		//	fprintf(fp, "\n");
+		//	fclose(fp);
+		//	cout << "out map end " << pt2.end() << endl;
+		//}
 	}
 
 	int distance = 20;
@@ -1801,6 +1803,9 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 	if (IsOnSwampland()) {
 		big_motor = 5;
+		if (!IsOnRedObj() && !IsOnCyanObj() && !IsOnBlackObj() && !IsOnSuperObj() && log_superobj_num == 0) {
+			Duration += 20;
+		}
 	}
 	switch (classification)
 	{
