@@ -33,7 +33,7 @@ void Game0_Masuda::setup(void)
 {
 	pt.start();
 
-	setRunMode( MODE_DEBUG);
+	setRunMode(MODE_DEBUG);
 	UserGame0::setup();
 
 	logErrorMessage.delErrorFile();
@@ -44,9 +44,9 @@ void Game0_Masuda::setup(void)
 	LOG_MESSAGE(FUNC_NAME + "(): " + to_string(seconds) + " milliseconds", MODE_NORMAL);
 	// if (compassJudge(265,275))
 	// {
-		
+
 	// }
-	
+
 }
 
 void Game0_Masuda::loop(void)
@@ -55,7 +55,7 @@ void Game0_Masuda::loop(void)
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
-	cout<<IsOnDepositArea()<<endl;
+	cout << IsOnDepositArea() << endl;
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -108,13 +108,14 @@ void Game0_Masuda::loop(void)
 	else if (Duration > 0)
 	{
 		Duration--;
-	}else if (Time < 1)
-	{
-		motor(5,1);
-		Duration=2;
 	}
-	
-	else if (IsOnYellowLine() && LoadedObjects>0)
+	else if (Time < 1)
+	{
+		motor(5, 1);
+		Duration = 2;
+	}
+
+	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
 		if (IsOnYellowLine() == 1)
 		{
@@ -142,9 +143,6 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if (depo == 2) {
-		if (US_Front < 5) {
-			depo = 0;
-		}
 		if (compassJudge(260, 280)) {
 			if (US_Front < 25) {
 				depo = 0;
@@ -162,6 +160,9 @@ void Game0_Masuda::loop(void)
 	}
 	else if (depo == 3) {
 		if (compassJudge(265, 275)) {
+			if (US_Front < 5) {
+				depo = 0;
+			}
 			motor(3, 3);
 		}
 		else if (compassJudge(-90, 90)) {
@@ -171,8 +172,8 @@ void Game0_Masuda::loop(void)
 			motor(1, 3);
 		}
 	}
-	else if ((IsOnWorld1MakerArea() && 
-	(LoadedObjects > 5||((loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)&&should_deposit)))) {
+	else if ((IsOnWorld1MakerArea() &&
+		(LoadedObjects > 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit)))) {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
 				depo = 2;
@@ -185,7 +186,7 @@ void Game0_Masuda::loop(void)
 		else if (compassJudge(0, 90)) {
 			motor(-2, 2);
 		}
-		else if(compassJudge(90, 180)){
+		else if (compassJudge(90, 180)) {
 			motor(2, -2);
 		}
 		else if (compassJudge(180, 270)) {
@@ -217,7 +218,8 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 60)
 		{
 			motor(4, 2);
-		}else if (US_Right > 120)
+		}
+		else if (US_Right > 120)
 		{
 			motor(4, 0);
 		}
@@ -228,12 +230,12 @@ void Game0_Masuda::loop(void)
 	}
 	else
 	{
-		if (US_Front<37&&US_Left<20&&US_Right<20)
+		if (US_Front < 37 && US_Left < 20 && US_Right < 20)
 		{
-			motor(-3,-5);
+			motor(-3, -5);
 			Duration = 3;
 		}
-		
+
 		else if (US_Front < 14)
 		{
 			motor(-3, 1);
@@ -257,7 +259,8 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 80)
 		{
 			motor(4, 1);
-		}else if (US_Right > 120)
+		}
+		else if (US_Right > 120)
 		{
 			motor(4, 0);
 		}
@@ -306,7 +309,8 @@ void Game0_Masuda::loop(void)
 		if (Duration == 0 && SuperDuration == 0)
 		{
 			LED_1 = 0;
-		}else if (SuperDuration<15)
+		}
+		else if (SuperDuration < 15)
 		{
 			WheelLeft = -5;
 			WheelRight = -5;
@@ -345,7 +349,8 @@ int Game0_Masuda::shouldTeleport(void)
 {
 	if (Time > 180) {
 		return 1;
-	}else
+	}
+	else
 	{
 		return 0;
 	}
@@ -594,8 +599,8 @@ void Game1_Masuda::loop()
 	switch (static_cast<int>(getAction()))
 	{
 	case DEFINED:
-        //defined motor power by motor(int left, int right)
-        break;
+		//defined motor power by motor(int left, int right)
+		break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
 		{
@@ -627,7 +632,7 @@ void Game1_Masuda::loop()
 		}
 		else
 		{
-			if (!(IsOnDepositArea()==3))
+			if (!(IsOnDepositArea() == 3))
 			{
 				LoadedObjects = 6;
 				Duration = 0;
