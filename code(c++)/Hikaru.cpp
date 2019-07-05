@@ -1247,6 +1247,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		//	{
 		//		fprintf(fp, "#");
 		//		// printf("#");
+
 		//		rep(xj, kDotWidthNum)
 		//		{
 		//			fprintf(fp, "%c", map_data_to_show[(kDotHeightNum - 1 - yi) * kDotWidthNum + xj]);
