@@ -88,6 +88,8 @@ void Game0_Masuda::loop(void)
 			LOG_MESSAGE("I am in object_box", MODE_DEBUG);
 			setAction(DEPOSIT_OBJ);
 			SuperDuration = 65;
+
+			deposit_num++;
 			Duration = 0;
 			break;
 		default:
@@ -187,7 +189,7 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if ((IsOnWorld1MakerArea() &&
-		(LoadedObjects > 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit)))) {
+		(LoadedObjects >= 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit)))) {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
 				depo = 2;
@@ -265,11 +267,11 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 10) {
 			motor(2, 4);
 		}
-		else if (US_Right < 15 + rnd() % 10)
+		else if (US_Right < 15 + (deposit_num % 3) * 4 +  rnd() % 10)
 		{
 			motor(2, 4);
 		}
-		else if (US_Right < 30 + rnd() % 10)
+		else if (US_Right < 30 + (deposit_num % 3) * 4 +  rnd() % 10)
 		{
 			motor(4, 3);
 		}

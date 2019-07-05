@@ -20,6 +20,7 @@ private:
     ProcessingTime pt;
     int depo = 0;
     int should_deposit =1;
+	int deposit_num = 0;
 };
 
 // World2
