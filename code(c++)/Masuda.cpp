@@ -387,7 +387,7 @@ void Game0_Masuda::taskOnTeleport(void)
 	loaded_objects[1] = 0;
 	loaded_objects[2] = 0;
 	loaded_objects[3] = 0;
-	Teleport = 4;
+	Teleport = 2;
 	cout << "teleport " << endl;
 }
 
@@ -536,7 +536,7 @@ void Game1_Masuda::loop()
 	{
 		Duration--;
 	}
-	else if (IsOnYellowLine() && LoadedObjects > 0)
+	else if (IsOnYellowLine())
 	{
 		//motor(-5, -2);
 		setAction(YELLOW_AVOIDANCE);
