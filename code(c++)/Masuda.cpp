@@ -113,7 +113,7 @@ void Game0_Masuda::loop(void)
 		Duration=2;
 	}
 	
-	else if (IsOnYellowLine() && LoadedObjects > 0)
+	else if (IsOnYellowLine() && LoadedObjects>0)
 	{
 		if (IsOnYellowLine() == 1)
 		{
@@ -164,7 +164,8 @@ void Game0_Masuda::loop(void)
 			motor(1, 3);
 		}
 	}
-	else if ((IsOnWorld1MakerArea() && LoadedObjects >= 0)) {
+	else if ((IsOnWorld1MakerArea() && 
+	(LoadedObjects > 5||(loaded_objects[RED_LOADED_ID]>0&&loaded_objects[CYAN_LOADED_ID]>0&&loaded_objects[BLACK_LOADED_ID]>0)))) {
 		if (compassJudge(80, 110)) {
 			if (US_Front < 25) {
 				depo = 2;
