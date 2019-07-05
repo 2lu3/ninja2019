@@ -1850,12 +1850,12 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 	int big_motor = 4;
 	int short_motor = 2;
-	if (getRepeatedNum() % 3)
+	if (getRepeatedNum() % 5)
 	{
 		big_motor = 5;
 		short_motor = 3;
 	}
-	if (IsNearYellow(2, -1, -1))
+	if (IsNearYellow(1, -1, -1))
 	{
 		big_motor = 3;
 		short_motor = 1;
