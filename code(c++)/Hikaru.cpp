@@ -1068,7 +1068,8 @@ void Game1_Hikaru::Dijkstra()
 				target_cost += static_cast<int>(dot[target_id].arrived_times * 10);
 			}
 			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND) {
-				target_cost *= 100;
+				cout << "s" << endl;
+				target_cost *= 1000;
 			}
 
 			// if (dot[target_id].point < -1) {
@@ -1077,21 +1078,21 @@ void Game1_Hikaru::Dijkstra()
 			// 	// }
 			// }
 			double k = 0.8;
-			if (dot[investigating_node.id].black == 1)
+			if (dot[investigating_node.id].black == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == BLACK_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
 				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (dot[investigating_node.id].cyan == 1)
+			if (dot[investigating_node.id].cyan == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == CYAN_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
 				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (dot[investigating_node.id].red == 1)
+			if (dot[investigating_node.id].red == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
 			{
 				if (searching_object == RED_LOADED_ID) {
 					target_cost = static_cast<int>((k - 0.3) * target_cost);
