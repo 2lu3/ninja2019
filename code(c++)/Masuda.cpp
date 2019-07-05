@@ -126,26 +126,67 @@ void Game0_Masuda::loop(void)
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 3;
 	}
-	/* else if ((IsOnWorld1MakerArea() && LoadedObjects >= 4)||depo == 1) {
-		if (compassJudge(75, 90)) {
-			motor(2, 4);
+	else if (depo == 1) {
+		if (compassJudge(85, 95)) {
+			motor(3, 3);
 		}
-		else if(compassJudge(90, 105)){
-			motor(4, 2);
+		else if (compassJudge(-90, 90)) {
+			motor(1, 3);
 		}
-		else if (compassJudge(255, 270)) {
-			motor(2, 4);
+		else {
+			motor(3, 1);
 		}
-		else if (compassJudge(270, 285)) {
-			motor(4, 2);
+	}
+	else if (depo == 2) {
+		if (compassJudge(260, 280)) {
+			if (US_Front < 25) {
+				depo = 0;
+			}
+			else {
+				depo = 3;
+			}
+		}
+		else if (compassJudge(-90, 90)) {
+			motor(3, -3);
 		}
 		else {
 			motor(-3, 3);
 		}
-		cout << "marker" << endl;
-		Duration = 2;
-	}*/
-	
+	}
+	else if (depo == 3) {
+		if (compassJudge(265, 275)) {
+			motor(3, 3);
+		}
+		else if (compassJudge(-90, 90)) {
+			motor(3, 1);
+		}
+		else {
+			motor(1, 3);
+		}
+	}
+	else if ((IsOnWorld1MakerArea() && LoadedObjects >= 0)) {
+		if (compassJudge(80, 110)) {
+			if (US_Front < 25) {
+				depo = 2;
+			}
+			else {
+				//そのまま前へ
+				depo = 1;
+			}
+		}
+		else if (compassJudge(0, 90)) {
+			motor(-2, 2);
+		}
+		else if(compassJudge(90, 180)){
+			motor(2, -2);
+		}
+		else if (compassJudge(180, 270)) {
+			motor(2, -2);
+		}
+		else if (compassJudge(270, 360)) {
+			motor(-2, 2);
+		}
+	}
 	else if (LoadedObjects >= 5)
 	{
 		LOG_MESSAGE("deposit", MODE_NORMAL);
