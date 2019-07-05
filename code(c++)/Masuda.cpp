@@ -51,6 +51,16 @@ void Game0_Masuda::setup(void)
 
 void Game0_Masuda::loop(void)
 {
+	int reserved_space = LoadedObjects;
+	if (loaded_objects[CYAN_LOADED_ID] == 0) {
+		reserved_space++;
+	}
+	if (loaded_objects[RED_LOADED_ID] == 0) {
+		reserved_space++;
+	}
+	if (loaded_objects[BLACK_LOADED_ID] == 0) {
+		reserved_space++;
+	}
 	UserGame0::loop();
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
@@ -84,29 +94,25 @@ void Game0_Masuda::loop(void)
 			break;
 		}
 	}
-	else if (EitherColorJudge(black_obj) && LoadedObjects < 6
-		&& (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum 
-			|| 
-			(loaded_objects[BLACK_LOADED_ID] >= 1 
-				&& loaded_objects[CYAN_LOADED_ID] >= 1 
-				&& loaded_objects[RED_LOADED_ID] >= 1)))
+	else if (EitherColorJudge(black_obj) && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < 4
+		&& (loaded_objects[BLACK_LOADED_ID] == 0 
+			|| 6 - reserved_space > 0))
 	{
 		LOG_MESSAGE("find black obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(cyan_obj) && LoadedObjects < 6
-		&& (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum || (loaded_objects[BLACK_LOADED_ID] >= 1 && loaded_objects[CYAN_LOADED_ID] >= 1 && loaded_objects[RED_LOADED_ID] >= 1)))
+	else if (EitherColorJudge(cyan_obj) && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < 4
+		&& (loaded_objects[CYAN_LOADED_ID] == 0 || 6 - reserved_space > 0))
 	{
 		LOG_MESSAGE("find cyan obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (EitherColorJudge(red_obj) && LoadedObjects < 6
-		&& (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum ||
-		(loaded_objects[BLACK_LOADED_ID] >= 1 && loaded_objects[CYAN_LOADED_ID] >= 1 && loaded_objects[RED_LOADED_ID] >= 1)))
+	else if (EitherColorJudge(red_obj) && LoadedObjects < 6 && loaded_objects[RED_LOADED_ID] < 4
+		&& (loaded_objects[RED_LOADED_ID] == 0 || 6- reserved_space > 0))
 	{
 		LOG_MESSAGE("find red obj", MODE_NORMAL);
 		setAction(FIND_OBJ);
