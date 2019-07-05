@@ -290,15 +290,85 @@ void Game1_Hikaru::loop()
 	{
 		if (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
 		{
-			GoInDots(270, 35, 90, 35, POINT_BLACK);
+			if (large_process != 0) {
+				if (log_x < 180 && log_y < 210) {
+					process = 0;
+				}
+				else {
+					process = 1;
+				}
+			}
+			if (process == 0) {
+				if (GoInDots(30, 180, 30, 55, POINT_BLACK)) {
+					if (rnd() % 3 == 0) {
+						process++;
+					}
+				}
+			}
+			else if (process == 1) {
+				if (GoInDots(180, 250, 120, 30, POINT_BLACK)) {
+					if (rnd() % 3 == 0) {
+					process = 0;
+					}
+				}
+			}
+			else {
+				process = 0;
+			}
+			large_process = 0;	
 		}
 		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 		{
-			GoInDots(270, 225, 90, 45, POINT_CYAN);
+			if (large_process != 1) {
+				if (PositionX < 100) {
+					process = 0;
+				}
+				else {
+					process = 1;
+				}
+			}
+			if (process == 0) {
+				if (GoInDots(30, 180, 30, 55, POINT_CYAN)) {
+					if (rnd() % 3 == 0) {
+						process++;
+					}
+				}
+			}
+			else if(process == 1) {
+				if (GoInDots(335, 180, 15, 30, POINT_CYAN)) {
+					if (rnd() % 3 == 0) {
+						process = 0;
+					}
+				}
+			}
+			else {
+				process = 0;
+			}
+			large_process = 1;
 		}
 		else
 		{
-			GoInDots(70, 120, 50, 80, POINT_RED);
+			if (large_process != 2) {
+				if (PositionX < 180) {
+					process = 0;
+				}
+				else {
+					process = 1;
+				}
+			}
+			if (process == 0) {
+				if (GoInDots(90, 45, 90, 45, POINT_RED)) {
+					if (rnd() % 3 == 0) {
+						process++;
+					}
+				}
+			}
+			else if (process == 1) {
+				if (GoInDots(270, 45, 90, 45, POINT_RED)) {
+					process = 0;
+				}
+			}
+			large_process = 2;
 		}
 	}
 	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(loaded_objects[RED_LOADED_ID]) << endl;
@@ -1006,17 +1076,26 @@ void Game1_Hikaru::Dijkstra()
 			// 		continue;
 			// 	// }
 			// }
-			double k = 0.5;
-			if (searching_object == BLACK_LOADED_ID && dot[investigating_node.id].black == 1)
+			double k = 0.8;
+			if (dot[investigating_node.id].black == 1)
 			{
+				if (searching_object == BLACK_LOADED_ID) {
+					target_cost = static_cast<int>((k - 0.3) * target_cost);
+				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (searching_object == CYAN_LOADED_ID && dot[investigating_node.id].cyan == 1)
+			if (dot[investigating_node.id].cyan == 1)
 			{
+				if (searching_object == CYAN_LOADED_ID) {
+					target_cost = static_cast<int>((k - 0.3) * target_cost);
+				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
-			if (searching_object == RED_LOADED_ID && dot[investigating_node.id].red == 1)
+			if (dot[investigating_node.id].red == 1)
 			{
+				if (searching_object == RED_LOADED_ID) {
+					target_cost = static_cast<int>((k - 0.3) * target_cost);
+				}
 				target_cost = static_cast<int>(k * target_cost);
 			}
 
@@ -2156,7 +2235,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	POINT_WALL
 	 */
 	cout << "log " << log_x << ", " << log_y << " dot" << dot_x[1] << ", " << dot_y[1] << " " << now_dot_id << endl;
-	if (ColorJudgeLeft(object_box))
+	if (ColorJudgeLeft(object_box2))
 	{
 		if (map_secure[SECURE_DEPOSIT][dot_y[0] * kDotWidthNum + dot_x[0]] == 1) {
 			dot[dot_y[0] * kDotWidthNum + dot_x[0]].point = POINT_DEPOSIT;
@@ -2259,7 +2338,7 @@ void Game1_Hikaru::saveColorInfo(void)
 		}
 	}
 
-	if (ColorJudgeRight(object_box))
+	if (ColorJudgeRight(object_box2))
 	{
 		if (map_secure[SECURE_DEPOSIT][dot_y[2] * kDotWidthNum + dot_x[2]] == 1) {
 			dot[dot_y[2] * kDotWidthNum + dot_x[2]].point = POINT_DEPOSIT;

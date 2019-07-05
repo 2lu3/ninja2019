@@ -122,16 +122,16 @@ void Game0_Masuda::loop(void)
 	}
 	else if (IsOnWorld1MakerArea() && LoadedObjects >= 4) {
 		if (compassJudge(0, 90)) {
-			motor(-3, 3);
+			motor(-2, 2);
 		}
 		else if(compassJudge(90, 120)){
-			motor(2, 4);
+			motor(1, 3);
 		}
 		else if (compassJudge(120, 150)) {
-			motor(4, 2);
+			motor(3, 2);
 		}
 		else {
-			motor(3, -3);
+			motor(2, -2);
 		}
 		cout << "marker" << endl;
 		Duration = 2;

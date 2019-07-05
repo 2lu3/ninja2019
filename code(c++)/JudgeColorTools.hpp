@@ -15,6 +15,7 @@ extern int sp_obj[3][2];
 extern int purple_line[3][2];
 extern int white_zone[3][2];
 extern int world1_maker[3][2];
+extern int object_box2[3][2];
 
 int ColorJudgeLeft(int col[3][2]);
 int ColorJudgeRight(int col[3][2]);
