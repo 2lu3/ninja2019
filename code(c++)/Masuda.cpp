@@ -216,7 +216,7 @@ void Game0_Masuda::loop(void)
 		(LoadedObjects >= 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit))
 		||(Time>165 &&Time<175))) {
 		if (compassJudge(-15, 15)) {
-			if (US_Front < 15) {
+			if (US_Front < 10) {
 				//真下にBOXがある
 				depo = 2;
 			}
@@ -349,7 +349,7 @@ void Game0_Masuda::loop(void)
 		break;
 	case YELLOW_AVOIDANCE:
 		if (Duration < 4) {
-			motor_no_action_change(3, -3);
+			motor_no_action_change(2, -3);
 		}
 		else {
 			motor_no_action_change(-3, -3);
