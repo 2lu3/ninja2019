@@ -68,7 +68,7 @@ public:
 private:
 	std::chrono::system_clock::time_point start_time, end_time;
 };
-/*class deposit_time
+/*class deposittimetools
 {
 
 public:

@@ -124,7 +124,9 @@ void ProcessingTime::print(void)
 {
 	print("");
 }
-
+/*
+int deposittimetools::deposit()
+ */
 std::string getFuncName(const char *name)
 {
 	return name;
