@@ -1116,6 +1116,9 @@ void Game1_Hikaru::Dijkstra(int option)
 
 		option = 1;
 	}
+	if (dot[now_dot_id].point == POINT_YELLOW || dot[now_dot_id].point == POINT_WALL) {
+		option = 2;
+	}
 
 	if (now_node_id < 0 || now_node_id >= kMaxDotNum)
 	{
@@ -1146,7 +1149,8 @@ void Game1_Hikaru::Dijkstra(int option)
 			// }
 
 			//If the dot is yellow or wall
-			if (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
+			
+			if (option != 2 && (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW))
 			{
 				continue;
 			}
@@ -1191,7 +1195,7 @@ void Game1_Hikaru::Dijkstra(int option)
 			}
 
 			//If target_dot is yellow or wall
-			if (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
+			if (option != 2 && (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW))
 			{
 				continue;
 			}
@@ -1212,6 +1216,12 @@ void Game1_Hikaru::Dijkstra(int option)
 			{
 				cout << "s" << endl;
 				target_cost *= 1000;
+			}
+
+
+			if (dot[i].point == POINT_WALL || dot[i].point == POINT_YELLOW)
+			{
+				target_cost *= 100000;
 			}
 
 			// if (dot[target_id].point < -1) {
