@@ -35,7 +35,7 @@ private:
     int map_position_color_data[36][27];
     int map_secure[7][kMaxDotNum];
 	int next_allowed_go_time[4][5];
-	int skip_time = 50;
+	int skip_time = 100;
 	LogErrorMessage logErrorMessage;
 
     int dot_x[3], dot_y[3];

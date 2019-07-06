@@ -428,7 +428,10 @@ void Game1_Hikaru::loop()
 					process = 2;
 				}
 				else if (240 < PositionX && next_allowed_go_time[BLACK_LOADED_ID][3] <= Time) {
-
+					process = 3;
+				}
+				else {
+					process = rnd() % 4;
 				}
 				process = 0;
 				process_times = 0;
@@ -463,6 +466,18 @@ void Game1_Hikaru::loop()
 			else if (process == 2)
 			{
 				if (GoInDots(40, 160, 40, 20, POINT_BLACK))
+				{
+					if (process_times >= 3)
+					{
+						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
+						process++;
+						process_times = 0;
+					}
+					process_times++;
+				}
+			}
+			else if (process == 3) {
+				if (GoInDots(290, 140, 20, 30, POINT_BLACK))
 				{
 					if (process_times >= 3)
 					{
@@ -734,10 +749,13 @@ int Game1_Hikaru::IsNearYellow(int num, int x, int y)
 		}
 
 		int id = temp_y * kDotWidthNum + temp_x;
-		if (map_secure[SECURE_YELLOW][id] == 1 || dot[id].point == POINT_YELLOW)
+		if (dot[id].point == POINT_YELLOW)
 		{
 			return 1;
 		}
+	}
+	if (map_secure[SECURE_YELLOW][y * kDotWidthNum + x] == 1) {
+		return 1;
 	}
 	return 0;
 }
