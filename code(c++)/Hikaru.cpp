@@ -1956,6 +1956,9 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 
 	int classification = obstacle(12, 12, 12);
+	if (abs(WheelLeft) + abs(WheelRight) < 6) {
+		classification = obstacle(8, 10, 8);
+	}
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
