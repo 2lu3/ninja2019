@@ -749,10 +749,13 @@ int Game1_Hikaru::IsNearYellow(int num, int x, int y)
 		}
 
 		int id = temp_y * kDotWidthNum + temp_x;
-		if (map_secure[SECURE_YELLOW][id] == 1 || dot[id].point == POINT_YELLOW)
+		if (dot[id].point == POINT_YELLOW)
 		{
 			return 1;
 		}
+	}
+	if (map_secure[SECURE_YELLOW][y * kDotWidthNum + x] == 1) {
+		return 1;
 	}
 	return 0;
 }
