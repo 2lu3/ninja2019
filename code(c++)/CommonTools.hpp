@@ -68,6 +68,24 @@ public:
 private:
 	std::chrono::system_clock::time_point start_time, end_time;
 };
+class deposit_time
+{
+
+public:
+	int from_last_deposit(void);
+	int time_to_last_deposit(int time);
+	int lastdeposit_time(void);
+	int deposit_times(void);
+	
+	
+private:
+	int lastdeposit_time =0;
+	int deposit_times =0;
+	
+};
+
+
+
 
 void setAction(Action pushed_action);
 Action getAction(void);
