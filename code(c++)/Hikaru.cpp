@@ -1962,8 +1962,8 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 	if (IsNearYellow(1, -1, -1))
 	{
-		big_motor = 4;
-		short_motor = 2;
+		big_motor = 3;
+		short_motor = 1;
 	}
 	if (IsOnSwampland())
 	{
