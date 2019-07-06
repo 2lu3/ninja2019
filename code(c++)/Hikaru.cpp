@@ -167,8 +167,8 @@ void Game1_Hikaru::loop()
 		}
 	}
 
-	saveColorInfo();
-	calculateWallPosition();
+	/*saveColorInfo();
+	calculateWallPos1ition();*/
 
 	if (SuperDuration > 0)
 	{
@@ -1958,8 +1958,8 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		classification = obstacle(5, 7, 5);
 	}
 
-	int big_motor = 4;
-	int short_motor = 2;
+	int big_motor = 5;
+	int short_motor = 3;
 	if (getRepeatedNum() % 5)
 	{
 		big_motor = 5;
@@ -2150,7 +2150,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 				Duration = 5;
 			}
-			else if (IsNearYellow(2, -1, -1) && LoadedObjects != 0)
+			else if (IsNearYellow(1, -1, -1) && LoadedObjects != 0)
 			{
 				cout << "near yellow" << endl;
 				if (abs(angle) < 10)
@@ -2280,7 +2280,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 						}
 						else
 						{
-							if (abs(angle) < 5) {
+							if (abs(angle) < 10) {
 								motor(5, 5);
 							}
 							else if (angle < 0) {
