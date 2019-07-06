@@ -66,10 +66,10 @@ void Game0_Masuda::loop(void)
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
 	//cout << IsOnDepositArea() << endl;
-	if (BlueRobot)
+	/*if (robot_color)
 	{
 		
-	}
+	} */
 	
 	if (SuperDuration > 0)
 	{
