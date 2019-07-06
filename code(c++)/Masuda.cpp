@@ -282,21 +282,21 @@ void Game0_Masuda::loop(void)
 		{
 			motor(-3, 3);
 		}
-		else if (US_Right < 8)
+		else if (US_Right < 10)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 13)
+		else if (US_Right < 15)
 		{
 			motor(3, 4);
 		}
-		else if (US_Right < 15)
+		else if (US_Right < 20)
 		{
 			motor(4, 4);
 		}
-		else if (US_Right < 20)
+		else if (US_Right < 30)
 		{
-			motor(4, 3);
+			motor(3, 2);
 		}
 		else if (US_Right < 50)
 		{
