@@ -2075,7 +2075,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				cout << "near super" << endl;
 				if (abs(angle) < 30)
 				{
-					if (distance < 5 + static_cast<int>(rnd() % 5))
+					if (distance < 3 + static_cast<int>(rnd() % 5))
 					{
 						motor(-big_motor, -big_motor);
 					}
