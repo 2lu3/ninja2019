@@ -42,6 +42,8 @@ public:
 	virtual int shouldTeleport(void);
 	virtual void taskOnTeleport(void);
 
+	//virtual int whichrobot(void);
+
 private:
 };
 

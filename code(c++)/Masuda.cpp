@@ -66,6 +66,11 @@ void Game0_Masuda::loop(void)
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
 	//cout << IsOnDepositArea() << endl;
+	if (BlueRobot)
+	{
+		
+	}
+	
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -246,6 +251,10 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 10)
 		{
 			motor(3, 4);
+		}
+		else if (US_Right < 15)
+		{
+			motor(4, 4);
 		}
 		else if (US_Right < 20)
 		{
