@@ -42,9 +42,11 @@ public:
 	virtual int shouldTeleport(void);
 	virtual void taskOnTeleport(void);
 
-	//virtual int whichrobot(void);
-
+	/*virtual int Isitbluerobot(void);
+	int robot_color;//blue=1,red=0
+ */
 private:
+	
 };
 
 class UserGame1
