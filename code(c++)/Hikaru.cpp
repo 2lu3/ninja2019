@@ -167,8 +167,8 @@ void Game1_Hikaru::loop()
 		}
 	}
 
-	saveColorInfo();
-	calculateWallPosition();
+	/*saveColorInfo();
+	calculateWallPos1ition();*/
 
 	if (SuperDuration > 0)
 	{
@@ -316,7 +316,7 @@ void Game1_Hikaru::loop()
 				if (PositionY < 80 && next_allowed_go_time[RED_LOADED_ID][1] <= Time) {
 					process = 1;
 				}
-				else if(PositionY >= 180 && next_allowed_go_time[RED_LOADED_ID][0] <= Time) {
+				else if (PositionY >= 180 && next_allowed_go_time[RED_LOADED_ID][0] <= Time) {
 					process = 0;
 				}
 				else {
@@ -326,7 +326,7 @@ void Game1_Hikaru::loop()
 					else {
 						process = 0;
 					}
- 				}
+				}
 				process_times = 0;
 			}
 			if (process == 0)
@@ -346,7 +346,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(300, 30, 60, 30, POINT_RED))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -369,7 +369,7 @@ void Game1_Hikaru::loop()
 				{
 					process = 1;
 				}
-				else if(PositionY >= 60 && next_allowed_go_time[CYAN_LOADED_ID][0] <= Time)
+				else if (PositionY >= 60 && next_allowed_go_time[CYAN_LOADED_ID][0] <= Time)
 				{
 					process = 0;
 				}
@@ -401,7 +401,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(50, 30, 50, 30, POINT_CYAN))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -446,7 +446,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(180, 150, 30, 20, POINT_BLACK))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
@@ -880,8 +880,8 @@ void Game1_Hikaru::InputDotInformation(void)
 			switch (map_output_data[kDotHeightNum - j - 1][i])
 			{
 			case 0: //white
-				map_position_color_data[i][j] = POINT_UNKNOWN;
-				//map_position_color_data[i][j] = POINT_WHITE;
+				//map_position_color_data[i][j] = POINT_UNKNOWN;
+				map_position_color_data[i][j] = POINT_WHITE;
 				break;
 			case 1: //yellow
 				map_position_color_data[i][j] = POINT_YELLOW;
@@ -922,7 +922,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		}
 	}
 
-	printf("map\n");
+	/*printf("map\n");
 	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
 	{
 		for (int xj = 0; xj < kDotWidthNum; ++xj)
@@ -955,7 +955,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		printf("\n");
 	}
 	printf("\n");
-	printf("\n");
+	printf("\n");*/
 
 	for (long i = 0; i < kMaxDotNum; i++)
 	{
@@ -1207,13 +1207,7 @@ void Game1_Hikaru::Dijkstra(int option)
 
 			target_cost += target_curved_times * 10;
 
-			if (LoadedObjects >= 6)
-			{
-			}
-			else
-			{
-				target_cost += static_cast<int>(dot[target_id].arrived_times * 10);
-			}
+			
 			if (dot[i].point == POINT_SWAMPLAND || dot[i].point == POINT_MAY_SWAMPLAND)
 			{
 				cout << "s" << endl;
@@ -1226,29 +1220,38 @@ void Game1_Hikaru::Dijkstra(int option)
 			// 	// }
 			// }
 			double k = 0.8;
-			if (dot[investigating_node.id].black == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-			{
-				if (searching_object == BLACK_LOADED_ID)
+			if (Time < 450) {
+				if (dot[investigating_node.id].black == 1 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
 				{
-					target_cost = static_cast<int>((k - 0.3) * target_cost);
+					if (searching_object == BLACK_LOADED_ID)
+					{
+						target_cost = static_cast<int>((k - 0.3) * target_cost);
+					}
+					target_cost = static_cast<int>(k * target_cost);
 				}
-				target_cost = static_cast<int>(k * target_cost);
-			}
-			if (dot[investigating_node.id].cyan == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-			{
-				if (searching_object == CYAN_LOADED_ID)
+				if (dot[investigating_node.id].cyan == 1 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 				{
-					target_cost = static_cast<int>((k - 0.3) * target_cost);
+					if (searching_object == CYAN_LOADED_ID)
+					{
+						target_cost = static_cast<int>((k - 0.3) * target_cost);
+					}
+					target_cost = static_cast<int>(k * target_cost);
 				}
-				target_cost = static_cast<int>(k * target_cost);
-			}
-			if (dot[investigating_node.id].red == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
-			{
-				if (searching_object == RED_LOADED_ID)
+				if (dot[investigating_node.id].red == 1 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
 				{
-					target_cost = static_cast<int>((k - 0.3) * target_cost);
+					if (searching_object == RED_LOADED_ID)
+					{
+						target_cost = static_cast<int>((k - 0.3) * target_cost);
+					}
+					target_cost = static_cast<int>(k * target_cost);
 				}
-				target_cost = static_cast<int>(k * target_cost);
+				if (LoadedObjects >= 6)
+				{
+				}
+				else
+				{
+					target_cost += static_cast<int>(dot[target_id].arrived_times * 10);
+				}
 			}
 
 			if (target_cost <= 0)
@@ -1953,13 +1956,16 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 
 	int classification = obstacle(12, 12, 12);
+	if (abs(WheelLeft) + abs(WheelRight) < 6) {
+		classification = obstacle(8, 10, 8);
+	}
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
 	}
 
-	int big_motor = 4;
-	int short_motor = 2;
+	int big_motor = 5;
+	int short_motor = 3;
 	if (getRepeatedNum() % 5)
 	{
 		big_motor = 5;
@@ -2150,7 +2156,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 
 				Duration = 5;
 			}
-			else if (IsNearYellow(2, -1, -1) && LoadedObjects != 0)
+			else if (IsNearYellow(1, -1, -1) && LoadedObjects != 0)
 			{
 				cout << "near yellow" << endl;
 				if (abs(angle) < 10)
@@ -2280,7 +2286,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 						}
 						else
 						{
-							if (abs(angle) < 5) {
+							if (abs(angle) < 10) {
 								motor(5, 5);
 							}
 							else if (angle < 0) {
@@ -2346,7 +2352,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		else
 		{
 
-			motor(-2, -3);
+			motor(-2, -4);
 		}
 		break;
 	case 2: //front
@@ -2381,7 +2387,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		}
 		else
 		{
-			motor(-2, -3);
+			motor(-2, -4);
 		}
 		break;
 	case 4: //right
@@ -2391,7 +2397,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		}
 		else
 		{
-			motor(-3, -2);
+			motor(-4, -2);
 		}
 		break;
 	case 5: //left right
