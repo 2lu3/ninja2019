@@ -142,7 +142,7 @@ void Game0_Masuda::loop(void)
 			//motor(-3, -1);
 		//}
 		setAction(YELLOW_AVOIDANCE);
-		Duration = 15;
+		Duration = 10;
 	}
 	else if (depo == 1) {
 		if (compassJudge(55, 75)) {
@@ -339,7 +339,7 @@ void Game0_Masuda::loop(void)
 	case DEFINED:
 		break;
 	case YELLOW_AVOIDANCE:
-		if (Duration < 9) {
+		if (Duration < 4) {
 			motor_no_action_change(3, -3);
 		}
 		else {
