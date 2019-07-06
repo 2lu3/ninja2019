@@ -254,7 +254,7 @@ void Game1_Hikaru::loop()
 			Duration = 2;
 		}
 	}
-	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 270)))
+	else if (IsOnDepositArea() && (LoadedObjects >= 6 || (LoadedObjects > 0 && Time > 430)))
 	{
 		process = 0;
 		large_process = -1;
