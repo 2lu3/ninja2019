@@ -377,7 +377,7 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (Time > 180) {
+	if (Time > 180 && IsOnDepositArea() == 0) {
 		return 1;
 	}
 	else

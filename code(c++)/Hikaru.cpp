@@ -298,116 +298,25 @@ void Game1_Hikaru::loop()
 	}
 	else
 	{
-		if (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum)
-		{
-			if (large_process != 0)
-			{
-				if (log_x < 180 && log_y < 210)
-				{
-					process = 0;
-				}
-				else
-				{
-					process = 1;
-				}
-				process_times = 0;
-			}
-			if (process == 0)
-			{
-				if (GoInDots(30, 180, 30, 55, POINT_BLACK))
-				{
-					if (process_times >= 3)
-					{
-						process++;
-						process_times = 0;
-					}
-					process_times++;
-				}
-				//goInArea(30, 180, 20, 45, 10);
- 			}
-			else if (process == 1)
-			{
-				if (GoInDots(180, 250, 120, 30, POINT_BLACK))
-				{
-					if (process_times >= 5)
-					{
-						process = 0;
-						process_times = 0;
-					}
-					process_times++;
-				}
-			}
-			else
-			{
-				process = 0;
-				process_times = 0;
-			}
-			large_process = 0;
-		}
-		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
-		{
-			if (large_process != 1)
-			{
-				if (PositionX < 50)
-				{
-					process = 0;
-				}
-				else
-				{
-					process = 1;
-				}
-				process_times = 0;
-			}
-			if (process == 0)
-			{
-				if (GoInDots(30, 180, 30, 55, POINT_CYAN))
-				{
-					if (process_times >= 3)
-					{
-						process++;
-						process_times = 0;
-					}
-					process_times++;
-				}
-			}
-			else if (process == 1)
-			{
-				if (GoInDots(335, 180, 15, 30, POINT_CYAN))
-				{
-					if (process_times >= 3)
-					{
-						process = 0;
-						process_times = 0;
-					}
-					process_times++;
-				}
-			}
-			else
-			{
-				process = 0;
-				process_times = 0;
-			}
-			large_process = 1;
-		}
-		else
+		if (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
 		{
 			if (large_process != 2)
 			{
-				if (PositionX < 180)
-				{
-					process = 0;
-				}
-				else
-				{
+				if (PositionY < 80) {
+
 					process = 1;
+				}
+				else {
+
+					process = 0;
 				}
 				process_times = 0;
 			}
 			if (process == 0)
 			{
-				if (GoInDots(90, 45, 90, 45, POINT_RED))
+				if (GoInDots(90, 250, 90, 20, POINT_RED))
 				{
-					if (process_times >= 3)
+					if (process_times >= 5)
 					{
 						process++;
 						process_times = 0;
@@ -417,9 +326,9 @@ void Game1_Hikaru::loop()
 			}
 			else if (process == 1)
 			{
-				if (GoInDots(270, 45, 90, 45, POINT_RED))
+				if (GoInDots(300, 30, 60, 30, POINT_RED))
 				{
-					if (process_times >= 3)
+					if (process_times >= 4)
 					{
 						process = 0;
 						process_times = 0;
@@ -432,6 +341,103 @@ void Game1_Hikaru::loop()
 				process_times = 0;
 			}
 			large_process = 2;
+		}
+		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
+		{
+			if (large_process != 1)
+			{
+				/*if (PositionX < 50)
+				{
+					process = 0;
+				}
+				else
+				{
+					process = 1;
+				}*/
+				process = 0;
+				process_times = 0;
+				large_process = 1;
+			}
+			if (process == 0)
+			{
+				if (GoInDots(270, 250, 90, 20, POINT_CYAN))
+				{
+					if (process_times >= 5)
+					{
+						process++;
+						process_times = 0;
+					}
+					process_times++;
+				}
+			}
+			else if (process == 1)
+			{
+				if (GoInDots(50, 30, 50, 30, POINT_CYAN))
+				{
+					if (process_times >= 3)
+					{
+						process = 0;
+						process_times = 0;
+					}
+					process_times++;
+				}
+			}
+			else
+			{
+				process = 0;
+				process_times = 0;
+			}
+		}
+		else
+		{
+
+			if (large_process != 0)
+			{
+				process = 0;
+				process_times = 0;
+				large_process = 0;
+			}
+			if (process == 0)
+			{
+				if (GoInDots(180, 150, 30, 20, POINT_BLACK))
+				{
+					if (process_times >= 3)
+					{
+						process++;
+						process_times = 0;
+					}
+					process_times++;
+				}
+				//goInArea(30, 180, 20, 45, 10);
+			}
+			else if (process == 1) {
+				if (GoInDots(170, 50, 40, 20, POINT_BLACK))
+				{
+					if (process_times >= 5)
+					{
+						process++;
+						process_times = 0;
+					}
+					process_times++;
+				}
+			}
+			else if (process == 2)
+			{
+				if (GoInDots(40, 160, 40, 20, POINT_BLACK))
+				{
+					if (process_times >= 3)
+					{
+						process = 0;
+						process_times = 0;
+					}
+					process_times++;
+				}
+			}
+			else
+			{
+				process = 0;
+				process_times = 0;
+			}
 		}
 	}
 	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(loaded_objects[RED_LOADED_ID]) << endl;
@@ -1883,7 +1889,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(10, 15, 10);
+	int classification = obstacle(8, 10, 8);
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
@@ -1898,8 +1904,8 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 	if (IsNearYellow(1, -1, -1))
 	{
-		big_motor = 3;
-		short_motor = 1;
+		big_motor = 4;
+		short_motor = 2;
 	}
 	if (IsOnSwampland())
 	{
@@ -2131,19 +2137,18 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 				}
 			}
 			else if ((loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && dot[now_dot_id].black == 1)
-				|| (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && dot[now_dot_id].cyan == 1)
-				|| (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && dot[now_dot_id].red == 1))
+				|| (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && dot[now_dot_id].cyan == 1))
 			{
 				if (abs(angle) < 10)
 				{
-					if (angle < 0) {
-					motor(4, 1);
+					/*if (angle < 0) {
+						motor(4, 1);
 
 					}
 					else {
-					motor(1, 4);
-
-					}
+						motor(1, 4);
+					}*/
+					motor(4, 4);
 				}
 				else if (abs(angle) < 80)
 				{
@@ -2842,7 +2847,7 @@ int Game1_Hikaru::goInArea(int x, int y, int wide_decide_x, int wide_decide_y, i
 
 	}
 
-	
+
 	if (PLUSMINUS(log_x, x, wide_decide_x) && PLUSMINUS(log_y, y, wide_decide_y)) {
 		if (PLUSMINUS(log_x, x, wide_decide_x - range) && PLUSMINUS(log_y, y, wide_decide_y - range)) {
 			GoToAngle(log_compass - 3, 30);
@@ -2872,5 +2877,5 @@ int Game1_Hikaru::goInArea(int x, int y, int wide_decide_x, int wide_decide_y, i
 		return 1;
 	}
 	return 0;
-	
+
 }
