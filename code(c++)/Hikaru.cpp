@@ -922,7 +922,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		}
 	}
 
-	printf("map\n");
+	/*printf("map\n");
 	for (int yi = kDotHeightNum - 1; yi >= 0; --yi)
 	{
 		for (int xj = 0; xj < kDotWidthNum; ++xj)
@@ -955,7 +955,7 @@ void Game1_Hikaru::InputDotInformation(void)
 		printf("\n");
 	}
 	printf("\n");
-	printf("\n");
+	printf("\n");*/
 
 	for (long i = 0; i < kMaxDotNum; i++)
 	{
