@@ -247,7 +247,7 @@ void Game0_Masuda::loop(void)
 		LoadedObjects >= 5||
 		(
 			loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0
-		))
+		)
 		||(Time>150 &&Time<175)
 		)
 	{
