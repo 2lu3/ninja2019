@@ -301,7 +301,7 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 50)
 		{
 			motor(4, 2);
-		}else if (US_Right > 90 && US_Right < 100 && US_Front >70)
+		}else if (US_Right > 80 && US_Right < 100 && US_Front >70)
 		{
 			motor(5, 5);
 		}
