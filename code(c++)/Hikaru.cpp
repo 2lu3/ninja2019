@@ -63,6 +63,12 @@ void Game1_Hikaru::setup(void)
 		log_y = PositionY;
 	}
 
+	rep(i, static_cast<int>(extent<decltype(next_allowed_go_time), 0>::value)) {
+		reo(j, static_cast<int>(extent<decltype(next_allowed_go_time), 1>::value)) {
+			next_allowed_go_time[i][j] = 0;
+		}
+	}
+
 	setRunMode(MODE_DEBUG);
 }
 
@@ -300,10 +306,9 @@ void Game1_Hikaru::loop()
 	{
 		if (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum)
 		{
-			if (large_process != 2)
+			if (large_process != 2 || next_allowed_go_time[RED_LOADED_ID][process] > Time)
 			{
 				if (PositionY < 80) {
-
 					process = 1;
 				}
 				else {
@@ -318,6 +323,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 5)
 					{
+						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process++;
 						process_times = 0;
 					}
@@ -2495,7 +2501,7 @@ void Game1_Hikaru::saveColorInfo(void)
 	}
 	else
 	{
-		if (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT && map_position_color_data[dot_x[0]][dot_y[0]] != POINT_SWAMPLAND)
+		if (PositionX >= 180 || (dot[dot_y[0] * kDotWidthNum + dot_x[0]].point != POINT_DEPOSIT && map_position_color_data[dot_x[0]][dot_y[0]] != POINT_SWAMPLAND))
 		{
 			if (map_secure[SECURE_WHITE][dot_y[0] * kDotWidthNum + dot_x[0]] == 1)
 			{
