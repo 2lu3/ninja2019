@@ -232,6 +232,33 @@ void Game0_Masuda::loop(void)
 		else if (compassJudge(270, 360)) {
 			motor(-2, 2);
 		}
+	}else if (LoadedObjects >= 5&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))
+	{
+		LOG_MESSAGE("deposit", MODE_NORMAL);
+		if (US_Front < 10)
+		{
+			motor(-3, 3);
+		}
+		else if (US_Right < 5)
+		{
+			motor(-3, -1);
+		}
+		else if (US_Right < 10)
+		{
+			motor(3, 4);
+		}
+		else if (US_Right < 20)
+		{
+			motor(4, 3);
+		}
+		else if (US_Right < 50)
+		{
+			motor(4, 2);
+		}
+		else
+		{
+			motor(3, 1);
+		}
 	}
 	
 	else if (compassJudge(220,320) || compassJudge(40,140))
@@ -272,33 +299,6 @@ void Game0_Masuda::loop(void)
 		else
 		{
 			motor(4, 3);
-		}
-	}else if (LoadedObjects >= 5)
-	{
-		LOG_MESSAGE("deposit", MODE_NORMAL);
-		if (US_Front < 10)
-		{
-			motor(-3, 3);
-		}
-		else if (US_Right < 5)
-		{
-			motor(-3, -1);
-		}
-		else if (US_Right < 10)
-		{
-			motor(3, 4);
-		}
-		else if (US_Right < 20)
-		{
-			motor(4, 3);
-		}
-		else if (US_Right < 50)
-		{
-			motor(4, 2);
-		}
-		else
-		{
-			motor(3, 1);
 		}
 	}else
 	{
