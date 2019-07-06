@@ -69,7 +69,7 @@ void Game1_Hikaru::setup(void)
 		}
 	}
 
-	setRunMode(MODE_DEBUG);
+	setRunMode(MODE_MATCH);
 }
 
 void Game1_Hikaru::loop()
@@ -495,7 +495,6 @@ void Game1_Hikaru::loop()
 			}
 		}
 	}
-	cout << "b: " << to_string(loaded_objects[BLACK_LOADED_ID]) << " c:" << to_string(loaded_objects[CYAN_LOADED_ID]) << " r:" << to_string(loaded_objects[RED_LOADED_ID]) << endl;
 
 	switch (static_cast<int>(getAction()))
 	{
