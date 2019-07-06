@@ -469,7 +469,7 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (Time > 180 &&!IsOnDepositArea()&&(depo== 0&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))) 
+	if (Time > 180 &&!IsOnDepositArea()&&!(depo!= 0&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))) 
 	{
 		return 1;
 	}
