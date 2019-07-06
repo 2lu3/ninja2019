@@ -64,7 +64,7 @@ void Game1_Hikaru::setup(void)
 	}
 
 	rep(i, static_cast<int>(extent<decltype(next_allowed_go_time), 0>::value)) {
-		reo(j, static_cast<int>(extent<decltype(next_allowed_go_time), 1>::value)) {
+		rep(j, static_cast<int>(extent<decltype(next_allowed_go_time), 1>::value)) {
 			next_allowed_go_time[i][j] = 0;
 		}
 	}
@@ -308,13 +308,20 @@ void Game1_Hikaru::loop()
 		{
 			if (large_process != 2 || next_allowed_go_time[RED_LOADED_ID][process] > Time)
 			{
-				if (PositionY < 80) {
+				if (PositionY < 80 && next_allowed_go_time[RED_LOADED_ID][1] <= Time) {
 					process = 1;
 				}
-				else {
-
+				else if(PositionY >= 180 && next_allowed_go_time[RED_LOADED_ID] <= Time) {
 					process = 0;
 				}
+				else {
+					if (next_allowed_go_time[RED_LOADED_ID][1] < next_allowed_go_time[RED_LOADED_ID][0]) {
+						process = 1;
+					}
+					else {
+						process = 0;
+					}
+ 				}
 				process_times = 0;
 			}
 			if (process == 0)
@@ -336,6 +343,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 4)
 					{
+						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process = 0;
 						process_times = 0;
 					}
@@ -350,15 +358,23 @@ void Game1_Hikaru::loop()
 		}
 		else if (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum)
 		{
-			if (large_process != 1)
+			if (large_process != 1 || next_allowed_go_time[CYAN_LOADED_ID][process] > Time)
 			{
-				if (PositionY < 60)
+				if (PositionY < 60 && next_allowed_go_time[CYAN_LOADED_ID][1] <= Time)
 				{
 					process = 1;
 				}
-				else
+				else if(PositionY >= 60 && next_allowed_go_time[CYAN_LOADED_ID][0] <= Time)
 				{
 					process = 0;
+				}
+				else {
+					if (next_allowed_go_time[CYAN_LOADED_ID][1] < next_allowed_go_time[CYAN_LOADED_ID][0]) {
+						process = 1;
+					}
+					else {
+						process = 0;
+					}
 				}
 				process_times = 0;
 				large_process = 1;
@@ -369,6 +385,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 5)
 					{
+						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process++;
 						process_times = 0;
 					}
@@ -381,6 +398,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 3)
 					{
+						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process = 0;
 						process_times = 0;
 					}
@@ -396,8 +414,14 @@ void Game1_Hikaru::loop()
 		else
 		{
 
-			if (large_process != 0)
+			if (large_process != 0 || next_allowed_go_time[BLACK_LOADED_ID][process] > Time)
 			{
+				if (120 < PositionX && PositionX <= 240 && next_allowed_go_time[BLACK_LOADED_ID][0] <= Time) {
+					process = 0;
+				}
+				else if (PositionX <= 120 && next_allowed_go_time[BLACK_LOADED_ID][]) {
+
+				}
 				process = 0;
 				process_times = 0;
 				large_process = 0;
@@ -408,6 +432,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 3)
 					{
+						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
 						process_times = 0;
 					}
@@ -420,6 +445,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 5)
 					{
+						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
 						process_times = 0;
 					}
@@ -432,6 +458,7 @@ void Game1_Hikaru::loop()
 				{
 					if (process_times >= 3)
 					{
+						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process = 0;
 						process_times = 0;
 					}
