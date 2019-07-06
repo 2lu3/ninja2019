@@ -534,6 +534,7 @@ void Game1_Hikaru::loop()
 
 	double seconds = pt.end();
 	LOG_MESSAGE("loop time :" + to_string(seconds) + " ms", MODE_NORMAL);
+	cout << "passed time : " << seconds << " ms" << endl;
 }
 
 long Game1_Hikaru::WhereIsColorSensor(void)
