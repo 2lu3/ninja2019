@@ -346,15 +346,14 @@ void Game1_Hikaru::loop()
 		{
 			if (large_process != 1)
 			{
-				/*if (PositionX < 50)
+				if (PositionY < 60)
 				{
-					process = 0;
+					process = 1;
 				}
 				else
 				{
-					process = 1;
-				}*/
-				process = 0;
+					process = 0;
+				}
 				process_times = 0;
 				large_process = 1;
 			}
