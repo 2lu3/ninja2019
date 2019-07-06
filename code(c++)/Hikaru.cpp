@@ -311,7 +311,7 @@ void Game1_Hikaru::loop()
 				if (PositionY < 80 && next_allowed_go_time[RED_LOADED_ID][1] <= Time) {
 					process = 1;
 				}
-				else if(PositionY >= 180 && next_allowed_go_time[RED_LOADED_ID] <= Time) {
+				else if(PositionY >= 180 && next_allowed_go_time[RED_LOADED_ID][0] <= Time) {
 					process = 0;
 				}
 				else {
@@ -417,9 +417,17 @@ void Game1_Hikaru::loop()
 			if (large_process != 0 || next_allowed_go_time[BLACK_LOADED_ID][process] > Time)
 			{
 				if (120 < PositionX && PositionX <= 240 && next_allowed_go_time[BLACK_LOADED_ID][0] <= Time) {
-					process = 0;
+					if (PositionY < 100) {
+						process = 1;
+					}
+					else {
+						process = 0;
+					}
 				}
-				else if (PositionX <= 120 && next_allowed_go_time[BLACK_LOADED_ID][]) {
+				else if (PositionX <= 120 && next_allowed_go_time[BLACK_LOADED_ID][2] <= Time) {
+					process = 2;
+				}
+				else if (240 < PositionX && next_allowed_go_time[BLACK_LOADED_ID][3] <= Time) {
 
 				}
 				process = 0;
