@@ -308,7 +308,7 @@ void Game0_Masuda::loop(void)
 		// }
 		else
 		{
-			motor(4, 3);
+			motor(4, 2);
 		}
 	}
 	
@@ -376,7 +376,7 @@ void Game0_Masuda::loop(void)
 		}
 		else
 		{
-			motor(3, 1);
+			motor(4, 2);
 		}
 	}
 
