@@ -400,6 +400,7 @@ void Game0_Masuda::loop(void)
 		resetLoadedObjects();
 		break;
 	case TO_DEPOSIT: // world 1 only
+	case MAY_SUPER_FIND:// world 2 only
 	default:
 		ERROR_MESSAGE("action is " + to_string(static_cast<int>(getAction())), MODE_NORMAL);
 		break;
