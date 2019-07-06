@@ -136,7 +136,7 @@ void Game0_Masuda::loop(void)
 		Duration = 2;
 	}
 
-	else if (IsOnYellowLine() && LoadedObjects > 0)
+	else if (IsOnYellowLine())
 	{
 		/*if (IsOnYellowLine() == 1)
 		{
@@ -275,6 +275,9 @@ void Game0_Masuda::loop(void)
 		else if (US_Right < 50)
 		{
 			motor(4, 2);
+		}else if (US_Right > 90 && US_Right < 100 && US_Front >70)
+		{
+			motor(5, 5);
 		}
 		else
 		{
@@ -317,6 +320,7 @@ void Game0_Masuda::loop(void)
 		{
 			motor(5, 1);
 		}
+		
 		else
 		{
 			motor(4, 3);
@@ -360,12 +364,19 @@ void Game0_Masuda::loop(void)
 	case DEFINED:
 		break;
 	case YELLOW_AVOIDANCE:
-		if (Duration < 4) {
-			motor_no_action_change(2, -3);
+		if (LoadedObjects > 0){
+			if (Duration < 4) {
+				motor_no_action_change(2, -3);
+			}
+			else {
+				motor_no_action_change(-3, -3);
+			}
+		}else
+		{
+			motor(5,4);
 		}
-		else {
-			motor_no_action_change(-3, -3);
-		}
+		
+		
 		break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
