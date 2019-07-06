@@ -326,7 +326,7 @@ void Game0_Masuda::loop(void)
 		}
 		else if (US_Left < 5)
 		{
-			motor(-2, -1);
+			motor(-1, -2);
 		}
 		else if (US_Right < 5)
 		{
@@ -356,7 +356,7 @@ void Game0_Masuda::loop(void)
 	{
 		if (US_Front < 10)
 		{
-			motor(-3, 3);
+			motor(-4, 4);
 		}
 		else if (US_Right < 5)
 		{
@@ -469,7 +469,8 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (Time > 180) {
+	if (Time > 180 &&!IsOnDepositArea()&&(depo== 0&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))) 
+	{
 		return 1;
 	}
 	else
