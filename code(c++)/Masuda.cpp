@@ -243,18 +243,18 @@ void Game0_Masuda::loop(void)
 		else if (compassJudge(270, 360)) {
 			motor(-2, 2);
 		}
-	}else if (LoadedObjects >= 5&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))
+	}else if (LoadedObjects >= 5&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0)||(Time>150 &&Time<175))
 	{
 		LOG_MESSAGE("deposit", MODE_NORMAL);
 		if (US_Front < 10)
 		{
 			motor(-3, 3);
 		}
-		else if (US_Right < 5)
+		else if (US_Right < 8)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 10)
+		else if (US_Right < 13)
 		{
 			motor(3, 4);
 		}
