@@ -136,7 +136,7 @@ void Game0_Masuda::loop(void)
 		Duration = 2;
 	}
 
-	else if (IsOnYellowLine() && LoadedObjects > 0)
+	else if (IsOnYellowLine())
 	{
 		/*if (IsOnYellowLine() == 1)
 		{
@@ -148,7 +148,32 @@ void Game0_Masuda::loop(void)
 		//}
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 10;
+	}else if (depo == -1)
+	{
+		if (compassJudge(-15, 15)) {
+			if (US_Front < 10) {
+				//真下にBOXがある
+				depo = 2;
+			}
+			else {
+				//WにBOXがある
+				depo = 1;
+			}
+		}
+		else if (compassJudge(0, 90)) {
+			motor(2, -2);
+		}
+		else if (compassJudge(90, 180)) {
+			motor(2, -2);
+		}
+		else if (compassJudge(180, 270)) {
+			motor(-2, 2);
+		}
+		else if (compassJudge(270, 360)) {
+			motor(-2, 2);
+		}
 	}
+	
 	else if (depo == 1) {
 		if (compassJudge(55, 75)) {
 			// if (US_Front < 25) {
@@ -221,28 +246,29 @@ void Game0_Masuda::loop(void)
 		)
 		||(Time>165 &&Time<175))
 		) {
-		if (compassJudge(-15, 15)) {
-			if (US_Front < 10) {
-				//真下にBOXがある
-				depo = 2;
-			}
-			else {
-				//WにBOXがある
-				depo = 1;
-			}
-		}
-		else if (compassJudge(0, 90)) {
-			motor(2, -2);
-		}
-		else if (compassJudge(90, 180)) {
-			motor(2, -2);
-		}
-		else if (compassJudge(180, 270)) {
-			motor(-2, 2);
-		}
-		else if (compassJudge(270, 360)) {
-			motor(-2, 2);
-		}
+			depo = -1;
+		// if (compassJudge(-15, 15)) {
+		// 	if (US_Front < 10) {
+		// 		//真下にBOXがある
+		// 		depo = 2;
+		// 	}
+		// 	else {
+		// 		//WにBOXがある
+		// 		depo = 1;
+		// 	}
+		// }
+		// else if (compassJudge(0, 90)) {
+		// 	motor(2, -2);
+		// }
+		// else if (compassJudge(90, 180)) {
+		// 	motor(2, -2);
+		// }
+		// else if (compassJudge(180, 270)) {
+		// 	motor(-2, 2);
+		// }
+		// else if (compassJudge(270, 360)) {
+		// 	motor(-2, 2);
+		// }
 	}else if (
 		LoadedObjects >= 5||
 		(
@@ -276,9 +302,13 @@ void Game0_Masuda::loop(void)
 		{
 			motor(4, 2);
 		}
+		// else if (US_Right > 80 && US_Right < 100 && US_Front >70)
+		// {
+		// 	motor(5, 5);
+		// }
 		else
 		{
-			motor(3, 1);
+			motor(4, 2);
 		}
 	}
 	
@@ -296,7 +326,7 @@ void Game0_Masuda::loop(void)
 		}
 		else if (US_Left < 5)
 		{
-			motor(-2, -1);
+			motor(-1, -2);
 		}
 		else if (US_Right < 5)
 		{
@@ -317,6 +347,7 @@ void Game0_Masuda::loop(void)
 		{
 			motor(5, 1);
 		}
+		
 		else
 		{
 			motor(4, 3);
@@ -325,7 +356,7 @@ void Game0_Masuda::loop(void)
 	{
 		if (US_Front < 10)
 		{
-			motor(-3, 3);
+			motor(-4, 4);
 		}
 		else if (US_Right < 5)
 		{
@@ -345,7 +376,7 @@ void Game0_Masuda::loop(void)
 		}
 		else
 		{
-			motor(3, 1);
+			motor(4, 2);
 		}
 	}
 
@@ -360,12 +391,19 @@ void Game0_Masuda::loop(void)
 	case DEFINED:
 		break;
 	case YELLOW_AVOIDANCE:
-		if (Duration < 4) {
-			motor_no_action_change(2, -3);
+		if (LoadedObjects > 0){
+			if (Duration < 4) {
+				motor_no_action_change(2, -3);
+			}
+			else {
+				motor_no_action_change(-3, -3);
+			}
+		}else
+		{
+			motor(5,4);
 		}
-		else {
-			motor_no_action_change(-3, -3);
-		}
+		
+		
 		break;
 	case FIND_OBJ:
 		if (Duration == kFindObjDuration || SuperDuration == kFindObjDuration)
@@ -431,7 +469,8 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (Time > 180) {
+	if (Time > 180 &&!IsOnDepositArea()&&(depo== 0&&(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0))) 
+	{
 		return 1;
 	}
 	else
