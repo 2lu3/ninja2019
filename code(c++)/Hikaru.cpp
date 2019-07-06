@@ -69,6 +69,11 @@ void Game1_Hikaru::setup(void)
 		}
 	}
 
+	setAction(DEFINED);
+	Duration = 0;
+	SuperDuration = 0;
+	LED_1 = 0;
+
 	setRunMode(MODE_MATCH);
 }
 
@@ -328,7 +333,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(90, 250, 90, 20, POINT_RED))
 				{
-					if (process_times >= 5)
+					if (process_times >= 4)
 					{
 						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process++;
@@ -341,7 +346,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(300, 30, 60, 30, POINT_RED))
 				{
-					if (process_times >= 4)
+					if (process_times >= 2)
 					{
 						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -383,7 +388,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(270, 250, 90, 20, POINT_CYAN))
 				{
-					if (process_times >= 5)
+					if (process_times >= 4)
 					{
 						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process++;
@@ -396,7 +401,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(50, 30, 50, 30, POINT_CYAN))
 				{
-					if (process_times >= 3)
+					if (process_times >= 2)
 					{
 						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -441,7 +446,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(180, 150, 30, 20, POINT_BLACK))
 				{
-					if (process_times >= 3)
+					if (process_times >= 2)
 					{
 						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
@@ -454,7 +459,7 @@ void Game1_Hikaru::loop()
 			else if (process == 1) {
 				if (GoInDots(170, 50, 40, 20, POINT_BLACK))
 				{
-					if (process_times >= 5)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
@@ -1278,7 +1283,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		GoToPosition(x, y, 10, 10, 5);
 		return 1;
 	}
-	char map_data_to_show[kMaxDotNum];
+	/*char map_data_to_show[kMaxDotNum];
 	for (int i = 0; i < kMaxDotNum; i++)
 	{
 		if (dot[i].point == POINT_YELLOW)
@@ -1309,7 +1314,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		{
 			map_data_to_show[i] = ' ';
 		}
-	}
+	}*/
 
 	//If the node I want to go will be go out
 	if (x < 1 || x >= kDotWidthNum - 1 || y < 1 || y >= kDotHeightNum - 1)
@@ -1341,7 +1346,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 	}
 
 	int temp = goal_dot;
-	map_data_to_show[goal_dot] = 'T';
+	//map_data_to_show[goal_dot] = 'T';
 	int i = 0;
 
 	while (dot[temp].from != now_dot_id && i < 200)
@@ -1350,7 +1355,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		// go_y = temp / kDotWidthNum;
 		// go_x = temp - (int)go_y * kDotWidthNum;
 		temp = dot[temp].from;
-		map_data_to_show[temp] = '+';
+		//map_data_to_show[temp] = '+';
 		// printf("%d\n", dot[temp].point);
 		i++;
 		if (temp < 0 || temp >= kMaxDotNum)
@@ -1366,7 +1371,7 @@ int Game1_Hikaru::GoToDot(int x, int y)
 		LOG_MESSAGE(FUNC_NAME + "(): iの値が200です", MODE_NORMAL);
 	}
 
-	map_data_to_show[now_dot_id] = '@';
+	//map_data_to_show[now_dot_id] = '@';
 
 	int next_x, next_y;
 	next_y = temp / kDotWidthNum;
@@ -2061,6 +2066,9 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 					else
 					{
 						motor(big_motor, big_motor);
+					}
+					if (IsOnSwampland()) {
+						Duration = 10;
 					}
 				}
 				else if (abs(angle) < 100)
