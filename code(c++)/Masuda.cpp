@@ -212,9 +212,15 @@ void Game0_Masuda::loop(void)
 			motor(3, 1);
 		}
 	}
-	else if ((IsOnWorld1MakerArea() &&
-		(LoadedObjects >= 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit))
-		||(Time>165 &&Time<175))) {
+	else if (
+	IsOnWorld1MakerArea() &&
+		(LoadedObjects >= 5 || 
+		(
+		(loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0)
+		&& should_deposit
+		)
+		||(Time>165 &&Time<175))
+		) {
 		if (compassJudge(-15, 15)) {
 			if (US_Front < 10) {
 				//真下にBOXがある

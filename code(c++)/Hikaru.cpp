@@ -1548,7 +1548,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 				if (option)
 				{
 					// 移動しないとき
-					int k = 20;
+					int k = 30;
 					costs += static_cast<int>(pow(abs(i * kSize - log_x) - k, 2) * 100 - pow(abs(j * kSize - log_y) - k, 2) * 100);
 				}
 				else
@@ -1947,7 +1947,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(8, 10, 8);
+	int classification = obstacle(12, 12, 12);
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
