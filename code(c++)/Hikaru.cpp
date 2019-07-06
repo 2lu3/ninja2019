@@ -2349,7 +2349,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		else
 		{
 
-			motor(-2, -3);
+			motor(-2, -4);
 		}
 		break;
 	case 2: //front
@@ -2384,7 +2384,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		}
 		else
 		{
-			motor(-2, -3);
+			motor(-2, -4);
 		}
 		break;
 	case 4: //right
@@ -2394,7 +2394,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		}
 		else
 		{
-			motor(-3, -2);
+			motor(-4, -2);
 		}
 		break;
 	case 5: //left right
