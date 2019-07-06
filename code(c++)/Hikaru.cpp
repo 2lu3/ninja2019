@@ -1947,7 +1947,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(15, 15, 15);
+	int classification = obstacle(12, 12, 12);
 	if (log_superobj_num > 0)
 	{
 		classification = obstacle(5, 7, 5);
