@@ -65,7 +65,7 @@ void Game0_Masuda::loop(void)
 	pt.start();
 	LOG_MESSAGE("World1 loop start", MODE_NORMAL);
 	//cout<<depo<<endl;
-	cout << IsOnDepositArea() << endl;
+	//cout << IsOnDepositArea() << endl;
 	if (SuperDuration > 0)
 	{
 		SuperDuration--;
@@ -131,7 +131,7 @@ void Game0_Masuda::loop(void)
 		Duration = 2;
 	}
 
-	else if (IsOnYellowLine() && (LoadedObjects != 0 || deposit_num % 2 == 1))
+	else if (IsOnYellowLine() && LoadedObjects > 0)
 	{
 		/*if (IsOnYellowLine() == 1)
 		{
@@ -145,24 +145,24 @@ void Game0_Masuda::loop(void)
 		Duration = 15;
 	}
 	else if (depo == 1) {
-		if (US_Front < 5) {
-			depo = 0;
+		if (compassJudge(55, 75)) {
+			// if (US_Front < 25) {
+			// 	depo = 0;
+			// }
+			// else {
+			// 	depo = 4;
+			// }
+			depo = 4;
 		}
-		else if (obstacle(8, 8, 8)) {
-			motor(-3, -5);
-		}
-		else if (compassJudge(85, 95)) {
-			motor(3, 3);
-		}
-		else if (compassJudge(-90, 90)) {
-			motor(1, 3);
+		else if (compassJudge(65, 245)) {
+			motor(3, -3);
 		}
 		else {
-			motor(3, 1);
+			motor(-3, 3);
 		}
 	}
 	else if (depo == 2) {
-		if (compassJudge(260, 280)) {
+		if (compassJudge(170, 190)) {
 			if (US_Front < 25) {
 				depo = 0;
 			}
@@ -170,7 +170,7 @@ void Game0_Masuda::loop(void)
 				depo = 3;
 			}
 		}
-		else if (compassJudge(-90, 90)) {
+		else if (compassJudge(180, 360)) {
 			motor(3, -3);
 		}
 		else {
@@ -178,120 +178,153 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	else if (depo == 3) {
-		if (US_Front < 5) {
-			depo = 0;
-		}
-		else if (obstacle(8, 8, 8)) {
-			motor(-3, -5);
-		}
-		else if (compassJudge(265, 275)) {
-			
+		if (compassJudge(175, 185)) {
+			if (US_Front < 5) {
+				depo = 0;
+			}
 			motor(3, 3);
 		}
-		else if (compassJudge(-90, 90)) {
+		else if (compassJudge(180, 360)) {
 			motor(3, 1);
 		}
 		else {
 			motor(1, 3);
 		}
 	}
+	else if (depo == 4) {
+		//WのBOXに向かっている
+
+		// if (US_Front < 5) {
+		// 	depo = 0;
+		// }
+		if (compassJudge(60, 70)) {
+			motor(3, 3);
+		}
+		else if (compassJudge(-115, 65)) {
+			motor(1, 3);
+		}
+		else {
+			motor(3, 1);
+		}
+	}
 	else if ((IsOnWorld1MakerArea() &&
-		(LoadedObjects >= 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit)))) {
-		if (compassJudge(80, 110)) {
-			if (US_Front < 25) {
+		(LoadedObjects >= 5 || ((loaded_objects[RED_LOADED_ID] > 0 && loaded_objects[CYAN_LOADED_ID] > 0 && loaded_objects[BLACK_LOADED_ID] > 0) && should_deposit)
+		||(Time>165 &&Time<175)))) {
+		if (compassJudge(-15, 15)) {
+			if (US_Front < 15) {
+				//真下にBOXがある
 				depo = 2;
 			}
 			else {
-				//そのまま前へ
+				//WにBOXがある
 				depo = 1;
 			}
 		}
 		else if (compassJudge(0, 90)) {
-			motor(-2, 2);
+			motor(2, -2);
 		}
 		else if (compassJudge(90, 180)) {
 			motor(2, -2);
 		}
 		else if (compassJudge(180, 270)) {
-			motor(2, -2);
+			motor(-2, 2);
 		}
 		else if (compassJudge(270, 360)) {
 			motor(-2, 2);
 		}
 	}
-	else if (LoadedObjects >= 5)
+	
+	else if (compassJudge(220,320) || compassJudge(40,140))
+	{
+		// if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
+		// {
+		// 	motor(-1, -2);
+		// }
+
+		// else 
+		if (US_Front < 14)
+		{
+			motor(-2, 1);
+		}
+		else if (US_Left < 5)
+		{
+			motor(-2, -1);
+		}
+		else if (US_Right < 5)
+		{
+			motor(-2, -1);
+		}
+		else if (US_Right < 25) {
+			motor(3, 5);
+		}
+		else if (US_Right < 35 + (deposit_num % 2) * 10 +  static_cast<int>(rnd()) % 10)
+		{
+			motor(2, 4);
+		}
+		else if (US_Right < 60 + (deposit_num % 2) * 10 +  static_cast<int>(rnd()) % 10)
+		{
+			motor(5, 3);
+		}
+		else if (US_Right < 90)
+		{
+			motor(5, 1);
+		}
+		else
+		{
+			motor(4, 3);
+		}
+	}else if (LoadedObjects >= 5)
 	{
 		LOG_MESSAGE("deposit", MODE_NORMAL);
 		if (US_Front < 10)
 		{
 			motor(-3, 3);
 		}
-		else if (US_Right < 8)
+		else if (US_Right < 5)
 		{
 			motor(-3, -1);
 		}
-		else if (US_Right < 15)
+		else if (US_Right < 10)
 		{
 			motor(3, 4);
 		}
-		else if (US_Right < 30)
+		else if (US_Right < 20)
 		{
 			motor(4, 3);
 		}
-		else if (US_Right < 60)
+		else if (US_Right < 50)
 		{
 			motor(4, 2);
-		}
-		else if (US_Right > 120)
-		{
-			motor(4, 0);
 		}
 		else
 		{
-			motor(4, 2);
+			motor(3, 1);
 		}
-	}
-	else
+	}else
 	{
-		if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
+		if (US_Front < 10)
 		{
-			motor(-1, -2);
+			motor(-3, 3);
 		}
-
-		else if (US_Front < 16)
+		else if (US_Right < 5)
 		{
-			motor(-2, 1);
-		}
-		else if (US_Left < 10)
-		{
-			motor(-2, -1);
+			motor(-3, -1);
 		}
 		else if (US_Right < 10)
 		{
-			motor(-2, -1);
+			motor(3, 4);
 		}
-		else if (US_Right < 10) {
-			motor(3, 5);
-		}
-		else if (US_Right < 15 + (deposit_num % 2) * 10 + static_cast<int>(rnd() % 10))
+		else if (US_Right < 20)
 		{
-			motor(2, 4);
+			motor(4, 3);
 		}
-		else if (US_Right < 30 + (deposit_num % 2) * 10 + static_cast<int>(rnd() % 10))
+		else if (US_Right < 50)
 		{
-			motor(5, 3);
-		}
-		else if (US_Right < 80)
-		{
-			motor(5, 1);
-		}
-		else if (US_Right > 120)
-		{
-			motor(4, 0);
+			motor(4, 2);
 		}
 		else
 		{
-			motor(4, 3);
+			motor(3, 1);
 		}
 	}
 
@@ -307,7 +340,7 @@ void Game0_Masuda::loop(void)
 		break;
 	case YELLOW_AVOIDANCE:
 		if (Duration < 9) {
-			motor_no_action_change(-3, 3);
+			motor_no_action_change(3, -3);
 		}
 		else {
 			motor_no_action_change(-3, -3);
@@ -343,8 +376,8 @@ void Game0_Masuda::loop(void)
 		}
 		else if (SuperDuration < 15)
 		{
-			WheelLeft = -5;
-			WheelRight = -5;
+			WheelLeft = 5;
+			WheelRight = 4;
 		}
 		else if (!BothColorJudge(object_box))
 		{
@@ -367,7 +400,6 @@ void Game0_Masuda::loop(void)
 		resetLoadedObjects();
 		break;
 	case TO_DEPOSIT: // world 1 only
-	case MAY_SUPER_FIND: // world 2 only
 	default:
 		ERROR_MESSAGE("action is " + to_string(static_cast<int>(getAction())), MODE_NORMAL);
 		break;
@@ -377,7 +409,7 @@ void Game0_Masuda::loop(void)
 
 int Game0_Masuda::shouldTeleport(void)
 {
-	if (Time > 180 && IsOnDepositArea() == 0) {
+	if (Time > 180) {
 		return 1;
 	}
 	else
@@ -394,7 +426,7 @@ void Game0_Masuda::taskOnTeleport(void)
 	loaded_objects[1] = 0;
 	loaded_objects[2] = 0;
 	loaded_objects[3] = 0;
-	Teleport = 2;
+	Teleport = 1;
 	cout << "teleport " << endl;
 }
 
