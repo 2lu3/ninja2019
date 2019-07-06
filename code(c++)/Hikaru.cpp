@@ -346,7 +346,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(300, 30, 60, 30, POINT_RED))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[RED_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -401,7 +401,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(50, 30, 50, 30, POINT_CYAN))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[CYAN_LOADED_ID][process] = Time + skip_time;
 						process = 0;
@@ -446,7 +446,7 @@ void Game1_Hikaru::loop()
 			{
 				if (GoInDots(180, 150, 30, 20, POINT_BLACK))
 				{
-					if (process_times >= 2)
+					if (process_times >= 3)
 					{
 						next_allowed_go_time[BLACK_LOADED_ID][process] = Time + skip_time;
 						process++;
