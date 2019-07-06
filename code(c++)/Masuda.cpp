@@ -148,7 +148,32 @@ void Game0_Masuda::loop(void)
 		//}
 		setAction(YELLOW_AVOIDANCE);
 		Duration = 10;
+	}else if (depo == -1)
+	{
+		if (compassJudge(-15, 15)) {
+			if (US_Front < 10) {
+				//真下にBOXがある
+				depo = 2;
+			}
+			else {
+				//WにBOXがある
+				depo = 1;
+			}
+		}
+		else if (compassJudge(0, 90)) {
+			motor(2, -2);
+		}
+		else if (compassJudge(90, 180)) {
+			motor(2, -2);
+		}
+		else if (compassJudge(180, 270)) {
+			motor(-2, 2);
+		}
+		else if (compassJudge(270, 360)) {
+			motor(-2, 2);
+		}
 	}
+	
 	else if (depo == 1) {
 		if (compassJudge(55, 75)) {
 			// if (US_Front < 25) {
@@ -221,28 +246,29 @@ void Game0_Masuda::loop(void)
 		)
 		||(Time>165 &&Time<175))
 		) {
-		if (compassJudge(-15, 15)) {
-			if (US_Front < 10) {
-				//真下にBOXがある
-				depo = 2;
-			}
-			else {
-				//WにBOXがある
-				depo = 1;
-			}
-		}
-		else if (compassJudge(0, 90)) {
-			motor(2, -2);
-		}
-		else if (compassJudge(90, 180)) {
-			motor(2, -2);
-		}
-		else if (compassJudge(180, 270)) {
-			motor(-2, 2);
-		}
-		else if (compassJudge(270, 360)) {
-			motor(-2, 2);
-		}
+			depo = -1;
+		// if (compassJudge(-15, 15)) {
+		// 	if (US_Front < 10) {
+		// 		//真下にBOXがある
+		// 		depo = 2;
+		// 	}
+		// 	else {
+		// 		//WにBOXがある
+		// 		depo = 1;
+		// 	}
+		// }
+		// else if (compassJudge(0, 90)) {
+		// 	motor(2, -2);
+		// }
+		// else if (compassJudge(90, 180)) {
+		// 	motor(2, -2);
+		// }
+		// else if (compassJudge(180, 270)) {
+		// 	motor(-2, 2);
+		// }
+		// else if (compassJudge(270, 360)) {
+		// 	motor(-2, 2);
+		// }
 	}else if (
 		LoadedObjects >= 5||
 		(
