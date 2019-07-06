@@ -145,7 +145,7 @@ void Game0_Masuda::loop(void)
 		Duration = 15;
 	}
 	else if (depo == 1) {
-		if (compassJudge(60, 80)) {
+		if (compassJudge(55, 75)) {
 			// if (US_Front < 25) {
 			// 	depo = 0;
 			// }
@@ -154,7 +154,7 @@ void Game0_Masuda::loop(void)
 			// }
 			depo = 4;
 		}
-		else if (compassJudge(70, 250)) {
+		else if (compassJudge(65, 245)) {
 			motor(3, -3);
 		}
 		else {
@@ -197,10 +197,10 @@ void Game0_Masuda::loop(void)
 		// if (US_Front < 5) {
 		// 	depo = 0;
 		// }
-		if (compassJudge(65, 75)) {
+		if (compassJudge(60, 70)) {
 			motor(3, 3);
 		}
-		else if (compassJudge(-110, 70)) {
+		else if (compassJudge(-115, 65)) {
 			motor(1, 3);
 		}
 		else {
