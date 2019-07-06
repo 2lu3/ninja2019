@@ -234,7 +234,7 @@ void Game0_Masuda::loop(void)
 		}
 	}
 	
-	else if (compassJudge(225,315) || compassJudge(45,135))
+	else if (compassJudge(220,320) || compassJudge(40,140))
 	{
 		// if (US_Front < 30 && US_Left < 15 && US_Right < 15 && compassJudge(240, 300))
 		// {
