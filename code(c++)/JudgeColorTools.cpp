@@ -142,13 +142,13 @@ int IsOnBlueFloor(void)
 }
 int IsOnDepositArea(void)
 {
-	if (CurGame == 0) {
+	//if (CurGame == 0) {
 
 		return IsOnStuff(COLOR_DEPOSIT);
-	}
+	/*}
 	else {
 		return IsOnStuff(COLOR_DEPOSIT2);
-	}
+	}*/
 }
 int IsOnSwampland(void)
 {
