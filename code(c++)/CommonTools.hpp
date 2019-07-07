@@ -28,6 +28,7 @@ void motor(int left, int right);
 void motor_no_action_change(int left, int right);
 int obstacle(int left, int front, int right);
 void resetLoadedObjects(void);
+void intrap(void);
 
 // __FUNCTION__(const char) -> strinのへの変換
 std::string getFuncName(const char *name);
@@ -41,7 +42,11 @@ public:
 	virtual int shouldTeleport(void);
 	virtual void taskOnTeleport(void);
 
+	/*virtual int Isitbluerobot(void);
+	int robot_color;//blue=1,red=0
+ */
 private:
+	
 };
 
 class UserGame1
@@ -60,13 +65,31 @@ class ProcessingTime
 {
 public:
 	void start(void);
-	double end(void);
+	int end(void);
 	void print(std::string message);
 	void print();
 
 private:
 	std::chrono::system_clock::time_point start_time, end_time;
 };
+/*class deposittimetools
+{
+
+public:
+	int from_last_deposit(void);
+	int time_to_last_deposit(int time);
+	int lastdeposit_time(void);
+	int deposit_times(void);
+	
+	
+private:
+	int lastdeposit_time =0;
+	int deposit_times =0;
+	
+};*/
+
+
+
 
 void setAction(Action pushed_action);
 Action getAction(void);

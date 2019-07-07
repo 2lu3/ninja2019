@@ -3,21 +3,7 @@
 
 #include "CospaceSettings.hpp"
 #include "CommonTools.hpp"
-
-// World1
-class Game0_Hikaru : public UserGame0
-{
-public:
-    void setup(void) override;
-    void loop(void) override;
-    int shouldTeleport(void) override;
-    void taskOnTeleport(void) override;
-    const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = 44;
-
-private:
-    ProcessingTime pt;
-};
+#include <random>
 
 // World2
 class Game1_Hikaru : public UserGame1
@@ -35,19 +21,29 @@ private:
     const static int kMaxDotNum = kCospaceWidth * kCospaceHeight / kSize / kSize;
     const static int kMaxEdgeNum = 25;
     const static int kBorderSameObjNum = 2;
-    const static int kFindObjDuration = Game0_Hikaru::kFindObjDuration;
+    const static int kFindObjDuration = 48;
+	int process_times = 0;
     int log_superobj_num, log_superobj_x[10], log_superobj_y[10];
     int now_dot_id;
-    int emergency_now_dot_id = 80;
+    int emergency_now_dot_id = 292;
     int super_sameoperate = 0;
     int searching_object;
-    int log_compass;
     int same_target_num = 5;
     int same_target = 0;
+    const int kUSLimit = 185;
     int log_x = -1, log_y = -1;
+    int map_position_color_data[36][27];
+    int map_secure[7][kMaxDotNum];
+	int next_allowed_go_time[4][5];
+	int skip_time = 100;
+	LogErrorMessage logErrorMessage;
+
+    int dot_x[3], dot_y[3];
 
     int large_process = -1;
     int process = 0;
+
+    std::random_device rnd;
 
     struct Dot
     {
@@ -70,6 +66,7 @@ private:
         int cyan;                             //もし、Cyanがとれないなら0
         int black;                            //もし、Blackが...
         int color;
+		int near_swampland;
     };
     struct Dot dot[kMaxDotNum];
 
@@ -85,18 +82,19 @@ private:
 
     void GoToAngle(int angle, int distance);
     int GoToPosition(int x, int y, int wide_decide_x, int wide_decide_y, int wide_judge_arrived);
-    void Dijkstra(void);
+    void Dijkstra(int option);
     void Astar(void);
     int GoToDot(int x, int y);
-    int CheckNowDot(void);
-    long WhereIsMotor(void);
+    void CheckNowDot(void);
     long WhereIsColorSensor(void);
     void InputDotInformation(void);
     int GoToDots(int x, int y, int wide_decide_x, int wide_decide_y);
     int GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, int color);
     int HowManyCurved(int id);
-    void AutoStrategy(void);
     int IsNearYellow(int num, int x, int y);
+	int goInArea(int x, int y, int wide_decide_x, int wide_decide_y, int times);
+    void saveColorInfo(void);
+    void calculateWallPosition(void);
 };
 
 #endif // !HIKARU

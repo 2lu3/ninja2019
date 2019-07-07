@@ -13,6 +13,7 @@
 #define SIZE 2
 
 #define MAP_WIDTH (COSPACE_WIDTH / SIZE + 2)
+
 #define MAP_HEIGHT (COSPACE_HEIGHT / SIZE + 2)
 
 #define NOTHING 0
@@ -51,16 +52,16 @@ void showMap()
 			switch (map_data[hi][wj])
 			{
 			case NOTHING:
-				printf("@");
+				printf("ï¿½@");
 				break;
 			case WALL:
-				printf(" ");
+				printf("ï¿½ï¿½");
 				break;
 			case YELLOW:
-				printf("[");
+				printf("ï¿½[");
 				break;
 			case DEPOSIT:
-				printf("{");
+				printf("ï¿½{");
 				break;
 			default:
 				break;
@@ -117,33 +118,33 @@ void calculate(int us_left, int us_front, int us_right, int compass)
 	int margin[4] = {0, 0, 0, 0};
 	rep(i, 3)
 	{
-		// ã
+		// ï¿½ï¿½
 		if (coordinate[i][1] > margin[0])
 		{
 			margin[0] = coordinate[i][1];
 		}
-		// ¶
+		// ï¿½ï¿½
 		if (coordinate[i][0] < margin[1])
 		{
 			margin[1] = coordinate[i][0];
 		}
-		// ‰º
+		// ï¿½ï¿½
 		if (coordinate[i][1] < margin[2])
 		{
 			margin[2] = coordinate[i][1];
 		}
-		// ‰E
+		// ï¿½E
 		if (coordinate[i][0] > margin[3])
 		{
 			margin[3] = coordinate[i][0];
 		}
 	}
 
-	// +- ”½“]
+	// +- ï¿½ï¿½ï¿½]
 	margin[1] -= margin[1];
 	margin[2] -= margin[2];
 
-	// SIZE‡‚í‚¹
+	// SIZEï¿½ï¿½ï¿½í‚¹
 	rep(i, 4)
 	{
 		margin[i] = (margin[i] + SIZE - 1) / SIZE;
@@ -166,7 +167,7 @@ void calculate(int us_left, int us_front, int us_right, int compass)
 				continue;
 			}
 
-			// •û’ö®‚ğì‚é
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 	}
 }
@@ -183,31 +184,31 @@ void setEquation(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
-// ’·•ûŒ`‚ÅA•Ç‚ğ“o˜^‚·‚é
+// ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½ÅAï¿½Ç‚ï¿½oï¿½^ï¿½ï¿½ï¿½ï¿½
 void setEquations(int x1, int y1, int x2, int y2)
 {
-	// ¶‚Ìc–_
+	// ï¿½ï¿½ï¿½Ìcï¿½_
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x1;
 	equation[equation_num][3] = y2;
 	equation_num++;
 
-	// ‰º‚Ì‰¡–_
+	// ï¿½ï¿½ï¿½Ì‰ï¿½ï¿½_
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x2;
 	equation[equation_num][3] = y1;
 	equation_num++;
 
-	// ‰E‚Ìc–_
+	// ï¿½Eï¿½Ìcï¿½_
 	equation[equation_num][0] = x2;
 	equation[equation_num][1] = y1;
 	equation[equation_num][2] = x2;
 	equation[equation_num][3] = y2;
 	equation_num++;
 
-	// ã‚Ì‰¡–_
+	// ï¿½ï¿½Ì‰ï¿½ï¿½_
 	equation[equation_num][0] = x1;
 	equation[equation_num][1] = y2;
 	equation[equation_num][2] = x2;
@@ -215,7 +216,7 @@ void setEquations(int x1, int y1, int x2, int y2)
 	equation_num++;
 }
 
-// (ax, ay), (bx, by)‚Ìü•ªã‚É(cx, cy)‚ª‚ ‚é‚©
+// (ax, ay), (bx, by)ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(cx, cy)ï¿½ï¿½ï¿½ï¿½ï¿½é‚©
 int judgeOnLineSegmenet(double ax, double ay, double bx, double by, double cx, double cy)
 {
 	double border = 0.00001;
@@ -289,7 +290,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		coordinate[i][1] = sin(angle[i] / 180 * PI) * distance[i];
 	}
 
-	// 0:ã 1:¶ 2:‰º 3:‰E
+	// 0:ï¿½ï¿½ 1:ï¿½ï¿½ 2:ï¿½ï¿½ 3:ï¿½E
 	int margin[4] = {0, 0, 0, 0};
 	rep(i, 3)
 	{
@@ -311,7 +312,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// +- ”½“]
+	// +- ï¿½ï¿½ï¿½]
 	margin[1] -= margin[1];
 	margin[2] -= margin[2];
 
@@ -320,7 +321,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		margin[i] /= SIZE;
 	}
 
-	// ã
+	// ï¿½ï¿½
 	for (int hi = MAP_HEIGHT - margin[0]; hi < MAP_HEIGHT; hi++)
 	{
 		rep(wj, MAP_WIDTH)
@@ -329,7 +330,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// ¶
+	// ï¿½ï¿½
 	rep(hi, MAP_HEIGHT)
 	{
 		rep(wj, margin[1])
@@ -338,7 +339,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// ‰º
+	// ï¿½ï¿½
 	rep(hi, margin[2])
 	{
 		rep(wj, MAP_WIDTH)
@@ -347,7 +348,7 @@ void calculate2(int us_left, int us_front, int us_right, int compass)
 		}
 	}
 
-	// ‰E
+	// ï¿½E
 	rep(hi, MAP_HEIGHT)
 	{
 		for (int wj = MAP_WIDTH - margin[3]; wj < MAP_WIDTH; wj++)
@@ -452,25 +453,25 @@ void showMap2()
 		{
 			if (map_data[hi][wj] == WALL)
 			{
-				printf(" ");
+				printf("ï¿½ï¿½");
 				continue;
 			}
 			switch (current_map_possibility[hi][wj])
 			{
 			case 0:
-				printf("@");
+				printf("ï¿½@");
 				break;
 			case -1:
-				printf(" ");
+				printf("ï¿½ï¿½");
 				break;
 			case 1:
-				printf("H");
+				printf("ï¿½H");
 				break;
 			case 2:
-				printf("{");
+				printf("ï¿½{");
 				break;
 			// case DEPOSIT:
-			// 	printf("{");
+			// 	printf("ï¿½{");
 			// 	break;
 			default:
 				break;

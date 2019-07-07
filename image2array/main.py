@@ -31,8 +31,8 @@ registered_color = [
         [255, 255, 255], # white
         [255, 255, 0], # yellow
         [221, 186, 151], # wall
-        [166, 166, 166], # swampland
-        [255, 192, 0], # deposit
+        [202, 202, 202], # swampland
+        [232, 125, 49], # deposit
         [0, 176, 240], # superarea
         [237, 28, 36], # red
         [63, 72, 204], # cyan

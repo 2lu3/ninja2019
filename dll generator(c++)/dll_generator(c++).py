@@ -8,19 +8,23 @@ import winsound
 is_debug = False
 is_strip = True
 is_lite_warming = True
+is_cls = False
+
 
 def printforDebug(message):
     if is_debug:
         print(message)
 
+
 code_path = None
-code_path_expectations = ["./../code(c++)/", "./../code/", "./code(c++)/", "./code/"]
+code_path_expectations = [
+    "./../code(c++)/", "./../code/", "./code(c++)/", "./code/"]
 
 out_path = 'outcospace'
-out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
+out_cospace_path_expectations = [os.path.expanduser('~') + '/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/',
+                                 'D:/Microsoft Robotics Dev Studio 4/CS/User/Rescue/CsBot/', 'C:/Microsoft Robotics Developer Studio 4/CS/User/Rescue/CsBot/']
 
 optimisation_level = 0
-
 
 
 def main():
@@ -40,7 +44,8 @@ def main():
 
     for investigating_code_path in code_path_expectations:
         if os.path.isdir(investigating_code_path):
-            printforDebug("find source codefolder : " + investigating_code_path)
+            printforDebug("find source codefolder : " +
+                          investigating_code_path)
             code_path = investigating_code_path
 
     while code_path is None:
@@ -52,7 +57,6 @@ def main():
             printforDebug("exist")
         else:
             printforDebug("not exist")
-
 
     if code_path is None:
         print("error code_path is None")
@@ -68,13 +72,13 @@ def main():
     # -Wextra 追加の警告オプションをonにする
     command = "\"" + "g++" + "\"" + " -shared -static "
     if optimisation_level != 0:
-        command += '-O' + str(optimisation_level) + ' '
+        command += '-O' + str(optimisation_level) + ' ' + '--param max-inline-insns-single=1000 '
     if is_lite_warming:
         command = command + '-Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wsign-promo -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings'
 
     for file_path in fileList:
         command = command + " " + file_path
-    command = command + " -o " +  '\"' + out_path + "Ninja.dll\""
+    command = command + " -o " + '\"' + out_path + "Ninja.dll\""
 
     # command = command + " & REM 2> errors.txt strip --strip-unneeded \"" + out_path + "Ninja.dll\" pause"]
     if is_strip == True:
@@ -89,9 +93,10 @@ def main():
     #     subprocess.run("pause", shell=True)
 
 
+command_options = ['--help', '--debug', '--outhere',
+                   '--outcospace', '--no-strip', '--O0', '--O1', '--O2', '--O3', '--cls']
 
-command_options = ['--help', '--debug', '--outhere', '--outcospace', '--no-strip', '-O0', '-O1', '-O2', '-O3']
-
+mode_pushed_message = []
 
 if __name__ == '__main__':
     args = sys.argv
@@ -102,33 +107,39 @@ if __name__ == '__main__':
             print(command_options)
             exit()
         elif arg == '--debug':
-            print('mode : debug')
+            mode_pushed_message.append('mode : debug')
             is_debug = True
         elif arg == '--outhere':
-            print('mode : outhere')
+            mode_pushed_message.append('mode : outhere')
             out_path = 'outhere'
         elif arg == '--outcospace':
-            print('mode : outcospace')
+            mode_pushed_message.append('mode : outcospace')
             out_path = 'outcospace'
         elif arg == '--no-lite-warming':
-            print('mode : no lite warming')
+            mode_pushed_message.append('mode : no lite warming')
             is_lite_warming = False
         elif arg == '--no-strip':
-            print('mode : no strip')
+            mode_pushed_message.append('mode : no strip')
             is_strip = False
-        elif arg == '-O0':
-            print('mode : optimisation-level-0')
+        elif arg == '--O0':
+            mode_pushed_message.append('mode : optimisation-level-0')
             optimisation_level = 0
-        elif arg == '-O1':
-            print('mode : optimisation-level-1')
+        elif arg == '--O1':
+            mode_pushed_message.append('mode : optimisation-level-1')
             optimisation_level = 1
-        elif arg == '-O2':
-            print('mode : optimisation-level-2')
+        elif arg == '--O2':
+            mode_pushed_message.append('mode : optimisation-level-2')
             optimisation_level = 2
-        elif arg == '-O3':
-            print('mode : optimisation-level-3')
+        elif arg == '--O3':
+            mode_pushed_message.append('mode : optimisation-level-3')
             optimisation_level = 3
+        elif arg == '--cls':
+            mode_pushed_message.append('mode : clear screen')
+            is_cls = True
         else:
             print(arg + ' is not correct option')
-
+    if is_cls:
+        subprocess.run("cls", shell=True)
+    for pushed_message in mode_pushed_message:
+        print(pushed_message)
     main()

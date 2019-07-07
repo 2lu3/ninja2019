@@ -44,6 +44,24 @@ void UserGame0::taskOnTeleport(void)
 	Teleport = 1;
 }
 
+/* int UserGame0::Isitbluerobot(int min ,int max,int front,int right,int left)//blueの方の情報を入力
+{
+	if (compassJudge(min,max)&&)
+	{
+		robot = 1;
+		return robot_color;
+		
+	}else
+	{
+		robot = 0;
+		return robot_color;
+	}
+	
+	
+	
+}*/
+
+
 UserGame1::~UserGame1()
 {
 }
@@ -110,21 +128,23 @@ void ProcessingTime::start(void)
 {
 	start_time = chrono::system_clock::now();
 }
-double ProcessingTime::end(void)
+int ProcessingTime::end(void)
 {
 	end_time = chrono::system_clock::now();
-	double elapsed = static_cast<double>(chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
+	int elapsed = static_cast<int>(chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
 	return elapsed;
 }
 void ProcessingTime::print(string message)
 {
-	cout << message << " " << end() << "ms\n";
+	printf("%s %2dms\n", message.c_str(), end());
 }
 void ProcessingTime::print(void)
 {
 	print("");
 }
-
+/*
+int deposittimetools::deposit()
+ */
 std::string getFuncName(const char *name)
 {
 	return name;
@@ -185,4 +205,13 @@ void resetLoadedObjects(void)
 	{
 		loaded = 0;
 	}
+}
+
+void intrap(void){
+	if (IsOnTrapBlue())
+	{
+		resetLoadedObjects();
+	}
+	
+	
 }
