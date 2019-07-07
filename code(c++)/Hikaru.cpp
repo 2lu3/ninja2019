@@ -174,19 +174,19 @@ void Game1_Hikaru::loop()
 	{
 		SuperDuration--;
 	}
-	else if (IsOnRedObj() && LoadedObjects < 6 && loaded_objects[RED_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnRedObj() && LoadedObjects < 6 && (loaded_objects[RED_LOADED_ID] < kBorderSameObjNum || Time > 450) && !(LoadedObjects == 5 && log_superobj_num >= 1) && (Time < 465 || (LoadedObjects < 2 && loaded_objects[SUPER_LOADED_ID] == 0)))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[RED_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnCyanObj() && LoadedObjects < 6 && loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnCyanObj() && LoadedObjects < 6 && (loaded_objects[CYAN_LOADED_ID] < kBorderSameObjNum || Time > 450) && !(LoadedObjects == 5 && log_superobj_num >= 1) && (Time < 465 || (LoadedObjects < 2 && loaded_objects[SUPER_LOADED_ID] == 0)))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[CYAN_LOADED_ID]++;
 		SuperDuration = kFindObjDuration;
 	}
-	else if (IsOnBlackObj() && LoadedObjects < 6 && loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum && !(LoadedObjects == 5 && log_superobj_num >= 1))
+	else if (IsOnBlackObj() && LoadedObjects < 6 && (loaded_objects[BLACK_LOADED_ID] < kBorderSameObjNum || Time > 450) && !(LoadedObjects == 5 && log_superobj_num >= 1) && (Time < 465 || (LoadedObjects < 2 && loaded_objects[SUPER_LOADED_ID] == 0)))
 	{
 		setAction(FIND_OBJ);
 		loaded_objects[BLACK_LOADED_ID]++;
@@ -301,6 +301,7 @@ void Game1_Hikaru::loop()
 			if (same_time > 7)
 			{
 				log_superobj_num = 0;
+				cout << "gave up superobj because of same_times" << endl;
 				LOG_MESSAGE("There is no superobj", MODE_NORMAL);
 			}
 			GoToPosition(log_superobj_x[0] - 5 + rand() % 10, log_superobj_y[0] - 5 + rand() % 10, 1, 1, 1);
@@ -371,7 +372,7 @@ void Game1_Hikaru::loop()
 				if (PositionX < 240 && PositionY < 140 && next_allowed_go_time[RED_LOADED_ID][0] <= Time) {
 					process = 0;
 				}
-				else if(!(PositionX < 240 && PositionY < 140)) {
+				else if (!(PositionX < 240 && PositionY < 140)) {
 					process = 1;
 				}
 				else {
@@ -520,8 +521,12 @@ void Game1_Hikaru::loop()
 	{
 		super_sameoperate = 0;
 	}
+	if (getAction() == FIND_OBJ || getAction() == DEPOSIT_OBJ) {
+		super_sameoperate -= 3;
+	}
 	if (super_sameoperate > 800)
 	{
+		cout << "gave up because super_sameoperate" << endl;
 		log_superobj_num = 0;
 		super_sameoperate = 0;
 	}
@@ -1448,6 +1453,7 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 	static int target_y = -1;
 	static int local_same_target = 0;
 	static int same_target_border = 0;
+	static int prev_loaded_num = -1;
 	if (x != prev_x || y != prev_y)
 	{
 		LOG_MESSAGE("changed dots", MODE_NORMAL);
@@ -1549,8 +1555,8 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 		}
 
 		same_target_border = static_cast<int>(sqrt(pow(log_x - target_x * kSize, 2) + pow(log_y - target_y * kSize, 2)));
-		same_target_border *= 2;
-		same_target_border += 30;
+		same_target_border *= 3;
+		same_target_border += 40;
 
 		// int i = 0;
 		// do {
@@ -1586,6 +1592,11 @@ int Game1_Hikaru::GoToDots(int x, int y, int wide_decide_x, int wide_decide_y)
 	local_same_target++;
 	cout << "target " << target_x * kSize << " " << target_y * kSize << endl;
 	// printf("%d %d\n", local_same_target, same_target_border);
+	if (prev_loaded_num != LoadedObjects) {
+		prev_loaded_num = LoadedObjects;
+		local_same_target -= 100;
+	}
+
 	if (GoToDot(target_x, target_y) || local_same_target > same_target_border)
 	{
 		prev_x = -1;
@@ -1707,8 +1718,8 @@ int Game1_Hikaru::GoInDots(int x, int y, int wide_decide_x, int wide_decide_y, i
 				if (option)
 				{
 					// 移動しないとき
-					int k = 20;
-					costs += static_cast<int>(pow(abs(i * kSize - log_x) - k, 2) / 10 + pow(abs(j * kSize - log_y) - k, 2) / 10);
+					int k = 30;
+					costs += static_cast<int>(sqrt(pow(abs(i * kSize - log_x) - k, 2) + pow(abs(j * kSize - log_y) - k, 2)));
 				}
 				else
 				{
@@ -1914,7 +1925,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 		angle += 360;
 	}
 
-	int classification = obstacle(12, 12, 12);
+	int classification = obstacle(8, 10, 8);
 	if (abs(WheelLeft) + abs(WheelRight) < 6) {
 		classification = obstacle(8, 10, 8);
 	}
@@ -1927,12 +1938,7 @@ void Game1_Hikaru::GoToAngle(int angle, int distance)
 	}
 
 	int big_motor = 5;
-	int short_motor = 3;
-	if (getRepeatedNum() % 5)
-	{
-		big_motor = 5;
-		short_motor = 3;
-	}
+	int short_motor = 2;
 	if (IsNearYellow(1, -1, -1))
 	{
 		big_motor = 3;
