@@ -134,11 +134,11 @@ void Game0_Superteam::loop(void)
 		Duration = 10;
 	}else if(compassJudge(165,195))
 	{
-        if (US_Left<15 && US_Right<15 && compassJudge(65,100))
+        if (US_Left<15 && US_Right<15 && compassJudge(65,100)&&US_Front>100)
         {
             motor(-4,-2);
         }
-        else if (US_Left<15 && US_Right<15 && compassJudge(260,295))
+        else if (US_Left<15 && US_Right<15 && compassJudge(260,295)&&US_Front>100)
         {
             motor(-2,-4);
         }
@@ -169,11 +169,11 @@ void Game0_Superteam::loop(void)
 	}
 	else
 	{
-        if (US_Left<15 && US_Right<15 && compassJudge(65,100))
+        if (US_Left<15 && US_Right<15 && compassJudge(65,100)&&US_Front>100)
         {
             motor(-4,-2);
         }
-        else if (US_Left<15 && US_Right<15 && compassJudge(260,295))
+        else if (US_Left<15 && US_Right<15 && compassJudge(260,295)&&US_Front>100)
         {
             motor(-2,-4);
         }
