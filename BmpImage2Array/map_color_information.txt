@@ -1,0 +1,16 @@
+0 255 255 255
+1 255 255 0
+2 221 186 151
+3 255 192 0
+4 166 166 166
+5 1000 1000 1000
+
+end
+
+
+You can use places which is after this line.
+0: nothing
+1: Yellow
+2. wall
+3: deposit
+4: swampland
